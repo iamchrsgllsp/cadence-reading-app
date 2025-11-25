@@ -1,0 +1,891 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <script>
+      window.INITIAL_RECS = {{ recs | tojson | safe }};
+    </script>
+    <script src="{{ url_for('static', filename='js/topfive.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/htmx.js') }}"></script>
+
+    <script>
+      // ====================================================================
+
+      // Your existing updatebar and DOMContentLoaded logic:
+      function updatebar(pagesRead, totalPages, element) {
+        if (element) {
+          if (totalPages > 0 && !isNaN(pagesRead) && !isNaN(totalPages)) {
+            const rawPercentage = (pagesRead / totalPages) * 100;
+            const percentage = Math.round(Math.min(rawPercentage, 100));
+            element.style.width = `${percentage}%`;
+            console.log(
+              `Updated progress bar to ${percentage}% for ${pagesRead}/${totalPages}`
+            );
+          } else {
+            element.style.width = "0%";
+            console.warn("Progress data is invalid or total pages is zero.");
+          }
+        } else {
+          console.warn("Progress bar element not found for update.");
+        }
+      }
+
+      document.addEventListener("DOMContentLoaded", function () {
+        const progressBars = document.querySelectorAll(".progress-fill");
+
+        progressBars.forEach((progressBar) => {
+          const pagesRead = parseFloat(
+            progressBar.getAttribute("data-pages-read")
+          );
+          const totalPages = parseFloat(
+            progressBar.getAttribute("data-total-pages")
+          );
+          updatebar(pagesRead, totalPages, progressBar);
+        });
+
+        console.log("hello");
+      });
+    </script>
+
+    <title>Reading Tracker</title>
+    <style>
+      :root {
+        --primary: #6366f1;
+        --primary-dark: #4f46e5;
+        --primary-light: #818cf8;
+        --secondary: #8b5cf6;
+        --accent: #ec4899;
+        --bg-main: #0f172a;
+        --bg-card: #1e293b;
+        --bg-card-hover: #334155;
+        --text-primary: #f1f5f9;
+        --text-secondary: #94a3b8;
+        --border: #334155;
+        --success: #10b981;
+        --warning: #f59e0b;
+      }
+
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI",
+          sans-serif;
+        background: linear-gradient(135deg, var(--bg-main) 0%, #1e293b 100%);
+        color: var(--text-primary);
+        min-height: 100vh;
+        line-height: 1.6;
+      }
+
+      .container {
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: 2rem 1rem;
+      }
+
+      /* Header */
+      .user-header {
+        display: flex;
+        align-items: center;
+        gap: 2rem;
+        padding: 2rem;
+        background: linear-gradient(
+          135deg,
+          var(--primary) 0%,
+          var(--secondary) 100%
+        );
+        border-radius: 24px;
+        margin-bottom: 2rem;
+        box-shadow: 0 20px 60px rgba(99, 102, 241, 0.3);
+        position: relative;
+        overflow: hidden;
+      }
+
+      .user-header::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: url('data:image/svg+xml,<svg width="100" height="100" xmlns="http://www.w3.org/2000/svg"><defs><pattern id="grid" width="20" height="20" patternUnits="userSpaceOnUse"><path d="M 20 0 L 0 0 0 20" fill="none" stroke="rgba(255,255,255,0.05)" stroke-width="1"/></pattern></defs><rect width="100" height="100" fill="url(%23grid)"/></svg>');
+        opacity: 0.3;
+      }
+
+      .user-header img {
+        width: 100px;
+        height: 100px;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 4px solid rgba(255, 255, 255, 0.3);
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+        position: relative;
+        z-index: 1;
+        transition: transform 0.3s ease;
+        flex-shrink: 0;
+      }
+
+      .user-header img:hover {
+        transform: scale(1.05);
+      }
+
+      .user-header-content {
+        position: relative;
+        z-index: 1;
+      }
+
+      .user-header h1 {
+        font-size: 2.5rem;
+        font-weight: 700;
+        margin-bottom: 0.25rem;
+        position: relative;
+        z-index: 1;
+      }
+
+      .user-header p {
+        font-size: 1.1rem;
+        opacity: 0.9;
+        position: relative;
+        z-index: 1;
+      }
+
+      /* Main Layout */
+      .main-content {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 2rem;
+      }
+
+      @media (min-width: 1024px) {
+        .main-content {
+          grid-template-columns: 320px 1fr;
+        }
+      }
+
+      /* Sidebar */
+      .sidebar {
+        display: flex;
+        flex-direction: column;
+        gap: 1.5rem;
+      }
+
+      .card {
+        background: var(--bg-card);
+        border-radius: 16px;
+        padding: 1.5rem;
+        border: 1px solid var(--border);
+        transition: all 0.3s ease;
+      }
+
+      .card:hover {
+        border-color: var(--primary-light);
+        box-shadow: 0 8px 32px rgba(99, 102, 241, 0.2);
+      }
+
+      .card h3 {
+        font-size: 1.25rem;
+        margin-bottom: 1rem;
+        color: var(--primary-light);
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+      }
+
+      .card h3::before {
+        content: "";
+        width: 4px;
+        height: 20px;
+        background: linear-gradient(180deg, var(--primary), var(--secondary));
+        border-radius: 2px;
+      }
+
+      /* Buttons */
+      .btn-group {
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+      }
+
+      .btn {
+        background: linear-gradient(
+          135deg,
+          var(--primary),
+          var(--primary-dark)
+        );
+        color: white;
+        border: none;
+        padding: 0.875rem 1.5rem;
+        border-radius: 10px;
+        cursor: pointer;
+        font-size: 0.95rem;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .btn::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(
+          90deg,
+          transparent,
+          rgba(255, 255, 255, 0.2),
+          transparent
+        );
+        transition: left 0.5s;
+      }
+
+      .btn:hover::before {
+        left: 100%;
+      }
+
+      .btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(99, 102, 241, 0.4);
+      }
+
+      .btn:active {
+        transform: translateY(0);
+      }
+
+      .btn-secondary {
+        background: linear-gradient(135deg, var(--secondary), #7c3aed);
+      }
+
+      .btn-spotify {
+        background: linear-gradient(135deg, #1db954, #1ed760);
+      }
+
+      /* Currently Reading - Featured */
+      .currently-reading {
+        background: linear-gradient(135deg, var(--bg-card), #1e293b);
+        border-radius: 20px;
+        padding: 2rem;
+        border: 1px solid var(--border);
+        box-shadow: 0 12px 40px rgba(0, 0, 0, 0.3);
+        margin-bottom: 2rem;
+        display: grid;
+        grid-template-rows: auto;
+      }
+
+      .currently-reading h2 {
+        font-size: 1.5rem;
+        margin-bottom: 1.5rem;
+        color: var(--primary-light);
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+      }
+
+      .book-feature {
+        display: flex;
+        gap: 1.5rem;
+        align-items: flex-start;
+      }
+
+      .book-feature img {
+        width: 140px;
+        height: 210px;
+        object-fit: cover;
+        border-radius: 12px;
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+        transition: transform 0.3s ease;
+      }
+
+      .book-feature img:hover {
+        transform: scale(1.05);
+      }
+
+      .book-feature-info h3 {
+        font-size: 1.5rem;
+        margin-bottom: 0.5rem;
+        color: var(--text-primary);
+      }
+
+      .book-feature-info p {
+        color: var(--text-secondary);
+        margin-bottom: 1rem;
+      }
+
+      .progress-bar {
+        width: 100%;
+        height: 8px;
+        background: var(--bg-main);
+        border-radius: 10px;
+        overflow: hidden;
+        margin-top: 1rem;
+      }
+
+      .progress-fill {
+        height: 100%;
+        background: linear-gradient(90deg, var(--primary), var(--secondary));
+        width: 0%;
+        transition: width 0.3s ease;
+      }
+
+      /* Book Shelves */
+      .shelves-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 1.5rem;
+      }
+
+      .shelf-card {
+        background: var(--bg-card);
+        border-radius: 16px;
+        padding: 1.5rem;
+        border: 1px solid var(--border);
+        transition: all 0.3s ease;
+        min-height: 250px;
+      }
+
+      .shelf-card:hover {
+        border-color: var(--primary);
+        transform: translateY(-4px);
+        box-shadow: 0 12px 32px rgba(99, 102, 241, 0.2);
+      }
+
+      .shelf-card h3 {
+        font-size: 1.25rem;
+        margin-bottom: 1rem;
+        padding-bottom: 0.75rem;
+        border-bottom: 2px solid var(--border);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+      }
+
+      .shelf-count {
+        background: var(--primary);
+        color: white;
+        padding: 0.25rem 0.75rem;
+        border-radius: 20px;
+        font-size: 0.85rem;
+        font-weight: 600;
+      }
+
+      .book-list {
+        list-style: none;
+      }
+
+      .book-list li {
+        padding: 0.75rem 0;
+        border-bottom: 1px solid var(--border);
+        color: var(--text-secondary);
+        transition: all 0.2s ease;
+        cursor: pointer;
+      }
+
+      .book-list li:last-child {
+        border-bottom: none;
+      }
+
+      .book-list li:hover {
+        color: var(--text-primary);
+        padding-left: 0.5rem;
+        background: rgba(99, 102, 241, 0.1);
+        border-radius: 6px;
+      }
+
+      .book-list img {
+        height: 100px;
+        object-fit: cover;
+        border-radius: 6px;
+        margin-right: 1rem;
+      }
+
+      /* Drag and Drop Styles */
+      .drag-item {
+        cursor: move;
+      }
+
+      .drag-item.dragging {
+        opacity: 0.5;
+      }
+
+      .drag-over-list {
+        background: rgba(99, 102, 241, 0.1);
+        border-color: var(--primary) !important;
+      }
+
+      .empty-state {
+        text-align: center;
+        padding: 2rem 1rem;
+        color: var(--text-secondary);
+        font-style: italic;
+      }
+
+      /* Alert Messages */
+      .alert {
+        margin-top: 1rem;
+        padding: 1rem;
+        border-radius: 10px;
+        background: rgba(16, 185, 129, 0.1);
+        border: 1px solid var(--success);
+        color: var(--success);
+        animation: slideIn 0.3s ease;
+      }
+
+      @keyframes slideIn {
+        from {
+          opacity: 0;
+          transform: translateY(-10px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      /* Loading Animation */
+      .loading {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+      }
+
+      .spinner {
+        width: 20px;
+        height: 20px;
+        border: 3px solid rgba(255, 255, 255, 0.3);
+        border-top-color: white;
+        border-radius: 50%;
+        animation: spin 0.8s linear infinite;
+      }
+
+      @keyframes spin {
+        to {
+          transform: rotate(360deg);
+        }
+      }
+
+      /* Responsive */
+      @media (max-width: 768px) {
+        .user-header h1 {
+          font-size: 2rem;
+        }
+
+        .book-feature {
+          flex-direction: column;
+          align-items: center;
+          text-align: center;
+        }
+
+        .shelves-grid {
+          grid-template-columns: 1fr;
+        }
+      }
+      .main-title {
+        font-size: 2.25rem; /* text-4xl /
+      font-weight: 800; / font-extrabold */
+        color: var(--text-primary);
+        text-align: center;
+      }
+
+      .subtitle {
+        font-size: 1.125rem; /* text-lg */
+        color: var(--text-secondary);
+        text-align: center;
+      }
+
+      /* Search Input Styles */
+      .input-wrapper {
+        width: 100%;
+        position: relative;
+      }
+
+      .sr-only {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        padding: 0;
+        margin: -1px;
+        overflow: hidden;
+        clip: rect(0, 0, 0, 0);
+        white-space: nowrap;
+        border-width: 0;
+      }
+
+      .search-input {
+        width: 100%;
+        padding: 0.75rem 1.5rem;
+        border: 2px solid var(--border);
+        border-radius: 0.75rem; /* rounded-xl */
+        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1),
+          0 4px 6px -2px rgba(0, 0, 0, 0.05); /* shadow-lg */
+        transition: border-color 150ms ease-in-out, box-shadow 150ms ease-in-out;
+        outline: none;
+      }
+
+      .search-input:focus {
+        border-color: var(--primary);
+        box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.5); /* focus:ring-4 focus:ring-indigo-500 */
+      }
+
+      /* Loading Indicator Styles */
+      .search-indicator {
+        position: absolute;
+        right: 1rem;
+        top: 50%;
+        transform: translateY(-50%);
+        color: var(--primary-color);
+      }
+
+      .search-indicator .spinner {
+        animation: spin 1s linear infinite;
+        height: 1.25rem; /* h-5 */
+        width: 1.25rem; /* w-5 */
+      }
+
+      @keyframes spin {
+        from {
+          transform: rotate(0deg);
+        }
+        to {
+          transform: rotate(360deg);
+        }
+      }
+
+      .htmx-indicator {
+        display: none;
+      }
+
+      .htmx-request .htmx-indicator {
+        display: block;
+      }
+
+      .htmx-request.search-input {
+        opacity: 0.8;
+      }
+
+      /* Content Grid Styles /
+      #content {
+      display: grid;
+      gap: 1.5rem; / gap-6 
+      }
+
+      /* Mobile-first: 1 column */
+      #content {
+        grid-template-columns: 1fr;
+      }
+
+      /* Medium screens (md:grid-cols-2) */
+      @media (min-width: 768px) {
+        #content {
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+      }
+
+      /* Large screens (lg:grid-cols-3) */
+      @media (min-width: 1024px) {
+        #content {
+          grid-template-columns: repeat(3, minmax(0, 1fr));
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="user-header">
+        {% if img %}
+        <img src="{{img}}" alt="Profile Image" />
+        {% endif %}
+        <div class="user-header-content">
+          <h1>{{ user }} 📚</h1>
+          <p>{{ user }}'s reading journey continues</p>
+        </div>
+      </div>
+
+      <div class="main-content">
+        <aside class="sidebar">
+          {% if session %}
+          <div class="card">
+            <h3>🎯 Search</h3>
+            <div class="container-main">
+              <p class="subtitle">Start typing below to search...</p>
+              <div class="input-wrapper">
+                <label for="bookTitleInput" class="sr-only"
+                  >Search Book Titles:</label
+                >
+                <input
+                  type="search"
+                  id="bookTitleInput"
+                  class="search-input"
+                  name="search"
+                  placeholder="Search for a book (e.g., 'Dune', 'Harry Potter')..."
+                  hx-get="/htmx/search"
+                  hx-trigger="keyup changed delay:300ms, search"
+                  hx-target="#content"
+                  hx-indicator=".search-indicator"
+                  autocomplete="off"
+                  autofocus
+                />
+                <div
+                  id="search-indicator"
+                  class="search-indicator htmx-indicator"
+                ></div>
+              </div>
+              <div id="search-results" style="display: none"></div>
+              <div id="content"></div>
+            </div>
+          </div>
+          {% endif %}
+          <div class="card">
+            <h3>🎯 Quick Actions</h3>
+            <div class="btn-group">
+              {% if not session %}
+              <button class="btn btn-spotify" onclick="location.href='/verify'">
+                Connect Spotify
+              </button>
+              {% endif %}
+              <button class="btn" onclick="location.href='/clear'">
+                Clear Session
+              </button>
+              <button
+                class="btn btn-secondary"
+                onclick="location.href='/createplaylist'"
+              >
+                Create Playlist
+              </button>
+            </div>
+          </div>
+
+          <div class="card">
+            <h3>🏆 Top Five</h3>
+            <p
+              style="
+                color: var(--text-secondary);
+                margin-bottom: 1rem;
+                font-size: 0.9rem;
+              "
+            >
+              Drag a book from Completed to add it here (Max 5)
+            </p>
+            <ul id="top-five-list" class="book-list drag-target"></ul>
+          </div>
+        </aside>
+
+        <main>
+          <div class="currently-reading">
+            <h2>📖 Currently Reading</h2>
+
+            <div class="book-feature">
+              {% for book in currentbook %}
+              <div class="books">
+                <img
+                  src="{{book.cover_url}}"
+                  alt="Book cover"
+                  onerror="this.src='https://via.placeholder.com/140x210/6366f1/ffffff?text=No+Cover'"
+                />
+                <div class="book-feature-info">
+                  <p>{{book.id}}</p>
+                  <h3>{{book.title}}</h3>
+                  <p>{{book.author}}</p>
+
+                  <div style="display: flex; gap: 1rem; margin-top: 1rem">
+                    {% if session %}
+                    <form
+                      hx-post="/htmx/update_page"
+                      style="display: flex; gap: 1rem; align-items: center"
+                      onsubmit="return false;"
+                    >
+                      <input
+                        type="hidden"
+                        name="book_id"
+                        value="{{ book.id or '' }}"
+                      />
+                      <input
+                        type="hidden"
+                        name="user"
+                        value="{{ user or '' }}"
+                      />
+                      <span
+                        style="
+                          color: var(--text-secondary);
+                          display: flex;
+                          gap: 0.5rem;
+                          align-items: center;
+                        "
+                      >
+                        📄 Page
+                        <input
+                          id="current-page-input-{{loop.index}}"
+                          class="page-input-field"
+                          type="number"
+                          min="1"
+                          max="{{ book.total_pages }}"
+                          value="{{ book.pages }}"
+                          name="current_page"
+                        />
+                        of {{ book.total_pages or 528 }}
+                      </span>
+
+                      <button
+                        type="submit"
+                        class="btn btn-secondary"
+                        hx-target="#feedback-{{loop.index}}"
+                      >
+                        Update Pages
+                      </button>
+
+                      <span id="feedback-{{loop.index}}"></span>
+                    </form>
+                    {% endif %}
+                  </div>
+                  <div class="progress-bar">
+                    <div
+                      class="progress-fill"
+                      data-pages-read="{{book.pages}}"
+                      data-total-pages="{{book.total_pages}}"
+                    ></div>
+                  </div>
+                </div>
+
+                <div
+                  id="playlistcard{{loop.index}}"
+                  class="card"
+                  author="{{book.author}}"
+                  title="{{book.title}}"
+                >
+                  <h3>🎵 Reading Playlist</h3>
+                  <p
+                    style="
+                      color: var(--text-secondary);
+                      margin-bottom: 1rem;
+                      font-size: 0.9rem;
+                    "
+                  >
+                    Generate a Spotify playlist based on your current read
+                  </p>
+                  <button id="testPlaylistBtn" class="btn">
+                    Generate Playlist
+                  </button>
+                  <div id="testPlaylistMsg"></div>
+                </div>
+              </div>
+              {% endfor %}
+            </div>
+          </div>
+          <h2
+            style="
+              font-size: 1.75rem;
+              margin-bottom: 1.5rem;
+              color: var(--primary-light);
+            "
+          >
+            📚 Your Library
+          </h2>
+          <div class="shelves-grid">
+            <div class="shelf-card">
+              <h3
+                onclick="location.href='/{{user}}/tbr'"
+                style="cursor: pointer"
+              >
+                📚 To Be Read
+                <span class="shelf-count">{{ tbr | length }}</span>
+              </h3>
+              <ul class="book-list">
+                {% for book in tbr %}
+
+                <li>
+                  <h4>{{ book.title }}</h4>
+
+                  <p>{{ book.author }}</p>
+
+                  <img src="{{ book.cover_url }}" />
+
+                  <button
+                    class="add-currentbook-button"
+                    hx-post="/api/currentbook"
+                    hx-vals='{
+
+        "bookid": "{{book.id}}"
+
+      }'
+                    hx-on="htmx:response: if (event.detail.success) { window.reload(); }"
+                  >
+                    Start Reading
+                  </button>
+
+                  <button>DNF</button>
+
+                  <button
+                    class="add-to-library-button"
+                    hx-post="/api/removefromshelf"
+                    hx-vals='{
+
+        "bookid": "{{book.id}}"
+
+      }'
+                    hx-on="htmx:response: if (event.detail.success) { window.reload(); }"
+                  >
+                    Remove from shelf
+                  </button>
+                </li>
+
+                {% endfor %}
+              </ul>
+            </div>
+
+            <div class="shelf-card">
+              <h3>
+                ✅ Completed
+                <span class="shelf-count">{{ completed | length }}</span>
+              </h3>
+            </div>
+
+            <div class="shelf-card">
+              <h3>
+                ⏸️ Did Not Finish
+                <span class="shelf-count">{{ dnf | length }}</span>
+              </h3>
+            </div>
+          </div>
+        </main>
+      </div>
+    </div>
+
+    <script>
+      // Global Listener for htmx:afterSwap (Use event.detail.target)
+      document.addEventListener("DOMContentLoaded", () => {
+        // Select all page input fields. If using the class from above, use:
+        const pageInputs = document.querySelectorAll(".page-input-field");
+
+        pageInputs.forEach((input) => {
+          input.addEventListener("input", (event) => {
+            const field = event.target;
+            // Get the current value, maximum value, and minimum value
+            const currentValue = parseInt(field.value, 10);
+            const maxValue = parseInt(field.getAttribute("max"), 10);
+            const minValue = parseInt(field.getAttribute("min"), 10);
+
+            if (currentValue > maxValue) {
+              // If the entered value is greater than the max,
+              // immediately set the value back to the max value.
+              field.value = maxValue;
+
+              // You could also show a temporary alert or message here
+              console.warn("Cannot exceed total pages!");
+            } else if (currentValue < minValue) {
+              // Optionally prevent entering less than 1 (if not already handled by min)
+              field.value = minValue;
+              console.warn("Must be at least page 1!");
+            }
+          });
+        });
+      });
+    </script>
+
+    <script src="{{ url_for('static', filename='js/utils.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/spotifygeneration.js') }}"></script>
+  </body>
+</html>

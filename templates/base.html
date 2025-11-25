@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>{% block title %}cadence{% endblock %}</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='css/main.css') }}"
+    />
+    {% block head %}{% endblock %}
+  </head>
+  <body>
+    <header>
+      {% block header %}
+      <h1>cadence</h1>
+      <nav>
+        <button onclick="location.href='/home'">Home</button>
+        <button onclick="location.href='/profile'">Profile</button>
+      </nav>
+      {% endblock %}
+    </header>
+    <main>{% block content %}{% endblock %}</main>
+    <footer>
+      {% block footer %}
+      <p>&copy; 2025 iamchrsgllsp</p>
+      {% endblock %}
+    </footer>
+  </body>
+  {% block scripts %}{% endblock %}
+</html>

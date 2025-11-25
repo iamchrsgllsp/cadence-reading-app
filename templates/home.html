@@ -1,0 +1,195 @@
+{% extends "base.html" %} {% block scripts %}
+
+<!-- Assuming htmx.js is in your static/js directory -->
+
+<script src="{{ url_for('static', filename='js/htmx.js') }}"></script>
+
+{% endblock %} {% block content %}
+
+<style>
+  /* Base Styles for Vanilla CSS /
+  :root {
+  --primary-color: #4f46e5; / Indigo-600 /
+  --primary-hover: #4338ca; / Indigo-700 /
+  --text-primary: #1f2937; / Gray-900 /
+  --text-secondary: #4b5563; / Gray-600 /
+  --bg-light: #ffffff;
+  --border-color: #d1d5db; / Gray-300 */
+  }
+
+  .container-main {
+  max-width: 768px; /* max-w-4xl is 56rem (896px), using a slightly smaller width for better containment /
+  margin: 0 auto;
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 2rem; / space-y-8 */
+  }
+
+  .main-title {
+  font-size: 2.25rem; /* text-4xl /
+  font-weight: 800; / font-extrabold */
+  color: var(--text-primary);
+  text-align: center;
+  }
+
+  .subtitle {
+  font-size: 1.125rem; /* text-lg */
+  color: var(--text-secondary);
+  text-align: center;
+  }
+
+  /* Search Input Styles */
+  .input-wrapper {
+  width: 100%;
+  position: relative;
+  }
+
+  .sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+  }
+
+  .search-input {
+  width: 100%;
+  padding: 0.75rem 1.5rem;
+  border: 2px solid var(--border-color);
+  border-radius: 0.75rem; /* rounded-xl /
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05); / shadow-lg */
+  transition: border-color 150ms ease-in-out, box-shadow 150ms ease-in-out;
+  outline: none;
+  }
+
+  .search-input:focus {
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.5); /* focus:ring-4 focus:ring-indigo-500 */
+  }
+
+  /* Loading Indicator Styles */
+  .search-indicator {
+  position: absolute;
+  right: 1rem;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--primary-color);
+  }
+
+  .search-indicator .spinner {
+  animation: spin 1s linear infinite;
+  height: 1.25rem; /* h-5 /
+  width: 1.25rem; / w-5 */
+  }
+
+  @keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+  }
+
+  .htmx-indicator {
+  display: none;
+  }
+
+  .htmx-request .htmx-indicator {
+  display: block;
+  }
+
+  .htmx-request.search-input {
+  opacity: 0.8;
+  }
+
+  /* Content Grid Styles /
+  #content {
+  display: grid;
+  gap: 1.5rem; / gap-6 */
+  }
+
+  /* Mobile-first: 1 column */
+  #content {
+  grid-template-columns: 1fr;
+  }
+
+  /* Medium screens (md:grid-cols-2) */
+  @media (min-width: 768px) {
+  #content {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  }
+
+  /* Large screens (lg:grid-cols-3) */
+  @media (min-width: 1024px) {
+  #content {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+  }
+</style>
+
+<div class="container-main">
+  <h1 class="main-title">search</h1>
+  <p class="subtitle">Start typing below to search...</p>
+
+  <!-- Search Input and Indicator -->
+
+  <div class="input-wrapper">
+    <label for="bookTitleInput" class="sr-only">Search Book Titles:</label>
+    <input
+      type="search"
+      id="bookTitleInput"
+      class="search-input"
+      name="search"
+      placeholder="Search for a book (e.g., 'Dune', 'Harry Potter')..."
+      hx-get="/htmx/search"
+      hx-trigger="keyup changed delay:300ms, search"
+      hx-target="#content"
+      hx-indicator=".search-indicator"
+      autocomplete="off"
+      autofocus
+    />
+
+    <!-- Loading Indicator -->
+    <div id="search-indicator" class="search-indicator htmx-indicator">
+      <svg
+        class="spinner"
+        xmlns="http://www.w3.org/2000/svg"
+        fill="none"
+        viewBox="0 0 24 24"
+      >
+        <circle
+          class="opacity-25"
+          cx="12"
+          cy="12"
+          r="10"
+          stroke="currentColor"
+          stroke-width="4"
+        ></circle>
+        <path
+          class="opacity-75"
+          fill="currentColor"
+          d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+        ></path>
+      </svg>
+    </div>
+  </div>
+
+  <!--
+The original search-results div below is now empty,
+as we rely completely on the #content div for dynamic updates.
+-->
+
+  <div id="search-results" style="display: none"></div>
+
+  <!--
+Content Div: This is the target (#content) for the HTMX request.
+It will be fully replaced by the rendered HTML from /htmx/search.
+The Jinja2 loop here handles initial page load data.
+-->
+
+  <div id="content"></div>
+</div>
+{% endblock %}

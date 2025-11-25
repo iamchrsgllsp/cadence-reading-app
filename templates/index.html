@@ -1,0 +1,526 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>cadence - Your Personal Reading Companion</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;800&family=Playfair+Display:wght@700;900&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --color-primary: #6366f1;
+        --color-secondary: #ec4899;
+        --color-accent: #10b981;
+        --color-purple: #a855f7;
+        --color-orange: #f97316;
+        --color-cyan: #06b6d4;
+        --color-background: #0f172a;
+        --color-card: #1e293b;
+        --color-text: #f8fafc;
+        --color-text-muted: #cbd5e1;
+        --font-body: "Poppins", sans-serif;
+        --font-heading: "Playfair Display", serif;
+      }
+
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: var(--font-body);
+        background: var(--color-background);
+        color: var(--color-text);
+        line-height: 1.6;
+        overflow-x: hidden;
+      }
+
+      /* Animated gradient background */
+      body::before {
+        content: "";
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(
+          135deg,
+          #667eea 0%,
+          #764ba2 25%,
+          #f093fb 50%,
+          #4facfe 75%,
+          #00f2fe 100%
+        );
+        opacity: 0.03;
+        z-index: -1;
+        animation: gradientShift 15s ease infinite;
+      }
+
+      @keyframes gradientShift {
+        0%,
+        100% {
+          transform: translateX(0) translateY(0);
+        }
+        25% {
+          transform: translateX(5%) translateY(5%);
+        }
+        50% {
+          transform: translateX(-5%) translateY(5%);
+        }
+        75% {
+          transform: translateX(5%) translateY(-5%);
+        }
+      }
+
+      /* Floating orbs */
+      .orb {
+        position: fixed;
+        border-radius: 50%;
+        filter: blur(80px);
+        opacity: 0.4;
+        animation: float 20s ease-in-out infinite;
+        z-index: -1;
+      }
+
+      .orb1 {
+        width: 400px;
+        height: 400px;
+        background: linear-gradient(
+          135deg,
+          var(--color-primary),
+          var(--color-secondary)
+        );
+        top: -200px;
+        right: -200px;
+        animation-delay: 0s;
+      }
+
+      .orb2 {
+        width: 300px;
+        height: 300px;
+        background: linear-gradient(
+          135deg,
+          var(--color-accent),
+          var(--color-cyan)
+        );
+        bottom: -150px;
+        left: -150px;
+        animation-delay: 7s;
+      }
+
+      .orb3 {
+        width: 350px;
+        height: 350px;
+        background: linear-gradient(
+          135deg,
+          var(--color-purple),
+          var(--color-orange)
+        );
+        top: 50%;
+        left: 50%;
+        animation-delay: 14s;
+      }
+
+      @keyframes float {
+        0%,
+        100% {
+          transform: translate(0, 0) scale(1);
+        }
+        33% {
+          transform: translate(50px, -50px) scale(1.1);
+        }
+        66% {
+          transform: translate(-50px, 50px) scale(0.9);
+        }
+      }
+
+      /* Navigation */
+      nav {
+        background: rgba(30, 41, 59, 0.8);
+        backdrop-filter: blur(20px);
+        box-shadow: 0 4px 30px rgba(0, 0, 0, 0.3);
+        padding: 1.2rem 0;
+        position: sticky;
+        top: 0;
+        z-index: 100;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      }
+
+      .nav-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0 20px;
+      }
+
+      .logo {
+        font-family: var(--font-heading);
+        font-size: 2rem;
+        font-weight: 900;
+        background: linear-gradient(
+          135deg,
+          var(--color-primary),
+          var(--color-secondary),
+          var(--color-accent)
+        );
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        text-decoration: none;
+        animation: shimmer 3s ease-in-out infinite;
+      }
+
+      @keyframes shimmer {
+        0%,
+        100% {
+          filter: hue-rotate(0deg);
+        }
+        50% {
+          filter: hue-rotate(20deg);
+        }
+      }
+
+      .nav-links a {
+        color: var(--color-text);
+        text-decoration: none;
+        margin-left: 30px;
+        font-weight: 600;
+        transition: all 0.3s;
+        position: relative;
+      }
+
+      .nav-links a::after {
+        content: "";
+        position: absolute;
+        bottom: -5px;
+        left: 0;
+        width: 0;
+        height: 2px;
+        background: linear-gradient(
+          90deg,
+          var(--color-primary),
+          var(--color-secondary)
+        );
+        transition: width 0.3s;
+      }
+
+      .nav-links a:hover {
+        color: var(--color-primary);
+      }
+
+      .nav-links a:hover::after {
+        width: 100%;
+      }
+
+      /* Hero Section */
+      .hero {
+        text-align: center;
+        padding: 6rem 20px 8rem 20px;
+        position: relative;
+      }
+
+      .hero h1 {
+        font-family: var(--font-heading);
+        font-size: 4.5rem;
+        font-weight: 900;
+        margin: 0 0 1.5rem 0;
+        letter-spacing: -1px;
+        background: linear-gradient(
+          135deg,
+          #fff -60%,
+          var(--color-primary) 10%,
+          var(--color-secondary) 100%
+        );
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        animation: fadeInUp 0.8s ease-out;
+      }
+
+      @keyframes fadeInUp {
+        from {
+          opacity: 0;
+          transform: translateY(30px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      .hero p {
+        font-size: 1.4rem;
+        max-width: 700px;
+        margin: 0 auto 3rem auto;
+        font-weight: 400;
+        color: var(--color-text-muted);
+        animation: fadeInUp 0.8s ease-out 0.2s both;
+      }
+
+      /* CTA Button */
+      .cta-btn {
+        display: inline-block;
+        background: linear-gradient(
+          135deg,
+          var(--color-primary),
+          var(--color-secondary)
+        );
+        color: var(--color-text);
+        padding: 1.2rem 3rem;
+        border-radius: 50px;
+        text-decoration: none;
+        font-size: 1.2rem;
+        font-weight: 700;
+        letter-spacing: 0.5px;
+        transition: all 0.4s;
+        box-shadow: 0 10px 40px rgba(99, 102, 241, 0.4);
+        position: relative;
+        overflow: hidden;
+        animation: fadeInUp 0.8s ease-out 0.4s both;
+      }
+
+      .cta-btn::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(
+          90deg,
+          transparent,
+          rgba(255, 255, 255, 0.3),
+          transparent
+        );
+        transition: left 0.5s;
+      }
+
+      .cta-btn:hover::before {
+        left: 100%;
+      }
+
+      .cta-btn:hover {
+        transform: translateY(-3px) scale(1.05);
+        box-shadow: 0 15px 50px rgba(99, 102, 241, 0.6);
+      }
+
+      /* Content Section */
+      .content-section {
+        max-width: 1200px;
+        margin: 0 auto 5rem auto;
+        padding: 0 20px;
+        text-align: center;
+      }
+
+      .content-section h2 {
+        font-family: var(--font-heading);
+        font-size: 3rem;
+        background: linear-gradient(
+          135deg,
+          var(--color-accent),
+          var(--color-cyan)
+        );
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        margin-bottom: 3rem;
+        font-weight: 900;
+      }
+
+      .features {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 30px;
+        margin-top: 3rem;
+      }
+
+      .feature-item {
+        padding: 35px 25px;
+        border-radius: 20px;
+        background: rgba(30, 41, 59, 0.6);
+        backdrop-filter: blur(20px);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        position: relative;
+        overflow: hidden;
+      }
+
+      .feature-item::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(
+          135deg,
+          var(--color-primary),
+          var(--color-secondary)
+        );
+        opacity: 0;
+        transition: opacity 0.4s;
+        z-index: -1;
+      }
+
+      .feature-item:hover::before {
+        opacity: 0.1;
+      }
+
+      .feature-item:hover {
+        transform: translateY(-10px);
+        box-shadow: 0 20px 60px rgba(99, 102, 241, 0.3);
+        border-color: rgba(99, 102, 241, 0.5);
+      }
+
+      .feature-item h3 {
+        background: linear-gradient(
+          135deg,
+          var(--color-primary),
+          var(--color-accent)
+        );
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        font-size: 1.6rem;
+        margin: 0 0 1rem 0;
+        font-weight: 700;
+      }
+
+      .feature-item p {
+        color: var(--color-text-muted);
+        line-height: 1.8;
+      }
+
+      .feature-item img {
+        width: 100%;
+        margin-top: 20px;
+        border-radius: 15px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        transition: transform 0.4s;
+      }
+
+      .feature-item:hover img {
+        transform: scale(1.05);
+      }
+
+      /* Footer */
+      footer {
+        text-align: center;
+        padding: 3rem 0;
+        color: var(--color-text-muted);
+        font-size: 0.95rem;
+        border-top: 1px solid rgba(255, 255, 255, 0.1);
+        background: rgba(30, 41, 59, 0.5);
+        backdrop-filter: blur(20px);
+      }
+
+      footer a {
+        color: var(--color-text-muted);
+        transition: color 0.3s;
+      }
+
+      footer a:hover {
+        color: var(--color-primary);
+      }
+
+      /* Responsiveness */
+      @media (max-width: 768px) {
+        .hero h1 {
+          font-size: 3rem;
+        }
+
+        .hero p {
+          font-size: 1.15rem;
+        }
+
+        .content-section h2 {
+          font-size: 2.2rem;
+        }
+
+        .nav-links {
+          display: none;
+        }
+
+        .features {
+          grid-template-columns: 1fr;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="orb orb1"></div>
+    <div class="orb orb2"></div>
+    <div class="orb orb3"></div>
+
+    <nav>
+      <div class="nav-container">
+        <a href="#" class="logo">cadence 📚</a>
+        <div class="nav-links">
+          <a href="#features">Features</a>
+          <a href="#about">About</a>
+          <a href="/profile">Profile</a>
+        </div>
+      </div>
+    </nav>
+
+    <div class="hero">
+      <h1>Your Personal Reading Companion.</h1>
+      <p>
+        Discover, organize, and track your reading life. It's time to fall in
+        love with your bookshelves again.
+      </p>
+      <a href="/profile" class="cta-btn">Start Your Free Trial</a>
+    </div>
+
+    <div class="content-section" id="features">
+      <h2>Built for Book Lovers, by Book Lovers.</h2>
+      <div class="features">
+        <div class="feature-item">
+          <h3>🎵 Create your soundtrack</h3>
+          <p>
+            Create personalized reading playlists on Spotify that match your
+            mood and pace. Enhance your reading experience with curated
+            soundscapes to match your books.
+          </p>
+          <img
+            src="{{ url_for('static', filename='images/spotifyscreen.png') }}"
+            alt="Spotify Screenshot"
+          />
+        </div>
+        <div class="feature-item">
+          <h3>📊 Track Everything</h3>
+          <p>
+            Log every book, page count, and reading session effortlessly. Never
+            forget what you've read or want to read next.
+          </p>
+        </div>
+        <div class="feature-item">
+          <h3>🌍 Discover New Worlds</h3>
+          <p>
+            Get personalized recommendations based on your favorite genres and
+            reading history from our curated database.
+          </p>
+        </div>
+        <div class="feature-item">
+          <h3>💬 Connect & Share</h3>
+          <p>
+            Join reading challenges, connect with friends, and share your
+            favorite quotes and reviews with the community.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <footer>
+      <p>
+        &copy; 2025 cadence. All rights reserved. |
+        <a href="/privacy">Privacy Policy</a>
+      </p>
+    </footer>
+  </body>
+</html>

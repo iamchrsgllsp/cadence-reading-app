@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/htmx.js') }}"></script>
+{% endblock %}
+{% block content %}
+
+<div
+    hx-get="/htmx/hellothere"
+    hx-trigger="every 2s"
+    hx-swap="outerHTML"
+>
+    <h1>More Testing Page</h1>
+</div>
+
+<div>
+    <form 
+        hx-post="htmx/posttest" 
+        hx-target="#post-response" 
+        hx-swap="innerHTML"
+    >
+        <input type="text" name="message" placeholder="Enter a message">
+        <button type="submit" onclick="this.form.message.value = '';">Click Me!</button>
+    </form>
+    <div id="post-response"></div>
+</div>
+{% endblock %}

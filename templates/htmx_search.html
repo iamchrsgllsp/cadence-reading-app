@@ -1,0 +1,37 @@
+{% if books %} {% for item in books %}
+<div class="book-card">
+  <div class="book-cover">
+    <img
+      src="https://covers.openlibrary.org/b/OLID/{{item.get('cover_edition_key', 'not_found')}}-M.jpg"
+      alt="Cover for {{ item.get('title', 'Untitled') }}"
+      class="book-image"
+      onerror="this.onerror=null;this.src='https://www.google.com/search?q=https://placehold.co/128x192/f3f4f6/a1a1aa%3Ftext%3DNo%2BCover';"
+    />
+  </div>
+  <div class="book-info">
+    <h2 class="book-title">{{item.get('title')}}</h2>
+    <p class="book-author">
+      By: {{ item.get('author_name', ['Unknown Author']) | join(', ') }}
+    </p>
+    <div class="card-actions">
+    <button
+      class="add-to-library-button"
+      hx-post="/api/addtolibrary"
+      hx-vals='{
+        "title": "{{ item.get("title") }}",
+        "author": "{{ item.get("author_name", ["Unknown Author"]) | join(", ") }}",
+        "img": "https://covers.openlibrary.org/b/OLID/{{ item.get("cover_edition_key", "not_found") }}-M.jpg",
+        "data": "{{ item }}"
+      }'
+      hx-on="htmx:response: if (event.detail.success) { window.reload(); }"
+    >
+      Add To Library
+    </button>
+      <button class="dummy-button">Dummy Button</button>
+    </div>
+  </div>
+</div>
+{% endfor %} {% else %}
+<!-- Placeholder content when no books are passed initially -->
+<p class="placeholder-text">Search results will appear here!</p>
+{% endif %}

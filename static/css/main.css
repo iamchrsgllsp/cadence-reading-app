@@ -1,0 +1,204 @@
+@font-face {
+  font-family: "CustomFont";
+  src: url("../fonts/CothamSans.otf") format("otf");
+  font-weight: normal;
+  font-style: normal;
+}
+
+body {
+  font-family: "CustomFont", Arial, sans-serif;
+}
+
+header {
+  background-color: #f8f9fa;
+  padding: 10px 0;
+  text-align: center;
+  border-bottom: 1px solid #e7e7e7;
+}
+
+footer {
+  background-color: #f8f9fa;
+  padding: 10px 0;
+  text-align: center;
+  border-top: 1px solid #e7e7e7;
+  position: fixed;
+  width: 100%;
+  bottom: 0;
+}
+
+.contentblock {
+  padding: 20px;
+  margin: 20px;
+  background-color: goldenrod;
+  border: 1px solid #e7e7e7;
+  border-radius: 5px;
+}
+
+button {
+  background-color: #007bff;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+/* New Input Wrapper Styling */
+.input-wrapper {
+  width: 100%;
+  max-width: 700px; /* Match card width */
+  margin-bottom: 25px; /* Space between input and card */
+  padding: 10px;
+  box-sizing: border-box;
+}
+
+.live-input {
+  width: 100%;
+  padding: 12px 15px;
+  font-size: 1.1rem;
+  border: 2px solid #ccc;
+  border-radius: 8px;
+  box-sizing: border-box;
+  outline: none;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.live-input:focus {
+  border-color: #e74c3c; /* Highlight color on focus */
+  box-shadow: 0 0 5px rgba(231, 76, 60, 0.5);
+}
+
+/* 1. The Card Container */
+.book-card {
+  display: flex;
+  max-width: 700px;
+  background-color: #ffffff;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s ease;
+}
+
+.book-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 15px 30px rgba(0, 0, 0, 0.15);
+}
+
+/* 2. Book Cover Section */
+.book-cover {
+  flex-shrink: 0;
+  width: 40%;
+  background-color: #2c3e50;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+.book-cover img {
+  width: 100%;
+  height: auto;
+  display: block;
+  border-radius: 4px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  object-fit: contain;
+  max-height: 350px;
+}
+
+/* 3. Book Information Section */
+.book-info {
+  flex-grow: 1;
+  padding: 30px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.book-title {
+  font-family: "Playfair Display", serif;
+  font-size: 2.2rem;
+  color: #333;
+  margin-top: 0;
+  margin-bottom: 5px;
+  line-height: 1.1;
+}
+/* Add a minimum height to prevent layout shift when title is empty */
+.book-title:empty:before {
+  content: "Enter a Title";
+  color: #ccc;
+}
+
+.book-author {
+  font-size: 1rem;
+  color: #888;
+  margin-bottom: 15px;
+  font-style: italic;
+}
+
+.book-description {
+  font-size: 1rem;
+  color: #555;
+  line-height: 1.6;
+  margin-bottom: 25px;
+}
+
+/* 4. Action Buttons (Styles unchanged for brevity) */
+.card-actions {
+  display: flex;
+  gap: 15px;
+}
+
+.card-actions button {
+  padding: 10px 20px;
+  border: 2px solid #e74c3c;
+  border-radius: 5px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+  font-weight: 500;
+}
+
+.read-button {
+  background-color: #e74c3c;
+  color: white;
+}
+
+.read-button:hover {
+  background-color: #c0392b;
+  border-color: #c0392b;
+}
+
+.add-to-library-button {
+  background-color: white;
+  color: #e74c3c;
+}
+
+.add-to-library-button:hover {
+  background-color: #fceceb;
+}
+
+/* Mobile adjustments (Styles omitted for brevity, but remain effective) */
+@media (max-width: 650px) {
+  .book-card {
+    flex-direction: column;
+    max-width: 90%;
+  }
+  .book-cover {
+    width: 100%;
+    padding: 20px 0;
+    border-bottom: 1px solid #eee;
+  }
+  .book-cover img {
+    max-height: 250px;
+    width: 50%;
+  }
+  .book-info {
+    padding: 20px;
+  }
+  .book-title {
+    font-size: 1.8rem;
+  }
+  .card-actions {
+    flex-direction: column;
+  }
+}
