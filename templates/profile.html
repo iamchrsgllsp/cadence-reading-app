@@ -851,7 +851,18 @@
                     Start Reading
                   </button>
 
-                  <button>DNF</button>
+                  <button
+                    class="dnf-button"
+                    hx-post="/api/dnf"
+                    hx-vals='{
+
+        "bookid": "{{book.id}}"
+
+      }'
+                    hx-on="htmx:response: if (event.detail.success) { window.reload(); }"
+                  >
+                    DNF
+                  </button>
 
                   <button
                     class="add-to-library-button"
@@ -875,6 +886,19 @@
               <h3>
                 ✅ Completed
                 <span class="shelf-count">{{ completed | length }}</span>
+                </h3> 
+                <ul class="book-list">
+                  {% for book in completed %}
+
+                  <li>
+                    <h4>{{ book.title }}</h4>
+
+                    <p>{{ book.author }}</p>
+
+                    <img src="{{ book.cover_url }}" />
+                  </li>
+                  {% endfor %}
+                </ul>
               </h3>
             </div>
 
@@ -883,6 +907,18 @@
                 ⏸️ Did Not Finish
                 <span class="shelf-count">{{ dnf | length }}</span>
               </h3>
+              <ul class="book-list">
+                {% for book in dnf %}
+
+                <li>
+                  <h4>{{ book.title }}</h4>
+
+                  <p>{{ book.author }}</p>
+
+                  <img src="{{ book.cover_url }}" />
+                </li>
+                {% endfor %}
+              </ul>
             </div>
           </div>
         </main>

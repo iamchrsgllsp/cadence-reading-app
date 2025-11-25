@@ -60,6 +60,9 @@ def profile():
     print(tbr)
     better_data = []
     currentbook = []
+    completed = []
+    dnf = []
+    tbr2 = []
     for (
         book_id,
         shelf_name,
@@ -86,18 +89,45 @@ def profile():
             }
             currentbook.append(currbook)
         # Create a dictionary for the book
-        book_dict = {
-            "id": book_id,
-            "shelf": shelf_name,
-            "title": book_details[0],
-            "author": book_details[1],
-            "cover_url": book_details[2],
-            "status": status,
-            "version": version,
-            "pages": pages_read,
-            "total_pages": total_pages,
-        }
-        better_data.append(book_dict)
+        if status not in ["reading", "completed", "dnf"]:
+            book_dict = {
+                "id": book_id,
+                "shelf": shelf_name,
+                "title": book_details[0],
+                "author": book_details[1],
+                "cover_url": book_details[2],
+                "status": status,
+                "version": version,
+                "pages": pages_read,
+                "total_pages": total_pages,
+            }
+            better_data.append(book_dict)
+        if status == "completed":
+            book_dict = {
+                "id": book_id,
+                "shelf": shelf_name,
+                "title": book_details[0],
+                "author": book_details[1],
+                "cover_url": book_details[2],
+                "status": status,
+                "version": version,
+                "pages": pages_read,
+                "total_pages": total_pages,
+            }
+            completed.append(book_dict)
+        if status == "dnf":
+            book_dict = {
+                "id": book_id,
+                "shelf": shelf_name,
+                "title": book_details[0],
+                "author": book_details[1],
+                "cover_url": book_details[2],
+                "status": status,
+                "version": version,
+                "pages": pages_read,
+                "total_pages": total_pages,
+            }
+            dnf.append(book_dict)
     recs = [
         [1, "The Knight and The Moth"],
         [2, "Twisted Window"],
@@ -121,6 +151,7 @@ def profile():
     else:
         img = "https://www.creativefabrica.com/wp-content/uploads/2020/03/08/open-book-in-circle-icon-Graphics-3393563-1.jpg"
     print(currentbook)
+    print(better_data)
     return render_template(
         "profile.html",
         img=img,

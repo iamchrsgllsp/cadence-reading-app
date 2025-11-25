@@ -147,6 +147,22 @@ def update_currentbook(user: str, book_id: int):
     conn.close()
 
 
+def dnfbook(user: str, book_id: int):
+    initialize_library()
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute(
+        """
+        UPDATE library
+        SET status = ?
+        WHERE username = ? AND id = ?
+    """,
+        ("dnf", user, book_id),
+    )
+    conn.commit()
+    conn.close()
+
+
 def complete_currentbook(user: str, book_id: int):
     initialize_library()
     conn = get_db_connection()
