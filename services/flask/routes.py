@@ -43,6 +43,17 @@ def home():
     return render_template("home.html")
 
 
+@app.route("/about")
+def about():
+    return render_template("about.html")
+
+
+@app.route("/allbooks")
+def allbooks():
+    data = get_library(session.get("user"))
+    return data
+
+
 @app.route("/profile")
 def profile():
     tbr = get_library(session.get("user"))

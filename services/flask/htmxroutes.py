@@ -1,6 +1,10 @@
 from flask import Blueprint, render_template, request, session
 import requests
-from application.database import amend_top_five, update_book_progress
+from application.database import (
+    amend_top_five,
+    update_book_progress,
+    complete_currentbook,
+)
 
 htmx_bp = Blueprint(
     "htmx", __name__, template_folder="../../templates", static_folder="../../static"
@@ -58,6 +62,10 @@ def update_page():
     user_str = session.get("user")
     book_id_str = request.form["book_id"]
     current_page_str = request.form["current_page"]
+    total_pages_str = request.form["total_pages"]
+    if int(current_page_str) == int(total_pages_str):
+        print("Congratulations on finishing the book!")
+        complete_currentbook(user_str, book_id_str)
 
     # 2. Check for missing critical data first.
     if not book_id_str or not current_page_str:
@@ -83,7 +91,7 @@ def update_page():
     # 4. Execute your update logic
     print(f"Updating user {user_id}, book {book_id} to page {current_page}")
     update_book_progress(user_id, book_id, current_page)
-
+    print()
     # 5. Return the htmx success fragment (Status 200 is default)
     # Updated Python return statement
 
@@ -94,7 +102,6 @@ def update_page():
     
 <script>
     // This script runs immediately after the span is swapped into the DOM.
-    alert('Page updated successfully!');
     window.location.reload();
 </script>
 """

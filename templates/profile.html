@@ -8,6 +8,7 @@
     </script>
     <script src="{{ url_for('static', filename='js/topfive.js') }}"></script>
     <script src="{{ url_for('static', filename='js/htmx.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/confetti.js') }}"></script>
 
     <script>
       // ====================================================================
@@ -85,6 +86,7 @@
         max-width: 1400px;
         margin: 0 auto;
         padding: 2rem 1rem;
+        height: 100px;
       }
 
       /* Header */
@@ -151,6 +153,20 @@
         opacity: 0.9;
         position: relative;
         z-index: 1;
+      }
+
+      .user-features {
+        margin-left: auto;
+        position: relative;
+        z-index: 1;
+        display: grid;
+        grid-template-rows: 1fr, 1fr, 1fr;
+        gap: 10px;
+      }
+
+      .user-features button {
+        font-size: 0.9rem;
+        padding: 0.5rem 1rem;
       }
 
       /* Main Layout */
@@ -314,6 +330,12 @@
       .book-feature-info p {
         color: var(--text-secondary);
         margin-bottom: 1rem;
+      }
+
+      .books {
+        background-color: var(--primary-dark);
+        padding: 1rem;
+        border-radius: 12px;
       }
 
       .progress-bar {
@@ -603,6 +625,13 @@
           <h1>{{ user }} 📚</h1>
           <p>{{ user }}'s reading journey continues</p>
         </div>
+        {% if session %}
+        <div class="user-features">
+          <button class="btn btn-secondary">Suggest Features</button>
+          <button class="btn btn-secondary">Provide Feedback</button>
+          <button class="btn btn-secondary">Raise an issue</button>
+        </div>
+        {% endif %}
       </div>
 
       <div class="main-content">
@@ -687,7 +716,6 @@
                   onerror="this.src='https://via.placeholder.com/140x210/6366f1/ffffff?text=No+Cover'"
                 />
                 <div class="book-feature-info">
-                  <p>{{book.id}}</p>
                   <h3>{{book.title}}</h3>
                   <p>{{book.author}}</p>
 
@@ -708,6 +736,12 @@
                         name="user"
                         value="{{ user or '' }}"
                       />
+                      <input
+                        type="hidden"
+                        name="total_pages"
+                        value="{{ book.total_pages or 528 }}"
+                      />
+
                       <span
                         style="
                           color: var(--text-secondary);
@@ -733,13 +767,13 @@
                         type="submit"
                         class="btn btn-secondary"
                         hx-target="#feedback-{{loop.index}}"
+                        onclick="confettiBtnClick('current-page-input-{{loop.index}}', {{book.total_pages}})"
                       >
                         Update Pages
                       </button>
 
                       <span id="feedback-{{loop.index}}"></span>
                     </form>
-                    {% endif %}
                   </div>
                   <div class="progress-bar">
                     <div
@@ -748,8 +782,9 @@
                       data-total-pages="{{book.total_pages}}"
                     ></div>
                   </div>
-                </div>
 
+                  {% endif %}
+                </div>
                 <div
                   id="playlistcard{{loop.index}}"
                   class="card"
@@ -883,6 +918,31 @@
           });
         });
       });
+      function confettiBtnClick(inputId, totalPages) {
+        const el = document.getElementById(inputId);
+        const pagesRead = parseInt(el?.value || "0", 10);
+        const total = parseInt(totalPages, 10);
+        if (total > 0 && pagesRead === total) {
+          confetti({
+            particleCount: 200,
+            spread: 360,
+            startVelocity: 40,
+            origin: { x: 0.5, y: 0.5 },
+          });
+          setTimeout(() => {
+            alert("🎉 Congratulations on finishing the book! 🎉");
+          }, 500);
+        }
+      }
+      // You can also create more complex effects, like a fireworks burst:
+      /*
+      confetti({
+        particleCount: 200,
+        spread: 360,
+        startVelocity: 40,
+        origin: { x: 0.5, y: 0.5 }
+      });
+      */
     </script>
 
     <script src="{{ url_for('static', filename='js/utils.js') }}"></script>
