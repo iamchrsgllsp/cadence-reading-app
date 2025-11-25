@@ -1,6 +1,6 @@
 import requests
 import re
-from configfile import api_key
+from configfile import gemini_key as api_key
 
 headers = {"Content-Type": "application/json", "X-goog-api-key": f"{api_key}"}
 ENDPOINT = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent"

@@ -3,11 +3,11 @@ import spotipy
 from flask import session
 import requests
 import base64
-
+from configfile import spotify_id as sid, spotify_secret as sid_sec
 from application.overlay import create_playlist_image
 
 # shift the sid to a config file later
-from configfile import sid, sid_sec
+
 
 REDIRECT_URI = "http://127.0.0.1:3000/api_callback"
 REDIRECT_URI2 = "https://testing-render-8isd.onrender.com/api_callback"
@@ -28,6 +28,10 @@ def get_token(session):
     # Refreshing token if it has expired
     if is_token_expired:
         sp_oauth = spotipy.oauth2.SpotifyOAuth(
+            sid,
+            sid_sec,
+            REDIRECT_URI,
+            scope=SCOPE,
             # ... (client_id, client_secret, etc.)
         )
         token_info = sp_oauth.refresh_access_token(
