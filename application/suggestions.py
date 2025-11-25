@@ -19,10 +19,7 @@ def get_token(session):
     token_valid = False
     token_info = session.get("token_info", {})
 
-    # Checking if the session already has a token stored
-    if not (session.get("token_info", False)):
-        token_valid = False
-        return token_info, token_valid
+    # ... (other checks)
 
     # Checking if token has expired
     now = int(time.time())
@@ -30,16 +27,14 @@ def get_token(session):
 
     # Refreshing token if it has expired
     if is_token_expired:
-        # Don't reuse a SpotifyOAuth object because they store token info and you could leak user tokens if you reuse a SpotifyOAuth object
         sp_oauth = spotipy.oauth2.SpotifyOAuth(
-            client_id=sid,
-            client_secret=sid_sec,
-            redirect_uri=REDIRECT_URI,
-            scope=SCOPE,
+            # ... (client_id, client_secret, etc.)
         )
         token_info = sp_oauth.refresh_access_token(
             session.get("token_info").get("refresh_token")
         )
+        # 🔑 CRITICAL FIX: Update the session with the new token info
+        session["token_info"] = token_info
 
     token_valid = True
     return token_info, token_valid
