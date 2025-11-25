@@ -785,28 +785,16 @@
 
                   {% endif %}
                 </div>
-                <div
-                  id="playlistcard{{loop.index}}"
-                  class="card"
-                  author="{{book.author}}"
-                  title="{{book.title}}"
+                
+                <button 
+                    class="btn generate-playlist-btn" 
+                    data-author="{{book.author}}" 
+                    data-title="{{book.title}}"
                 >
-                  <h3>🎵 Reading Playlist</h3>
-                  <p
-                    style="
-                      color: var(--text-secondary);
-                      margin-bottom: 1rem;
-                      font-size: 0.9rem;
-                    "
-                  >
-                    Generate a Spotify playlist based on your current read
-                  </p>
-                  <button id="testPlaylistBtn" class="btn">
                     Generate Playlist
-                  </button>
-                  <div id="testPlaylistMsg"></div>
+                </button>
+                <div class="playlist-message"></div>
                 </div>
-              </div>
               {% endfor %}
             </div>
           </div>
