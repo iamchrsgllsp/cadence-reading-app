@@ -56,78 +56,66 @@ def allbooks():
 
 @app.route("/profile")
 def profile():
+    # 1. Fetch library data (Returns a list of dictionaries from Supabase)
     tbr = get_library(session.get("user"))
-    print(tbr)
-    better_data = []
-    currentbook = []
+    print(f"Raw data from Supabase: {tbr}")
+
+    better_data = []  # To Be Read (TBR)
+    currentbook = []  # Currently Reading
     completed = []
     dnf = []
-    tbr2 = []
-    for (
-        book_id,
-        shelf_name,
-        json_string,
-        status,
-        pages_read,
-        total_pages,
-        version,
-    ) in tbr:
-        # Decode the JSON string into a list of values
-        book_details = json.loads(json_string)
-        print(book_details[0], status)
+
+    # 2. Iterate over the list of dictionaries (book_data)
+    for book_data in tbr:
+        # Map Supabase column names to variables
+        book_id = book_data.get("id")
+        shelf_name = book_data.get("username")  # 'username' is the column name in DB
+        book_details = book_data.get(
+            "book"
+        )  # This is already a Python list/dict (not a JSON string)
+        status = book_data.get("status")
+        pages_read = book_data.get("pages_read")
+        total_pages = book_data.get("total_pages")
+        version = book_data.get("version")
+
+        # Ensure book_details is a list and has enough elements
+        if not isinstance(book_details, list) or len(book_details) < 3:
+            print(f"Skipping book ID {book_id} due to invalid or missing book details.")
+            continue
+
+        # Unpack the book details list
+        title = book_details[0]
+        author = book_details[1]
+        cover_url = book_details[2]
+
+        print(f"Processing book: {title}, Status: {status}")
+
+        # Construct the standardized dictionary for rendering
+        book_dict = {
+            "id": book_id,
+            "shelf": shelf_name,
+            "title": title,
+            "author": author,
+            "cover_url": cover_url,
+            "status": status,
+            "version": version,
+            "pages": pages_read,
+            "total_pages": total_pages,
+        }
+
+        # 3. Sort the books into the appropriate lists
         if status == "reading":
-            currbook = {
-                "id": book_id,
-                "shelf": shelf_name,
-                "title": book_details[0],
-                "author": book_details[1],
-                "cover_url": book_details[2],
-                "status": status,
-                "version": version,
-                "pages": pages_read,
-                "total_pages": total_pages,
-            }
-            currentbook.append(currbook)
-        # Create a dictionary for the book
-        if status not in ["reading", "completed", "dnf"]:
-            book_dict = {
-                "id": book_id,
-                "shelf": shelf_name,
-                "title": book_details[0],
-                "author": book_details[1],
-                "cover_url": book_details[2],
-                "status": status,
-                "version": version,
-                "pages": pages_read,
-                "total_pages": total_pages,
-            }
-            better_data.append(book_dict)
-        if status == "completed":
-            book_dict = {
-                "id": book_id,
-                "shelf": shelf_name,
-                "title": book_details[0],
-                "author": book_details[1],
-                "cover_url": book_details[2],
-                "status": status,
-                "version": version,
-                "pages": pages_read,
-                "total_pages": total_pages,
-            }
+            currentbook.append(book_dict)
+        elif status == "completed":
             completed.append(book_dict)
-        if status == "dnf":
-            book_dict = {
-                "id": book_id,
-                "shelf": shelf_name,
-                "title": book_details[0],
-                "author": book_details[1],
-                "cover_url": book_details[2],
-                "status": status,
-                "version": version,
-                "pages": pages_read,
-                "total_pages": total_pages,
-            }
+        elif status == "dnf":
             dnf.append(book_dict)
+        else:  # Assumed to be 'tbr' or uncategorized
+            better_data.append(
+                book_dict
+            )  # better_data is used for TBR in the original code
+
+    # --- Other data initialization (Kept from original) ---
     recs = [
         [1, "The Knight and The Moth"],
         [2, "Twisted Window"],
@@ -135,23 +123,30 @@ def profile():
         [4, "Silver Nitrate"],
         [5, "Bury Our Bones In The Soil"],
     ]
-    if session:
-        user = get_profile_data()
-        if user["display_name"]:
-            user = user["display_name"]
-    else:
-        user = "Book Lover"
-    books = [
+
+    # Assume get_profile_data() and get_profile() are defined elsewhere
+    # And handle their potential absence gracefully.
+    user = "Book Lover"
+    img = "https://www.creativefabrica.com/wp-content/uploads/2020/03/08/open-book-in-circle-icon-Graphics-3393563-1.jpg"
+
+    if session and callable(globals().get("get_profile_data")):
+        profile_data = get_profile_data()
+        if profile_data and profile_data.get("display_name"):
+            user = profile_data["display_name"]
+
+        if callable(globals().get("get_profile")):
+            profile_img = get_profile()
+            if profile_img:
+                img = profile_img
+
+    books = [  # This seems like placeholder data, keeping for consistency
         {"title": "The Great Gatsby", "author": "F. Scott Fitzgerald"},
     ]
-    if session:
-        img = get_profile()
-        if not img:
-            img = "https://www.creativefabrica.com/wp-content/uploads/2020/03/08/open-book-in-circle-icon-Graphics-3393563-1.jpg"
-    else:
-        img = "https://www.creativefabrica.com/wp-content/uploads/2020/03/08/open-book-in-circle-icon-Graphics-3393563-1.jpg"
-    print(currentbook)
-    print(better_data)
+    # --- End other data initialization ---
+
+    print(f"Current Book: {currentbook}")
+    print(f"TBR: {better_data}")
+
     return render_template(
         "profile.html",
         img=img,
