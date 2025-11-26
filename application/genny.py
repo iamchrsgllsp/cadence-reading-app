@@ -4,7 +4,7 @@ from configfile import gemini_key as api_key
 
 # --- FIX 1: Remove custom headers (only need Content-Type for the request body)
 headers = {"Content-Type": "application/json"}
-
+print("Using API Key:", api_key)
 # --- FIX 2: Add the API key as a query parameter in the ENDPOINT URL
 ENDPOINT = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key={api_key}"
 # Note: The f-string handles injecting the api_key directly here.

@@ -6,6 +6,19 @@ from application.database import (
     initialize_database,
     initialize_library,
 )
+import os
+from dotenv import load_dotenv
+
+load_dotenv()
+
+# Access the keys using os.environ.get()
+gemini_key = os.environ.get("GEMINI_API_KEY")
+spotify_id = os.environ.get("sid")
+spotify_secret = os.environ.get("sid_sec")
+print("Environment variables loaded:")
+print("GEMINI_API_KEY:", gemini_key)
+print("Spotify ID:", spotify_id)
+print("Spotify Secret:", spotify_secret)
 
 
 # Load all variables from the .env file into os.environ
