@@ -85,7 +85,7 @@ def amend_top_five(username: str, items: List[Any]):
 
         # Using insert. If you need to update existing, use .upsert() or .update().
         # Since the original was an INSERT, we keep it as a simple insert.
-        response = supabase.table("topfive").insert(data_to_insert).execute()
+        response = supabase.table("topfive").upsert(data_to_insert).execute()
 
         print(
             f"Top five list inserted/updated for {username}. Status: {response.status_code}"
