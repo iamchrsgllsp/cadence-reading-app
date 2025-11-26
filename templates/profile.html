@@ -878,13 +878,18 @@
                 <ul class="book-list">
                   {% for book in completed %}
 
-                  <li>
-                    <h4>{{ book.title }}</h4>
+                  <li
+  class="drag-item"
+  draggable="true"
+  data-book-id="{{ book.id }}"
+  data-book-title="{{ book.title }}"
+>
+    <h4>{{ book.title }}</h4>
 
-                    <p>{{ book.author }}</p>
+    <p>{{ book.author }}</p>
 
-                    <img src="{{ book.cover_url }}" />
-                  </li>
+    <img src="{{ book.cover_url }}" />
+</li>
                   {% endfor %}
                 </ul>
               </h3>
