@@ -81,10 +81,28 @@ def update_current_book():
 
 @api_bp.route("/addtopfive", methods=["POST"])
 def add_top_five():
+    # 1. Get the JSON data from the request body
+    data = request.get_json()
+
+    # Check if data was successfully parsed (good practice)
+    if not data:
+        return {"data": "invalid request body"}, 400
+
+    # 2. Extract the 'top_five' list from the JSON object
+    # The JS sends { top_five: currentRecsList }, so we look for 'top_five'
+    books = data.get("top_five")
+
+    # Check if the required key is present
+    if books is None:
+        return {"data": "missing 'top_five' key"}, 400
+
+    # Get the user (as you were doing)
     user = session.get("user")
-    books = request.form.getlist("books[]")
+
+    # 3. Call your function with the extracted data
     amend_top_five(
         user,
-        books,
+        books,  # This 'books' variable now holds the data from currentRecsList
     )
+
     return {"data": "success"}
