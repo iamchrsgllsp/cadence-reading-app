@@ -15,33 +15,68 @@ API_BASE = "https://accounts.spotify.com"
 SCOPE = "user-read-recently-played, user-top-read, user-read-currently-playing,playlist-modify-public,ugc-image-upload"
 
 
-def get_token(session):
-    token_valid = False
-    token_info = session.get("token_info", {})
+import time
+from flask import session  # Assuming you pass the session object from Flask
 
-    # ... (other checks)
+# Note: Your constants (sid, sid_sec, REDIRECT_URI, SCOPE)
+# must be defined globally or passed in.
 
-    # Checking if token has expired
+
+def get_token_info(session):
+    """
+    Retrieves the Spotify token info from the session, refreshing it if expired.
+
+    Args:
+        session (dict): The Flask session object.
+
+    Returns:
+        tuple: (token_info, token_valid)
+    """
+    token_info = session.get("token_info")
+
+    # 1. Check for initial token existence
+    if not token_info:
+        # User has not authenticated yet
+        return None, False
+
+    # Safely check for required keys
+    expires_at = token_info.get("expires_at")
+    refresh_token = token_info.get("refresh_token")
+
+    if not expires_at or not refresh_token:
+        # Token data is incomplete/malformed
+        return None, False
+
+    # 2. Check for token expiration (with a 60-second buffer)
     now = int(time.time())
-    is_token_expired = session.get("token_info").get("expires_at") - now < 60
+    is_token_expired = expires_at - now < 60
 
-    # Refreshing token if it has expired
+    # 3. Refreshing token if it has expired
     if is_token_expired:
-        sp_oauth = spotipy.oauth2.SpotifyOAuth(
-            sid,
-            sid_sec,
-            REDIRECT_URI,
-            scope=SCOPE,
-            # ... (client_id, client_secret, etc.)
-        )
-        token_info = sp_oauth.refresh_access_token(
-            session.get("token_info").get("refresh_token")
-        )
-        # 🔑 CRITICAL FIX: Update the session with the new token info
-        session["token_info"] = token_info
+        try:
+            # Initialize SpotifyOAuth object
+            sp_oauth = spotipy.oauth2.SpotifyOAuth(
+                sid,
+                sid_sec,
+                REDIRECT_URI,
+                scope=SCOPE,
+            )
 
-    token_valid = True
-    return token_info, token_valid
+            # Perform the refresh
+            new_token_info = sp_oauth.refresh_access_token(refresh_token)
+
+            # CRITICAL: Update the session with the new token info
+            session["token_info"] = new_token_info
+            token_info = new_token_info  # Use the new token_info for the return
+
+        except Exception as e:
+            # Handle refresh failure (e.g., revoked permissions)
+            print(f"Token refresh failed: {e}")
+            session.pop("token_info", None)  # Clear invalid token data
+            return None, False
+
+    # Token is valid or has just been successfully refreshed
+    return token_info, True
 
 
 def verify_token():
