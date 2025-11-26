@@ -209,7 +209,7 @@ def user_profile(user):
 
 @app.route("/friends")
 def friends():
-    return f"alert(Friends page coming soon!)"
+    return render_template("friends.html")
 
 
 @app.route("/api_callback")
