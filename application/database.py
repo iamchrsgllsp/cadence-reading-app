@@ -1,12 +1,13 @@
 import json
 from typing import List, Dict, Any, Optional
+from configfile import supabase_key, supabase_url
 
 # Install this package: pip install supabase
 from supabase import create_client, Client
 
 # --- Supabase Configuration (Replace with your actual details) ---
-SUPABASE_URL = "YOUR_SUPABASE_URL"
-SUPABASE_KEY = "YOUR_SUPABASE_ANON_KEY"  # Use your public anon key for read operations
+SUPABASE_URL = supabase_url
+SUPABASE_KEY = supabase_key  # Use your public anon key for read operations
 # For write/update operations, consider using a Service Role key securely
 # in a production environment, or handle authentication/Row Level Security (RLS)
 # for user-facing applications.

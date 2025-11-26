@@ -9,9 +9,12 @@ from application.database import (
 
 
 # Load all variables from the .env file into os.environ
+
+"""
 get_db_connection()
 initialize_database()
 initialize_library()
+"""
 app.register_blueprint(htmx_bp, url_prefix="/htmx")
 app.register_blueprint(api_bp, url_prefix="/api")
 
