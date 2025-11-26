@@ -79,16 +79,12 @@ def update_current_book():
     return Response(status=204, headers={"HX-Refresh": "true"})
 
 
-@api_bp.route("/addtopfive", methods=["GET"])
+@api_bp.route("/addtopfive", methods=["POST"])
 def add_top_five():
+    user = session.get("user")
+    books = request.form.getlist("books[]")
     amend_top_five(
-        "raidy",
-        [
-            [1, "The Knight and The Moth"],
-            [2, "Twisted Window"],
-            [3, "Between Two Fires"],
-            [4, "Silver Nitrate"],
-            [5, "Bury Our Bones In The Soil"],
-        ],
+        user,
+        books,
     )
     return {"data": "success"}
