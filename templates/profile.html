@@ -9,6 +9,7 @@
     <script src="{{ url_for('static', filename='js/topfive.js') }}"></script>
     <script src="{{ url_for('static', filename='js/htmx.js') }}"></script>
     <script src="{{ url_for('static', filename='js/confetti.js') }}"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
     <script>
       // ====================================================================
@@ -709,6 +710,11 @@
             </p>
             <ul id="top-five-list" class="book-list drag-target"></ul>
           </div>
+
+          <div class="card">
+            <h3>🏆 Stats</h3>
+            <canvas id="bookPieChart"></canvas>
+          </div>
         </aside>
 
         <main>
@@ -981,7 +987,45 @@
       });
       */
     </script>
+    <script>
+      const completedCount = {{ completed | length }};
+    const tbrCount = {{ tbr | length }};
+    const dnfCount = {{ dnf | length }};
+    
+    const dataCounts = [completedCount, tbrCount, dnfCount];
 
+    const labels = ['Completed', 'TBR', 'DNF'];
+    
+    // 2. Chart Configuration using the counted data
+    const config = {
+        type: 'pie',
+        data: {
+            labels: labels,
+            datasets: [{
+                label: 'Book Status Count',
+                data: dataCounts, // Use the array of counts
+                backgroundColor: [
+                    'rgb(75, 192, 192)',
+                    'rgb(54, 162, 235)',
+                    'rgb(255, 99, 132)'
+                ],
+                hoverOffset: 4
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                title: {
+                    display: true,
+                    text: 'Book Status Distribution'
+                }
+            }
+        }
+    };
+
+    // 3. Render the chart
+    const ctx = document.getElementById('bookPieChart').getContext('2d');
+    new Chart(ctx, config);</script>
     <script src="{{ url_for('static', filename='js/utils.js') }}"></script>
     <script src="{{ url_for('static', filename='js/spotifygeneration.js') }}"></script>
   </body>
