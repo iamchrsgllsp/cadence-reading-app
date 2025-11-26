@@ -141,9 +141,9 @@ def profile():
             user = user["display_name"]
     else:
         user = "Book Lover"
-        books = [
-            {"title": "The Great Gatsby", "author": "F. Scott Fitzgerald"},
-        ]
+    books = [
+        {"title": "The Great Gatsby", "author": "F. Scott Fitzgerald"},
+    ]
     if session:
         img = get_profile()
         if not img:
