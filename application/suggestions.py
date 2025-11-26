@@ -9,7 +9,7 @@ from application.overlay import create_playlist_image
 # shift the sid to a config file later
 
 
-REDIRECT_URI2 = "http://127.0.0.1:3000/api_callback"
+# REDIRECT_URI2 = "http://127.0.0.1:3000/api_callback"
 REDIRECT_URI = "https://cadence-reading-app.onrender.com/api_callback"
 API_BASE = "https://accounts.spotify.com"
 SCOPE = "user-read-recently-played, user-top-read, user-read-currently-playing,playlist-modify-public,ugc-image-upload"
