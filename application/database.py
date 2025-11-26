@@ -122,7 +122,7 @@ def add_book_to_library(user: str, book: List[Any], pages: int):
             "username": user,
             "book": book,
             "total_pages": pages,
-            "status": "tbr",  # Assuming initial status is 'To Be Read'
+            "status": "",  # Assuming initial status is 'To Be Read'
         }
 
         response = supabase.table("library").insert(data_to_insert).execute()
