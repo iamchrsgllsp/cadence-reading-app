@@ -171,7 +171,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
       // Re-render the list to update the UI
       renderBookList(currentRecsList);
-      fetch("/addtopfive", {
+      fetch("/api/addtopfive", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ top_five: currentRecsList }),
