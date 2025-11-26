@@ -1,12 +1,14 @@
 from services.flask.routes import app
 from services.flask.htmxroutes import htmx_bp
 from services.flask.apiroutes import api_bp
+
+"""
 from application.database import (
     get_db_connection,
     initialize_database,
     initialize_library,
 )
-
+"""
 
 # Load all variables from the .env file into os.environ
 
