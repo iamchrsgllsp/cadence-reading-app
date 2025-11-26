@@ -207,6 +207,11 @@ def user_profile(user):
     )
 
 
+@app.route("/friends")
+def friends():
+    return f"alert(Friends page coming soon!)"
+
+
 @app.route("/api_callback")
 def api_callback():
     # Don't reuse a SpotifyOAuth object because they store token info and you could leak user tokens if you reuse a SpotifyOAuth object
