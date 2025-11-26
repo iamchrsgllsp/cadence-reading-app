@@ -27,7 +27,7 @@ document.addEventListener("DOMContentLoaded", function () {
       } else {
         console.error("Playlist message element not found.");
       }
-
+      console.log(JSON.stringify({ author: author, title: title }));
       fetch("https://cadence-reading-app.onrender.com/testgen", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
