@@ -58,8 +58,8 @@ def get_top_five_by_username(username: str) -> list:
     # Check if a record was found
     if response.data and response.data.get("items"):
         return response.data["items"]
-
-    return []  # Return an empty list if no data is found
+    else:
+        return []  # Return an empty list if no data is found
 
 
 def amend_top_five(username: str, items: List[Any]):
