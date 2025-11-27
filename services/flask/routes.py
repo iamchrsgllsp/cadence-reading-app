@@ -117,7 +117,7 @@ def profile():
 
     # --- Other data initialization (Kept from original) ---
     recs = get_top_five_by_username(session.get("user"))
-    recs = json.dumps(recs)
+
     # Assume get_profile_data() and get_profile() are defined elsewhere
     # And handle their potential absence gracefully.
     user = "Book Lover"
