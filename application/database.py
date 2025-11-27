@@ -45,21 +45,21 @@ def get_supabase_client() -> Client:
 
 
 def get_top_five_by_username(username: str) -> list:
-    # Assuming supabase client is available
     supabase = get_supabase_client()
     response = (
         supabase.table("topfive")
-        .select("items")  # Select only the 'items' column
+        .select("items")
         .eq("username", username)
         .limit(1)
         .execute()
     )
 
-    # Check if a record was found
-    if response.data and response.data.get("items"):
-        return response.data["items"]
-    else:
-        return []  # Return an empty list if no data is found
+    # Returns the value of 'items' from the first dictionary found,
+    # or an empty list if no data or no 'items' key is present.
+    if response.data:
+        return response.data[0].get("items", [])
+
+    return []
 
 
 def amend_top_five(username: str, items: List[Any]):
