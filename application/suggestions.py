@@ -23,15 +23,7 @@ from flask import session  # Assuming you pass the session object from Flask
 
 
 def get_token_info(session):
-    """
-    Retrieves the Spotify token info from the session, refreshing it if expired.
 
-    Args:
-        session (dict): The Flask session object.
-
-    Returns:
-        tuple: (token_info, token_valid)
-    """
     token_info = session.get("token_info")
 
     # 1. Check for initial token existence
