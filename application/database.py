@@ -51,7 +51,7 @@ def get_top_five_by_username(username: str) -> list:
         supabase.table("topfive")
         .select("items")  # Select only the 'items' column
         .eq("username", username)
-        .single()
+        .limit(1)
         .execute()
     )
 
