@@ -44,25 +44,22 @@ def get_supabase_client() -> Client:
 ## 📚 Top Five Functions
 
 
-def get_top_five_by_username(username: str) -> Optional[Dict[str, Any]]:
-    """Retrieves the top five list for a specific username."""
+def get_top_five_by_username(username: str) -> list:
+    # Assuming supabase client is available
     supabase = get_supabase_client()
-    try:
-        response = (
-            supabase.table("topfive")
-            .select("*")
-            .eq("username", username)
-            .limit(1)
-            .execute()
-        )
+    response = (
+        supabase.table("topfive")
+        .select("items")  # Select only the 'items' column
+        .eq("username", username)
+        .single()
+        .execute()
+    )
 
-        # The result is a dict with a 'data' key which is a list
-        if response.data:
-            return response.data[0]
-        return None
-    except Exception as e:
-        print(f"Error fetching top five: {e}")
-        return None
+    # Check if a record was found
+    if response.data and response.data.get("items"):
+        return response.data["items"]
+
+    return []  # Return an empty list if no data is found
 
 
 def amend_top_five(username: str, items: List[Any]):
