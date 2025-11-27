@@ -26,7 +26,12 @@ app.template_folder = "../../templates"
 app.static_folder = "../../static"
 
 # Dummy user data
-# currentbook = {"author":"Stephen Graham Jones","title":"Buffalo Hunter Hunter","cover_url":"https://covers.openlibrary.org/b/id/14853611-L.jpg","current_page":150}
+currentbook = {
+    "author": "Stephen Graham Jones",
+    "title": "Buffalo Hunter Hunter",
+    "cover_url": "https://covers.openlibrary.org/b/id/14853611-L.jpg",
+    "current_page": 150,
+}
 tbr = ["The Knight and The Moth", "Bury Our Bones In The Soil", "Our Infinite Fates"]
 completed = ["Between Two Fires", "The Running Man", "Buffalo Hunter Hunter"]
 dnf = ["Book A", "Book B"]

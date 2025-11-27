@@ -23,8 +23,8 @@ from flask import session  # Assuming you pass the session object from Flask
 
 
 def get_token_info(session):
-
-    token_info = session.get("token_info")
+    if session:
+        token_info = session.get("token_info")
 
     # 1. Check for initial token existence
     if not token_info:
