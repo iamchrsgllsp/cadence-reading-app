@@ -286,9 +286,7 @@ def create_playlist(book, songs, user_id=None):
         if image_url:
             try:
                 image_url = create_playlist_image(image_url)
-                response = requests.get(
-                    "https://i.postimg.cc/T3q8m6Dg/composite-image.jpg"
-                )
+                response = requests.get(image_url)
 
                 if response.status_code == 200:
                     image_data = base64.b64encode(response.content).decode("utf-8")

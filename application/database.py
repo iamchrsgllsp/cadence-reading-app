@@ -2,6 +2,7 @@ import json
 from typing import List, Dict, Any, Optional
 from configfile import supabase_key, supabase_url
 
+
 # Install this package: pip install supabase
 from supabase import create_client, Client
 
@@ -222,3 +223,33 @@ def dnfbook(user: str, book_id: int):
 def complete_currentbook(user: str, book_id: int):
     """Sets a book's status to 'completed'."""
     update_book_status(user, book_id, "completed")
+
+
+def create_playlist_image(file_path, output_buffer):
+    """
+    Creates a composite image and uploads it to Supabase storage.
+
+    Args:
+        BACKGROUND_PATH: URL or path to background image
+        supabase_client: Initialized Supabase client
+        bucket_name: Name of the Supabase storage bucket
+
+    Returns:
+        dict: {'success': bool, 'url': str or None, 'path': str or None}
+    """
+
+    # --- Configuration ---
+    supabase = get_supabase_client()
+
+    # 8. Upload to Supabase
+    supabase.storage.from_("playlist").upload(
+        path=file_path,
+        file=output_buffer.getvalue(),
+        file_options={"content-type": "image/jpeg", "cache-control": "3600"},
+    )
+
+    # 9. Get public URL
+    public_url = supabase.storage.from_("playlist").get_public_url(file_path)
+
+    print(f"Success! Image uploaded to Supabase: {public_url}")
+    return public_url
