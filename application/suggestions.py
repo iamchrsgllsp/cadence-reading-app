@@ -4,7 +4,7 @@ from flask import session
 import requests
 import base64
 from configfile import spotify_id as sid, spotify_secret as sid_sec
-from application.overlay import create_playlist_image
+
 from application.database import add_full_token_info, save_img_to_db
 
 REDIRECT_URI = "https://cadence-reading-app.onrender.com/api_callback"
