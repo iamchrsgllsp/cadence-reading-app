@@ -95,6 +95,7 @@ def get_profile():
     sp = spotipy.Spotify(auth=session.get("token_info").get("access_token"))
     data = sp.current_user()
     session["user"] = data["id"]
+    print("Fetched user profile:", data["id"])
     return data["images"][1]["url"]
 
 

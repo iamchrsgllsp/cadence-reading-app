@@ -129,6 +129,27 @@ def add_book_to_library(user: str, book: List[Any], pages: int):
         print(f"Error adding book to library: {e}")
 
 
+def add_token(user: str, token: str):
+    """Adds a new book entry to the library."""
+    supabase = get_supabase_client()
+    try:
+        # Check if book already exists for user (optional enhancement)
+        # This check isn't in the original SQLite, but is good practice:
+        # response_check = supabase.table("library").select("*").eq("username", user).eq("book", book).execute()
+        # if response_check.data: print("Book already exists!")
+
+        data_to_insert = {
+            "username": user,
+            "token": token,  # Assuming initial status is 'To Be Read'
+        }
+
+        response = supabase.table("tokens").insert(data_to_insert).execute()
+
+        print(f"Token added for {user}. Status: {response.status_code}")
+    except Exception as e:
+        print(f"Error adding book to library: {e}")
+
+
 def remove_from_library(user: str, book_id: int):
     """Removes a book from the library by its ID."""
     supabase = get_supabase_client()
