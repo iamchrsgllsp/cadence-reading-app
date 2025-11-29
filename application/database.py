@@ -129,25 +129,28 @@ def add_book_to_library(user: str, book: List[Any], pages: int):
         print(f"Error adding book to library: {e}")
 
 
-def add_token(user: str, token: str):
-    """Adds a new book entry to the library."""
+def add_full_token_info(user: str, token_info: dict):
+    """
+    Stores complete token information including refresh token and expiry.
+    This allows token refresh without re-authentication.
+    """
     supabase = get_supabase_client()
     try:
-        # Check if book already exists for user (optional enhancement)
-        # This check isn't in the original SQLite, but is good practice:
-        # response_check = supabase.table("library").select("*").eq("username", user).eq("book", book).execute()
-        # if response_check.data: print("Book already exists!")
-
-        data_to_insert = {
+        data = {
             "username": user,
-            "token": token,  # Assuming initial status is 'To Be Read'
+            "access_token": token_info.get("access_token"),
+            "refresh_token": token_info.get("refresh_token"),
+            "expires_at": token_info.get("expires_at"),
+            "token_type": token_info.get("token_type", "Bearer"),
+            "scope": token_info.get("scope"),
         }
 
-        response = supabase.table("tokens").insert(data_to_insert).execute()
+        response = supabase.table("tokens").upsert(data).execute()
 
-        print(f"Token added for {user}. Status: {response.status_code}")
+        print(f"Full token info stored for {user}")
+
     except Exception as e:
-        print(f"Error adding book to library: {e}")
+        print(f"Error storing token info: {e}")
 
 
 def remove_from_library(user: str, book_id: int):

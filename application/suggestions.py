@@ -5,7 +5,7 @@ import requests
 import base64
 from configfile import spotify_id as sid, spotify_secret as sid_sec
 from application.overlay import create_playlist_image
-from application.database import add_token
+from application.database import add_full_token_info
 
 REDIRECT_URI = "https://cadence-reading-app.onrender.com/api_callback"
 API_BASE = "https://accounts.spotify.com"
@@ -79,7 +79,7 @@ def get_token_info(user_id=None):
             token_info = new_token_info
 
             # Update token in database
-            add_token(user_id, new_token_info["access_token"])
+            add_full_token_info(user_id, new_token_info)
 
         except Exception as e:
             print(f"Token refresh failed for user {user_id}: {e}")
@@ -145,7 +145,7 @@ def app_callback(request):
         session["user"] = user_id
 
         # Add token to database
-        add_token(user_id, token_info["access_token"])
+        add_full_token_info(user_id, token_info)
 
         print(f"User {user_id} authenticated successfully")
 
