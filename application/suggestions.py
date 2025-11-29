@@ -5,7 +5,7 @@ import requests
 import base64
 from configfile import spotify_id as sid, spotify_secret as sid_sec
 from application.overlay import create_playlist_image
-from application.database import add_full_token_info
+from application.database import add_full_token_info, save_img_to_db
 
 REDIRECT_URI = "https://cadence-reading-app.onrender.com/api_callback"
 API_BASE = "https://accounts.spotify.com"
@@ -285,7 +285,7 @@ def create_playlist(book, songs, user_id=None):
         image_url = book.get("cover_url")
         if image_url:
             try:
-                image_url = create_playlist_image(image_url)
+                image_url = save_img_to_db(image_url)
                 response = requests.get(image_url)
 
                 if response.status_code == 200:

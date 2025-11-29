@@ -1,6 +1,11 @@
 import json
 from typing import List, Dict, Any, Optional
 from configfile import supabase_key, supabase_url
+from PIL import Image
+import requests
+from io import BytesIO
+import uuid
+from datetime import datetime
 
 
 # Install this package: pip install supabase
@@ -225,31 +230,67 @@ def complete_currentbook(user: str, book_id: int):
     update_book_status(user, book_id, "completed")
 
 
-def save_img_to_db(file_path, output_buffer):
-    """
-    Creates a composite image and uploads it to Supabase storage.
-
-    Args:
-        BACKGROUND_PATH: URL or path to background image
-        supabase_client: Initialized Supabase client
-        bucket_name: Name of the Supabase storage bucket
-
-    Returns:
-        dict: {'success': bool, 'url': str or None, 'path': str or None}
-    """
-
+def save_img_to_db(BACKGROUND_PATH):
     # --- Configuration ---
+    # Replace with your background image file
+    OVERLAY_PATH = "cadenceoverlay.png"
+    TARGET_SIZE = (1750, 1750)
+    OVERLAY_MAX_WIDTH = 750
+    bucket_name = "playlist"
     supabase = get_supabase_client()
+    try:
+        # 1. Open the images
+        response = requests.get(BACKGROUND_PATH)
+        background = Image.open(BytesIO(response.content)).convert("RGB")
+        overlay = Image.open(OVERLAY_PATH).convert("RGBA")
 
-    # 8. Upload to Supabase
-    supabase.storage.from_("playlist").upload(
-        path=file_path,
-        file=output_buffer.getvalue(),
-        file_options={"content-type": "image/jpeg", "cache-control": "3600"},
-    )
+        # 2. Resize the background
+        background = background.resize(TARGET_SIZE, Image.Resampling.LANCZOS)
 
-    # 9. Get public URL
-    public_url = supabase.storage.from_("playlist").get_public_url(file_path)
+        # 3. Resize overlay if needed
+        overlay_width, overlay_height = overlay.size
+        if overlay_width > OVERLAY_MAX_WIDTH:
+            ratio = OVERLAY_MAX_WIDTH / overlay_width
+            new_height = int(overlay_height * ratio)
+            overlay = overlay.resize(
+                (OVERLAY_MAX_WIDTH, new_height), Image.Resampling.LANCZOS
+            )
 
-    print(f"Success! Image uploaded to Supabase: {public_url}")
-    return public_url
+        # 4. Calculate bottom-right position
+        bg_width, bg_height = background.size
+        ov_width, ov_height = overlay.size
+        margin = 50
+        position = (bg_width - ov_width - margin, bg_height - ov_height - margin)
+
+        # 5. Paste overlay onto background
+        background.paste(overlay, position, overlay)
+
+        # 6. Save to BytesIO buffer instead of file
+        output_buffer = BytesIO()
+        background.save(
+            output_buffer, format="JPEG", quality=60, optimize=True, progressive=True
+        )
+        output_buffer.seek(0)  # Reset buffer position to beginning
+
+        # 7. Generate unique filename
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        unique_id = str(uuid.uuid4())[:8]
+        file_path = f"playlists/{timestamp}_{unique_id}.jpg"
+        response = supabase.storage.from_(bucket_name).upload(
+            path=file_path,
+            file=output_buffer.getvalue(),
+            file_options={"content-type": "image/jpeg", "cache-control": "3600"},
+        )
+
+        # 9. Get public URL
+        public_url = supabase.storage.from_(bucket_name).get_public_url(file_path)
+
+        print(f"Success! Image uploaded to Supabase: {public_url}")
+        return public_url
+
+    except FileNotFoundError:
+        print("Error: One of the image files was not found.")
+        return {"success": False, "url": None, "path": None}
+    except Exception as e:
+        print(f"An error occurred: {e}")
+        return {"success": False, "url": None, "path": None}
