@@ -5,6 +5,8 @@ import requests
 import base64
 from configfile import spotify_id as sid, spotify_secret as sid_sec
 from application.overlay import create_playlist_image
+from application.database import add_token
+
 
 # shift the sid to a config file later
 
@@ -58,8 +60,14 @@ def get_token_info(session):
             new_token_info = sp_oauth.refresh_access_token(refresh_token)
 
             # CRITICAL: Update the session with the new token info
-            session["token_info"] = new_token_info
-            token_info = new_token_info  # Use the new token_info for the return
+            sp = spotipy.Spotify(auth=session.get("token_info").get("access_token"))
+            data = sp.current_user()
+            session["user"] = data["id"]
+            tokenkey = f"token_info_{data['id']}"
+            session[tokenkey] = new_token_info
+            token_info = new_token_info
+            # Use the new token_info for the return
+            add_token(data["id"], new_token_info["access_token"])
 
         except Exception as e:
             # Handle refresh failure (e.g., revoked permissions)
