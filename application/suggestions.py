@@ -8,6 +8,7 @@ from configfile import spotify_id as sid, spotify_secret as sid_sec
 from application.database import add_full_token_info, save_img_to_db
 
 REDIRECT_URI = "https://cadence-reading-app.onrender.com/api_callback"
+REDIRECT_URI2 = "http://127.0.0.1:3000/api_callback"
 API_BASE = "https://accounts.spotify.com"
 SCOPE = "user-read-recently-played, user-top-read, user-read-currently-playing,playlist-modify-public,ugc-image-upload"
 
@@ -283,11 +284,12 @@ def create_playlist(book, songs, user_id=None):
 
         # 4. Add custom cover image
         image_url = book.get("cover_url")
+        print(image_url)
         if image_url:
             try:
                 image_url = save_img_to_db(image_url)
                 response = requests.get(image_url)
-
+                print(response)
                 if response.status_code == 200:
                     image_data = base64.b64encode(response.content).decode("utf-8")
                     sp.playlist_upload_cover_image(playlist_id, image_data)

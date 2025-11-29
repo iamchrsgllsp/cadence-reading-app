@@ -235,6 +235,7 @@ def testgen():
     title = request.json.get("title")
     data, books = get_playlist_recommendations(data={"author": author, "title": title})
     playlist = create_playlist(data, books)
+    print(playlist)
     # playlist = books
     return playlist
 

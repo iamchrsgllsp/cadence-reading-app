@@ -23,7 +23,7 @@ SUPABASE_KEY = supabase_key  # Use your public anon key for read operations
 def get_supabase_client() -> Client:
     """Initializes and returns the Supabase client."""
     # Ensure URL and Key are set before running
-    if SUPABASE_URL == "YOUR_SUPABASE_URL" or SUPABASE_KEY == "YOUR_SUPABASE_ANON_KEY":
+    if SUPABASE_URL == supabase_url or SUPABASE_KEY == supabase_key:
         raise ValueError(
             "Please set SUPABASE_URL and SUPABASE_KEY with your actual credentials."
         )
@@ -275,13 +275,13 @@ def save_img_to_db(BACKGROUND_PATH):
         # 7. Generate unique filename
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
         unique_id = str(uuid.uuid4())[:8]
-        file_path = f"playlists/{timestamp}_{unique_id}.jpg"
+        file_path = f"playlist/{timestamp}_{unique_id}.jpg"
         response = supabase.storage.from_(bucket_name).upload(
             path=file_path,
             file=output_buffer.getvalue(),
             file_options={"content-type": "image/jpeg", "cache-control": "3600"},
         )
-
+        print(response)
         # 9. Get public URL
         public_url = supabase.storage.from_(bucket_name).get_public_url(file_path)
 
@@ -294,3 +294,74 @@ def save_img_to_db(BACKGROUND_PATH):
     except Exception as e:
         print(f"An error occurred: {e}")
         return {"success": False, "url": None, "path": None}
+
+
+def diagnose_supabase_storage(supabase_client, bucket_name="playlist"):
+    """Run diagnostics on Supabase storage"""
+
+    print("=== SUPABASE STORAGE DIAGNOSTICS ===\n")
+
+    # 1. Check if we can connect
+    print("1. Testing connection...")
+    try:
+        buckets = supabase_client.storage.list_buckets()
+        print(f"   ✓ Connected successfully")
+        print(f"   Available buckets: {[b['name'] for b in buckets]}")
+    except Exception as e:
+        print(f"   ✗ Connection failed: {e}")
+        return
+
+    # 2. Check if bucket exists
+    print(f"\n2. Checking if bucket '{bucket_name}' exists...")
+    bucket_exists = any(b["name"] == bucket_name for b in buckets)
+    if bucket_exists:
+        print(f"   ✓ Bucket '{bucket_name}' exists")
+        bucket_info = next(b for b in buckets if b["name"] == bucket_name)
+        print(f"   Bucket info: {bucket_info}")
+    else:
+        print(f"   ✗ Bucket '{bucket_name}' NOT FOUND")
+        return
+
+    # 3. Try listing files
+    print(f"\n3. Listing files in bucket...")
+    try:
+        files = supabase_client.storage.from_(bucket_name).list()
+        print(f"   ✓ Can list files: {len(files)} files found")
+    except Exception as e:
+        print(f"   ✗ Cannot list files: {e}")
+
+    # 4. Try a simple upload
+    print(f"\n4. Testing simple upload...")
+    test_data = b"Test file content"
+    test_path = f"test_{uuid.uuid4().hex[:8]}.txt"
+
+    try:
+        response = supabase_client.storage.from_(bucket_name).upload(
+            path=test_path, file=test_data, file_options={"content-type": "text/plain"}
+        )
+        print(f"   ✓ Upload successful!")
+        print(f"   Response: {response}")
+
+        # Get URL
+        url = supabase_client.storage.from_(bucket_name).get_public_url(test_path)
+        print(f"   Public URL: {url}")
+
+        # Clean up test file
+        try:
+            supabase_client.storage.from_(bucket_name).remove([test_path])
+            print(f"   ✓ Test file cleaned up")
+        except:
+            print(f"   (Could not delete test file)")
+
+    except Exception as e:
+        print(f"   ✗ Upload failed: {e}")
+        print(f"   Error type: {type(e).__name__}")
+        import traceback
+
+        traceback.print_exc()
+
+    print("\n=== END DIAGNOSTICS ===\n")
+
+
+# Run diagnostics
+import uuid
