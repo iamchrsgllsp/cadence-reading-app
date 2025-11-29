@@ -3,6 +3,7 @@ import requests
 from io import BytesIO
 import uuid
 from datetime import datetime
+from application.database import save_img_to_db
 
 
 def create_playlist_image(BACKGROUND_PATH):
@@ -50,7 +51,7 @@ def create_playlist_image(BACKGROUND_PATH):
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
         unique_id = str(uuid.uuid4())[:8]
         file_path = f"playlists/{timestamp}_{unique_id}.jpg"
-        url = create_playlist_image(file_path, output_buffer)
+        url = save_img_to_db(file_path, output_buffer)
         return url
 
     except FileNotFoundError:

@@ -225,7 +225,7 @@ def complete_currentbook(user: str, book_id: int):
     update_book_status(user, book_id, "completed")
 
 
-def create_playlist_image(file_path, output_buffer):
+def save_img_to_db(file_path, output_buffer):
     """
     Creates a composite image and uploads it to Supabase storage.
 
