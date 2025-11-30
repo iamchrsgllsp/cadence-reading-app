@@ -3,8 +3,54 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <script>
+      window.INITIAL_RECS = {{ recs | tojson | safe }};
+    </script>
+    <script src="{{ url_for('static', filename='js/topfive.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/htmx.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/confetti.js') }}"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
-    <title>{{user}}'s profile</title>
+    <script>
+      // ====================================================================
+
+      // Your existing updatebar and DOMContentLoaded logic:
+      function updatebar(pagesRead, totalPages, element) {
+        if (element) {
+          if (totalPages > 0 && !isNaN(pagesRead) && !isNaN(totalPages)) {
+            const rawPercentage = (pagesRead / totalPages) * 100;
+            const percentage = Math.round(Math.min(rawPercentage, 100));
+            element.style.width = `${percentage}%`;
+            console.log(
+              `Updated progress bar to ${percentage}% for ${pagesRead}/${totalPages}`
+            );
+          } else {
+            element.style.width = "0%";
+            console.warn("Progress data is invalid or total pages is zero.");
+          }
+        } else {
+          console.warn("Progress bar element not found for update.");
+        }
+      }
+
+      document.addEventListener("DOMContentLoaded", function () {
+        const progressBars = document.querySelectorAll(".progress-fill");
+
+        progressBars.forEach((progressBar) => {
+          const pagesRead = parseFloat(
+            progressBar.getAttribute("data-pages-read")
+          );
+          const totalPages = parseFloat(
+            progressBar.getAttribute("data-total-pages")
+          );
+          updatebar(pagesRead, totalPages, progressBar);
+        });
+
+        console.log("hello");
+      });
+    </script>
+
+    <title>Reading Tracker</title>
     <style>
       :root {
         --primary: #6366f1;
@@ -41,12 +87,15 @@
         max-width: 1400px;
         margin: 0 auto;
         padding: 2rem 1rem;
+        height: 100px;
       }
 
       /* Header */
       .user-header {
-        text-align: center;
-        padding: 3rem 1rem 2rem;
+        display: flex;
+        align-items: center;
+        gap: 2rem;
+        padding: 2rem;
         background: linear-gradient(
           135deg,
           var(--primary) 0%,
@@ -70,10 +119,32 @@
         opacity: 0.3;
       }
 
+      .user-header img {
+        width: 100px;
+        height: 100px;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 4px solid rgba(255, 255, 255, 0.3);
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+        position: relative;
+        z-index: 1;
+        transition: transform 0.3s ease;
+        flex-shrink: 0;
+      }
+
+      .user-header img:hover {
+        transform: scale(1.05);
+      }
+
+      .user-header-content {
+        position: relative;
+        z-index: 1;
+      }
+
       .user-header h1 {
         font-size: 2.5rem;
         font-weight: 700;
-        margin-bottom: 0.5rem;
+        margin-bottom: 0.25rem;
         position: relative;
         z-index: 1;
       }
@@ -83,6 +154,20 @@
         opacity: 0.9;
         position: relative;
         z-index: 1;
+      }
+
+      .user-features {
+        margin-left: auto;
+        position: relative;
+        z-index: 1;
+        display: grid;
+        grid-template-rows: 1fr, 1fr, 1fr;
+        gap: 10px;
+      }
+
+      .user-features button {
+        font-size: 0.9rem;
+        padding: 0.5rem 1rem;
       }
 
       /* Main Layout */
@@ -193,6 +278,10 @@
         background: linear-gradient(135deg, var(--secondary), #7c3aed);
       }
 
+      .btn-spotify {
+        background: linear-gradient(135deg, #1db954, #1ed760);
+      }
+
       /* Currently Reading - Featured */
       .currently-reading {
         background: linear-gradient(135deg, var(--bg-card), #1e293b);
@@ -201,6 +290,8 @@
         border: 1px solid var(--border);
         box-shadow: 0 12px 40px rgba(0, 0, 0, 0.3);
         margin-bottom: 2rem;
+        display: grid;
+        grid-template-rows: auto;
       }
 
       .currently-reading h2 {
@@ -242,6 +333,12 @@
         margin-bottom: 1rem;
       }
 
+      .books {
+        background-color: var(--primary-dark);
+        padding: 1rem;
+        border-radius: 12px;
+      }
+
       .progress-bar {
         width: 100%;
         height: 8px;
@@ -254,7 +351,7 @@
       .progress-fill {
         height: 100%;
         background: linear-gradient(90deg, var(--primary), var(--secondary));
-        width: 65%;
+        width: 0%;
         transition: width 0.3s ease;
       }
 
@@ -322,6 +419,27 @@
         border-radius: 6px;
       }
 
+      .book-list img {
+        height: 100px;
+        object-fit: cover;
+        border-radius: 6px;
+        margin-right: 1rem;
+      }
+
+      /* Drag and Drop Styles */
+      .drag-item {
+        cursor: move;
+      }
+
+      .drag-item.dragging {
+        opacity: 0.5;
+      }
+
+      .drag-over-list {
+        background: rgba(99, 102, 241, 0.1);
+        border-color: var(--primary) !important;
+      }
+
       .empty-state {
         text-align: center;
         padding: 2rem 1rem;
@@ -373,22 +491,6 @@
         }
       }
 
-      /* Drag and Drop styles */
-      .drag-item {
-        user-select: none;
-      }
-
-      .dragging {
-        opacity: 0.4;
-        border: 2px dashed var(--primary);
-        border-radius: 6px;
-      }
-
-      .drag-over-list {
-        background: rgba(99, 102, 241, 0.15);
-        border: 1px dashed var(--primary);
-      }
-
       /* Responsive */
       @media (max-width: 768px) {
         .user-header h1 {
@@ -405,28 +507,192 @@
           grid-template-columns: 1fr;
         }
       }
+      .main-title {
+        font-size: 2.25rem; /* text-4xl /
+      font-weight: 800; / font-extrabold */
+        color: var(--text-primary);
+        text-align: center;
+      }
+
+      .subtitle {
+        font-size: 1.125rem; /* text-lg */
+        color: var(--text-secondary);
+        text-align: center;
+      }
+
+      /* Search Input Styles */
+      .input-wrapper {
+        width: 100%;
+        position: relative;
+      }
+
+      .sr-only {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        padding: 0;
+        margin: -1px;
+        overflow: hidden;
+        clip: rect(0, 0, 0, 0);
+        white-space: nowrap;
+        border-width: 0;
+      }
+
+      .search-input {
+        width: 100%;
+        padding: 0.75rem 1.5rem;
+        border: 2px solid var(--border);
+        border-radius: 0.75rem; /* rounded-xl */
+        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1),
+          0 4px 6px -2px rgba(0, 0, 0, 0.05); /* shadow-lg */
+        transition: border-color 150ms ease-in-out, box-shadow 150ms ease-in-out;
+        outline: none;
+      }
+
+      .search-input:focus {
+        border-color: var(--primary);
+        box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.5); /* focus:ring-4 focus:ring-indigo-500 */
+      }
+
+      /* Loading Indicator Styles */
+      .search-indicator {
+        position: absolute;
+        right: 1rem;
+        top: 50%;
+        transform: translateY(-50%);
+        color: var(--primary-color);
+      }
+
+      .search-indicator .spinner {
+        animation: spin 1s linear infinite;
+        height: 1.25rem; /* h-5 */
+        width: 1.25rem; /* w-5 */
+      }
+
+      @keyframes spin {
+        from {
+          transform: rotate(0deg);
+        }
+        to {
+          transform: rotate(360deg);
+        }
+      }
+
+      .htmx-indicator {
+        display: none;
+      }
+
+      .htmx-request .htmx-indicator {
+        display: block;
+      }
+
+      .htmx-request.search-input {
+        opacity: 0.8;
+      }
+
+      /* Content Grid Styles /
+      #content {
+      display: grid;
+      gap: 1.5rem; / gap-6 
+      }
+
+      /* Mobile-first: 1 column */
+      #content {
+        grid-template-columns: 1fr;
+      }
+
+      /* Medium screens (md:grid-cols-2) */
+      @media (min-width: 768px) {
+        #content {
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+      }
+
+      /* Large screens (lg:grid-cols-3) */
+      @media (min-width: 1024px) {
+        #content {
+          grid-template-columns: repeat(3, minmax(0, 1fr));
+        }
+      }
     </style>
   </head>
   <body>
     <div class="container">
       <div class="user-header">
-        <h1>{{ user }} 📚</h1>
-        <p>{{ user }}'s reading journey continues</p>
+        {% if img %}
+        <img src="{{img}}" alt="Profile Image" />
+        {% endif %}
+        <div class="user-header-content">
+          <h1>{{ user }} 📚</h1>
+          <p>{{ user }}'s reading journey continues</p>
+        </div>
+        {% if session %}
+        <div class="user-features">
+          <button class="btn btn-secondary">Suggest Features</button>
+          <button class="btn btn-secondary">Provide Feedback</button>
+          <button class="btn btn-secondary">Raise an issue</button>
+        </div>
+        {% endif %}
       </div>
 
       <div class="main-content">
         <aside class="sidebar">
+          {% if session %}
+          <div class="card">
+            <h3>🎯 Search</h3>
+            <div class="container-main">
+              <p class="subtitle">Start typing below to search...</p>
+              <div class="input-wrapper">
+                <label for="bookTitleInput" class="sr-only"
+                  >Search Book Titles:</label
+                >
+                <input
+                  type="search"
+                  id="bookTitleInput"
+                  class="search-input"
+                  name="search"
+                  placeholder="Search for a book (e.g., 'Dune', 'Harry Potter')..."
+                  hx-get="/htmx/search"
+                  hx-trigger="keyup changed delay:300ms, search"
+                  hx-target="#content"
+                  hx-indicator=".search-indicator"
+                  autocomplete="off"
+                  autofocus
+                />
+                <div
+                  id="search-indicator"
+                  class="search-indicator htmx-indicator"
+                ></div>
+              </div>
+              <div id="search-results" style="display: none"></div>
+              <div id="content"></div>
+            </div>
+          </div>
+          {% endif %}
           <div class="card">
             <h3>🎯 Quick Actions</h3>
             <div class="btn-group">
-              <button class="btn" onclick="alert('Add Friend feature')">
-                👥 Add Friend
+              {% if not session %}
+              <button class="btn btn-spotify" onclick="location.href='/verify'">
+                Connect Spotify
+              </button>
+              {% endif %}
+              <button class="btn" onclick="location.href='/clear'">
+                Clear Session
               </button>
               <button
                 class="btn btn-secondary"
-                onclick="alert('Follow feature')"
+                onclick="alert('Feature coming soon!')"
               >
-                ➕ Follow Users
+              <img style="width: 25px; margin-right: 8px;" src="https://images.icon-icons.com/3106/PNG/96/person_avatar_account_user_icon_191606.png">
+                      Friends
+                      </button>
+              <button
+                class="btn btn-secondary"
+                onclick="alert('Feature coming soon!')"
+              >
+              <img style="width: 25px; margin-right: 8px;" src="https://images.icon-icons.com/2159/PNG/96/envelope_email_mail_icon_132952.png"><gap></gap>
+                Messages
               </button>
             </div>
           </div>
@@ -442,16 +708,11 @@
             >
               Drag a book from Completed to add it here (Max 5)
             </p>
-
-            <ul id="top-five-list" class="book-list drag-target">
-              {% for book in recs %}
-              <li data-book-id="{{ book[0] }}">{{ book[1] }}</li>
-              {% endfor %}
-            </ul>
+            <ul id="top-five-list" class="book-list drag-target"></ul>
           </div>
 
           <div class="card">
-            <h3>🎵 Reading Playlist</h3>
+            <h3>🏆 Stats</h3>
             <p
               style="
                 color: var(--text-secondary);
@@ -459,33 +720,108 @@
                 font-size: 0.9rem;
               "
             >
-              Generate a Spotify playlist based on your current read
+              Simple stats currently, more to come!
             </p>
-            <button id="testPlaylistBtn" class="btn">Generate Playlist</button>
-            <div id="testPlaylistMsg"></div>
+            <canvas id="bookPieChart"></canvas>
           </div>
         </aside>
 
         <main>
           <div class="currently-reading">
             <h2>📖 Currently Reading</h2>
+
             <div class="book-feature">
-              <img src="{{ currentbook.cover_url }}" alt="Book cover" />
-              <div class="book-feature-info">
-                <h3>{{ currentbook.title }}</h3>
-                <p>{{ currentbook.author }}</p>
-                <div style="display: flex; gap: 1rem; margin-top: 1rem">
-                  <span style="color: var(--text-secondary)"
-                    >📄 Page 342 of 528</span
-                  >
+              {% for book in currentbook %}
+              <div class="books">
+                <img
+                  src="{{book.cover_url}}"
+                  alt="Book cover"
+                  onerror="this.src='https://via.placeholder.com/140x210/6366f1/ffffff?text=No+Cover'"
+                />
+                <div class="book-feature-info">
+                  <h3>{{book.title}}</h3>
+                  <p>{{book.author}}</p>
+
+                  <div style="display: flex; gap: 1rem; margin-top: 1rem">
+                    {% if session %}
+                    <form
+                      hx-post="/htmx/update_page"
+                      style="display: flex; gap: 1rem; align-items: center"
+                      onsubmit="return false;"
+                    >
+                      <input
+                        type="hidden"
+                        name="book_id"
+                        value="{{ book.id or '' }}"
+                      />
+                      <input
+                        type="hidden"
+                        name="user"
+                        value="{{ user or '' }}"
+                      />
+                      <input
+                        type="hidden"
+                        name="total_pages"
+                        value="{{ book.total_pages or 528 }}"
+                      />
+
+                      <span
+                        style="
+                          color: var(--text-secondary);
+                          display: flex;
+                          gap: 0.5rem;
+                          align-items: center;
+                        "
+                      >
+                        📄 Page
+                        <input
+                          id="current-page-input-{{loop.index}}"
+                          class="page-input-field"
+                          type="number"
+                          min="1"
+                          max="{{ book.total_pages }}"
+                          value="{{ book.pages }}"
+                          name="current_page"
+                        />
+                        of {{ book.total_pages or 528 }}
+                      </span>
+
+                      <button
+                        type="submit"
+                        class="btn btn-secondary"
+                        hx-target="#feedback-{{loop.index}}"
+                        onclick="confettiBtnClick('current-page-input-{{loop.index}}', {{book.total_pages}})"
+                      >
+                        Update Pages
+                      </button>
+
+                      <span id="feedback-{{loop.index}}"></span>
+                    </form>
+                  </div>
+                  <div class="progress-bar">
+                    <div
+                      class="progress-fill"
+                      data-pages-read="{{book.pages}}"
+                      data-total-pages="{{book.total_pages}}"
+                    ></div>
+                  </div>
+
+                  {% endif %}
                 </div>
-                <div class="progress-bar">
-                  <div class="progress-fill" style="width: 65%"></div>
+                
+                <button 
+                    class="btn generate-playlist-btn" 
+                    data-author="{{book.author}}" 
+                    data-title="{{book.title}}"
+                    data-cover="{{book.cover_url}}"
+                >
+                    Generate Playlist
+                </button>
+                <div class="playlist-message"></div>
                 </div>
-              </div>
+              {% endfor %}
             </div>
           </div>
-
           <h2
             style="
               font-size: 1.75rem;
@@ -495,16 +831,65 @@
           >
             📚 Your Library
           </h2>
-
           <div class="shelves-grid">
             <div class="shelf-card">
-              <h3>
+              <h3
+                onclick="location.href='/{{user}}/tbr'"
+                style="cursor: pointer"
+              >
                 📚 To Be Read
-                <span class="shelf-count">{{ tbr|length }}</span>
+                <span class="shelf-count">{{ tbr | length }}</span>
               </h3>
-              <ul class="book-list" id="book-list">
+              <ul class="book-list">
                 {% for book in tbr %}
-                <li>{{ book }}</li>
+
+                <li>
+                  <h4>{{ book.title }}</h4>
+
+                  <p>{{ book.author }}</p>
+
+                  <img src="{{ book.cover_url }}" />
+
+                  <button
+                    class="add-currentbook-button"
+                    hx-post="/api/currentbook"
+                    hx-vals='{
+
+        "bookid": "{{book.id}}"
+
+      }'
+                    hx-on="htmx:response: if (event.detail.success) { window.reload(); }"
+                  >
+                    Start Reading
+                  </button>
+
+                  <button
+                    class="dnf-button"
+                    hx-post="/api/dnf"
+                    hx-vals='{
+
+        "bookid": "{{book.id}}"
+
+      }'
+                    hx-on="htmx:response: if (event.detail.success) { window.reload(); }"
+                  >
+                    DNF
+                  </button>
+
+                  <button
+                    class="add-to-library-button"
+                    hx-post="/api/removefromshelf"
+                    hx-vals='{
+
+        "bookid": "{{book.id}}"
+
+      }'
+                    hx-on="htmx:response: if (event.detail.success) { window.reload(); }"
+                  >
+                    Remove from shelf
+                  </button>
+                </li>
+
                 {% endfor %}
               </ul>
             </div>
@@ -512,29 +897,43 @@
             <div class="shelf-card">
               <h3>
                 ✅ Completed
-                <span class="shelf-count">{{ completed|length }}</span>
+                <span class="shelf-count">{{ completed | length }}</span>
+                </h3> 
+                <ul class="book-list">
+                  {% for book in completed %}
+
+                  <li
+  class="drag-item"
+  draggable="true"
+  data-book-id="{{ book.id }}"
+  data-book-title="{{ book.title }}"
+>
+    <h4>{{ book.title }}</h4>
+
+    <p>{{ book.author }}</p>
+
+    <img src="{{ book.cover_url }}" />
+</li>
+                  {% endfor %}
+                </ul>
               </h3>
-              <ul class="book-list" id="book-list">
-                {% for book in completed %}
-                <li 
-                  class="drag-item"
-                  draggable="true"
-                  data-book-id="{{ loop.index }}"
-                >
-                  {{ book }}
-                </li>
-                {% endfor %}
-              </ul>
             </div>
 
             <div class="shelf-card">
               <h3>
                 ⏸️ Did Not Finish
-                <span class="shelf-count">{{ dnf|length }}</span>
+                <span class="shelf-count">{{ dnf | length }}</span>
               </h3>
-              <ul class="book-list" id="book-list">
+              <ul class="book-list">
                 {% for book in dnf %}
-                <li>{{ book }}</li>
+
+                <li>
+                  <h4>{{ book.title }}</h4>
+
+                  <p>{{ book.author }}</p>
+
+                  <img src="{{ book.cover_url }}" />
+                </li>
                 {% endfor %}
               </ul>
             </div>
@@ -544,10 +943,100 @@
     </div>
 
     <script>
-      // Pass server data to JavaScript
-      window.INITIAL_RECS = {{ recs|tojson|safe }};
-    </script>
+      // Global Listener for htmx:afterSwap (Use event.detail.target)
+      document.addEventListener("DOMContentLoaded", () => {
+        // Select all page input fields. If using the class from above, use:
+        const pageInputs = document.querySelectorAll(".page-input-field");
 
+        pageInputs.forEach((input) => {
+          input.addEventListener("input", (event) => {
+            const field = event.target;
+            // Get the current value, maximum value, and minimum value
+            const currentValue = parseInt(field.value, 10);
+            const maxValue = parseInt(field.getAttribute("max"), 10);
+            const minValue = parseInt(field.getAttribute("min"), 10);
+
+            if (currentValue > maxValue) {
+              // If the entered value is greater than the max,
+              // immediately set the value back to the max value.
+              field.value = maxValue;
+
+              // You could also show a temporary alert or message here
+              console.warn("Cannot exceed total pages!");
+            } else if (currentValue < minValue) {
+              // Optionally prevent entering less than 1 (if not already handled by min)
+              field.value = minValue;
+              console.warn("Must be at least page 1!");
+            }
+          });
+        });
+      });
+      function confettiBtnClick(inputId, totalPages) {
+        const el = document.getElementById(inputId);
+        const pagesRead = parseInt(el?.value || "0", 10);
+        const total = parseInt(totalPages, 10);
+        if (total > 0 && pagesRead === total) {
+          confetti({
+            particleCount: 200,
+            spread: 360,
+            startVelocity: 40,
+            origin: { x: 0.5, y: 0.5 },
+          });
+          setTimeout(() => {
+            alert("🎉 Congratulations on finishing the book! 🎉");
+          }, 500);
+        }
+      }
+      // You can also create more complex effects, like a fireworks burst:
+      /*
+      confetti({
+        particleCount: 200,
+        spread: 360,
+        startVelocity: 40,
+        origin: { x: 0.5, y: 0.5 }
+      });
+      */
+    </script>
+    <script>
+      const completedCount = {{ completed | length }};
+    const tbrCount = {{ tbr | length }};
+    const dnfCount = {{ dnf | length }};
+    
+    const dataCounts = [completedCount, tbrCount, dnfCount];
+
+    const labels = ['Completed', 'TBR', 'DNF'];
+    
+    // 2. Chart Configuration using the counted data
+    const config = {
+        type: 'pie',
+        data: {
+            labels: labels,
+            datasets: [{
+                label: 'Book Status Count',
+                data: dataCounts, // Use the array of counts
+                backgroundColor: [
+                    'rgb(75, 192, 192)',
+                    'rgb(54, 162, 235)',
+                    'rgb(255, 99, 132)'
+                ],
+                hoverOffset: 4
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                title: {
+                    display: true,
+                    text: 'Book Status Distribution'
+                }
+            }
+        }
+    };
+
+    // 3. Render the chart
+    const ctx = document.getElementById('bookPieChart').getContext('2d');
+    new Chart(ctx, config);</script>
     <script src="{{ url_for('static', filename='js/utils.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/spotifygeneration.js') }}"></script>
   </body>
 </html>
