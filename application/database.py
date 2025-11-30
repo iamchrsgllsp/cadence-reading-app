@@ -151,7 +151,7 @@ def add_full_token_info(user: str, token_info: dict):
             "scope": token_info.get("scope"),
         }
 
-        response = supabase.table("tokens").upsert(data).execute()
+        supabase.table("tokens").upsert(data).execute()
 
         print(f"Full token info stored for {user}")
 
