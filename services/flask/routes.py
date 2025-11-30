@@ -7,6 +7,7 @@ from flask import (
     flash,
     session,
     jsonify,
+    send_from_directory,
 )
 from application.suggestions import (
     verify_token,
@@ -19,6 +20,7 @@ from application.suggestions import (
 from application.logic import get_book_recommendations, get_playlist_recommendations
 from application.database import get_top_five_by_username, get_library
 import json, ast
+import os
 
 app = Flask(__name__)
 app.secret_key = "supersecretkey"
@@ -331,3 +333,8 @@ def clear():
         return redirect("/profile")
     else:
         return redirect("/profile")
+
+
+@app.route("/favicon.ico")
+def favicon():
+    return redirect(url_for("static", filename="favicon.ico"))
