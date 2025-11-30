@@ -685,15 +685,9 @@
                 onclick="alert('Feature coming soon!')"
               >
               <img style="width: 25px; margin-right: 8px;" src="https://images.icon-icons.com/3106/PNG/96/person_avatar_account_user_icon_191606.png">
-                      Friends
+                      Add Friend
                       </button>
-              <button
-                class="btn btn-secondary"
-                onclick="alert('Feature coming soon!')"
-              >
-              <img style="width: 25px; margin-right: 8px;" src="https://images.icon-icons.com/2159/PNG/96/envelope_email_mail_icon_132952.png"><gap></gap>
-                Messages
-              </button>
+              
             </div>
           </div>
 
@@ -706,7 +700,7 @@
                 font-size: 0.9rem;
               "
             >
-              Drag a book from Completed to add it here (Max 5)
+              {{user}}'s favourite books
             </p>
             <ul id="top-five-list" class="book-list drag-target"></ul>
           </div>
@@ -742,81 +736,10 @@
                   <h3>{{book.title}}</h3>
                   <p>{{book.author}}</p>
 
-                  <div style="display: flex; gap: 1rem; margin-top: 1rem">
-                    {% if session %}
-                    <form
-                      hx-post="/htmx/update_page"
-                      style="display: flex; gap: 1rem; align-items: center"
-                      onsubmit="return false;"
-                    >
-                      <input
-                        type="hidden"
-                        name="book_id"
-                        value="{{ book.id or '' }}"
-                      />
-                      <input
-                        type="hidden"
-                        name="user"
-                        value="{{ user or '' }}"
-                      />
-                      <input
-                        type="hidden"
-                        name="total_pages"
-                        value="{{ book.total_pages or 528 }}"
-                      />
-
-                      <span
-                        style="
-                          color: var(--text-secondary);
-                          display: flex;
-                          gap: 0.5rem;
-                          align-items: center;
-                        "
-                      >
-                        📄 Page
-                        <input
-                          id="current-page-input-{{loop.index}}"
-                          class="page-input-field"
-                          type="number"
-                          min="1"
-                          max="{{ book.total_pages }}"
-                          value="{{ book.pages }}"
-                          name="current_page"
-                        />
-                        of {{ book.total_pages or 528 }}
-                      </span>
-
-                      <button
-                        type="submit"
-                        class="btn btn-secondary"
-                        hx-target="#feedback-{{loop.index}}"
-                        onclick="confettiBtnClick('current-page-input-{{loop.index}}', {{book.total_pages}})"
-                      >
-                        Update Pages
-                      </button>
-
-                      <span id="feedback-{{loop.index}}"></span>
-                    </form>
-                  </div>
-                  <div class="progress-bar">
-                    <div
-                      class="progress-fill"
-                      data-pages-read="{{book.pages}}"
-                      data-total-pages="{{book.total_pages}}"
-                    ></div>
-                  </div>
-
-                  {% endif %}
+                  
                 </div>
                 
-                <button 
-                    class="btn generate-playlist-btn" 
-                    data-author="{{book.author}}" 
-                    data-title="{{book.title}}"
-                    data-cover="{{book.cover_url}}"
-                >
-                    Generate Playlist
-                </button>
+                
                 <div class="playlist-message"></div>
                 </div>
               {% endfor %}
@@ -901,10 +824,10 @@
                 </h3> 
                 <ul class="book-list">
                   {% for book in completed %}
-
+                  <button class="btn" onclick="location.href = '/book/{{book.title}}'">  
                   <li
   class="drag-item"
-  draggable="true"
+  
   data-book-id="{{ book.id }}"
   data-book-title="{{ book.title }}"
 >
@@ -914,6 +837,7 @@
 
     <img src="{{ book.cover_url }}" />
 </li>
+                  </button>
                   {% endfor %}
                 </ul>
               </h3>

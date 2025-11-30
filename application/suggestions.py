@@ -228,8 +228,6 @@ def clear_session(user_id=None):
         session.pop(token_key, None)
         if session.get("user") == user_id:
             session.pop("user", None)
-    else:
-        session.clear()
 
     return session
 
