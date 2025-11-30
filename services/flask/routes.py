@@ -252,7 +252,7 @@ def user_profile(user):
 
     print(f"Current Book: {currentbook}")
     print(f"TBR: {better_data}")
-    user = "wegotfight"
+
     return render_template(
         "userprofile.html",
         img=img,
