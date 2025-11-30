@@ -10,6 +10,7 @@ document.addEventListener("DOMContentLoaded", function () {
       // 1. Get data directly from the button attributes
       const author = btn.getAttribute("data-author");
       const title = btn.getAttribute("data-title");
+      const image = btn.getAttribute("data-cover");
 
       // 2. Find the corresponding message element (assuming it's right after the button)
       // We use 'nextElementSibling' to reliably find the message box right after the button.
@@ -27,11 +28,13 @@ document.addEventListener("DOMContentLoaded", function () {
       } else {
         console.error("Playlist message element not found.");
       }
-      console.log(JSON.stringify({ author: author, title: title }));
+      console.log(
+        JSON.stringify({ author: author, title: title, cover: image })
+      );
       fetch("https://cadence-reading-app.onrender.com/testgen", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ author: author, title: title }),
+        body: JSON.stringify({ author: author, title: title, cover: image }),
       })
         .then((response) => response.json())
         .then((data) => {

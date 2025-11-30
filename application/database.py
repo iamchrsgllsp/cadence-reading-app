@@ -23,7 +23,7 @@ SUPABASE_KEY = supabase_key  # Use your public anon key for read operations
 def get_supabase_client() -> Client:
     """Initializes and returns the Supabase client."""
     # Ensure URL and Key are set before running
-    if SUPABASE_URL == supabase_url or SUPABASE_KEY == supabase_key:
+    if SUPABASE_URL == "YOUR_SUPABASE_URL" or SUPABASE_KEY == "YOUR_SUPABASE_ANON_KEY":
         raise ValueError(
             "Please set SUPABASE_URL and SUPABASE_KEY with your actual credentials."
         )
@@ -276,12 +276,12 @@ def save_img_to_db(BACKGROUND_PATH):
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
         unique_id = str(uuid.uuid4())[:8]
         file_path = f"playlist/{timestamp}_{unique_id}.jpg"
-        response = supabase.storage.from_(bucket_name).upload(
+        supabase.storage.from_(bucket_name).upload(
             path=file_path,
             file=output_buffer.getvalue(),
             file_options={"content-type": "image/jpeg", "cache-control": "3600"},
         )
-        print(response)
+
         # 9. Get public URL
         public_url = supabase.storage.from_(bucket_name).get_public_url(file_path)
 

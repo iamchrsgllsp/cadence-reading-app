@@ -234,7 +234,7 @@ def clear_session(user_id=None):
     return session
 
 
-def create_playlist(book, songs, user_id=None):
+def create_playlist(book, songs, cover, user_id=None):
     """
     Create a Spotify playlist for a book.
 
@@ -283,8 +283,8 @@ def create_playlist(book, songs, user_id=None):
                 print(f"Error adding tracks to playlist {playlist['name']}: {e}")
 
         # 4. Add custom cover image
-        image_url = book.get("cover_url")
-        print(image_url)
+        image_url = cover
+        print(f"{image_url} cover")
         if image_url:
             try:
                 image_url = save_img_to_db(image_url)

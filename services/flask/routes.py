@@ -233,8 +233,9 @@ def createplaylist():
 def testgen():
     author = request.json.get("author")
     title = request.json.get("title")
+    image = request.json.get("cover")
     data, books = get_playlist_recommendations(data={"author": author, "title": title})
-    playlist = create_playlist(data, books)
+    playlist = create_playlist(data, books, image)
     print(playlist)
     # playlist = books
     return playlist
