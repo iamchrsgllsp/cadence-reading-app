@@ -158,7 +158,18 @@ def profile():
         completed=completed,
         dnf=dnf,
         recs=recs,
+        messages=[],
     )
+
+
+""" Content for messages
+            {"content": "hi there", "sender": "raidy", "read": "True"},
+            {"content": "hello", "sender": "dave", "read": "False"},
+            {
+                "content": "you should check this book out",
+                "sender": "goose",
+                "read": "False",
+            },"""
 
 
 @app.route("/moretesting")

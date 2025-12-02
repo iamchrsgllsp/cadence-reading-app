@@ -170,6 +170,16 @@
         padding: 0.5rem 1rem;
       }
 
+      #msg{
+        background-color: ghostwhite;
+        color:#0f172a;
+        gap:10px;
+        border: #0f172a 1px 1px 1px 1px;
+        border-radius: 10px;
+        justify-content: flex-start;
+        padding:5px;
+      }
+
       /* Main Layout */
       .main-content {
         display: grid;
@@ -626,6 +636,7 @@
           <h1>{{ user }} 📚</h1>
           <p>{{ user }}'s reading journey continues</p>
         </div>
+        
         {% if session %}
         <div class="user-features">
           <button class="btn btn-secondary">Suggest Features</button>
@@ -687,13 +698,29 @@
               <img style="width: 25px; margin-right: 8px;" src="https://images.icon-icons.com/3106/PNG/96/person_avatar_account_user_icon_191606.png">
                       Friends
                       </button>
-              <button
+                <button
                 class="btn btn-secondary"
-                onclick="alert('Feature coming soon!')"
+                onclick="showMsgs({{messages}});"
               >
+               {% if messages | length > 0 %}
+               <p>({{messages | length}})</p>
               <img style="width: 25px; margin-right: 8px;" src="https://images.icon-icons.com/2159/PNG/96/envelope_email_mail_icon_132952.png"><gap></gap>
+              {% else %}
+              <img style="width: 25px; margin-right: 8px;" src="https://th.bing.com/th/id/R.43690f00c67841fae15d2ad6994178df?rik=cITDG3eiIxNHgg&pid=ImgRaw&r=0"><gap></gap>
+              {% endif %}
                 Messages
               </button>
+              <div id="dbmsg" style="display:none">
+                {% for msg in messages %}
+                {% if msg.read != "True" %}
+                <div id="msg">
+                <p>{{msg}}</p>
+                <button>Reply</button>
+                <button>Delete</button>
+                </div><br>
+                {% endif %}
+                {% endfor %}<a href="/messages">View all messages</a></div>
+                
             </div>
           </div>
 
@@ -1039,5 +1066,13 @@
     new Chart(ctx, config);</script>
     <script src="{{ url_for('static', filename='js/utils.js') }}"></script>
     <script src="{{ url_for('static', filename='js/spotifygeneration.js') }}"></script>
+    <script>
+      function showMsgs(messages){
+        if(messages.length > 0){
+          console.log(messages)
+          document.getElementById("dbmsg").style.display = 'block';
+        }
+      }
+    </script>
   </body>
 </html>
