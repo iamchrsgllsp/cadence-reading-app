@@ -106,3 +106,9 @@ def add_top_five():
     )
 
     return {"data": "success"}
+
+
+@api_bp.route("/sendmsg", methods=["POST"])
+def sendmsg():
+    msgcontext = request.form
+    return msgcontext

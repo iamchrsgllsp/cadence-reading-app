@@ -714,7 +714,8 @@
                 {% for msg in messages %}
                 {% if msg.read != "True" %}
                 <div id="msg">
-                <p>{{msg}}</p>
+                <p>{{msg.sender}}</p>
+                <p>{{msg.content}}</p>
                 <button>Reply</button>
                 <button>Delete</button>
                 </div><br>
@@ -1068,11 +1069,27 @@
     <script src="{{ url_for('static', filename='js/spotifygeneration.js') }}"></script>
     <script>
       function showMsgs(messages){
-        if(messages.length > 0){
-          console.log(messages)
-          document.getElementById("dbmsg").style.display = 'block';
+        const dbmsgContainer = document.getElementById("dbmsg");
+        if (messages && messages.length > 0) {
+        const isHidden = dbmsgContainer.style.display === 'none' || dbmsgContainer.style.display === '';
+
+        if (isHidden) {
+            
+            dbmsgContainer.style.display = 'block';
+            console.log("Messages shown (Toggled ON)");
+        } else {
+            
+            dbmsgContainer.style.display = 'none';
+            console.log("Messages hidden (Toggled OFF)");
         }
-      }
+
+    } else {
+        
+        dbmsgContainer.style.display = 'none';
+        dbmsgContainer.innerHTML = 'No messages available.';
+        console.log("Toggle failed: No messages to display.");
+    }
+}
     </script>
   </body>
 </html>

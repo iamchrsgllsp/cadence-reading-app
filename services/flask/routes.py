@@ -18,7 +18,13 @@ from application.suggestions import (
     get_profile_data,
 )
 from application.logic import get_book_recommendations, get_playlist_recommendations
-from application.database import get_top_five_by_username, get_library
+from application.database import (
+    get_top_five_by_username,
+    get_library,
+    get_message_thread,
+    get_messages,
+    is_new,
+)
 import json, ast
 import os
 
@@ -147,6 +153,9 @@ def profile():
 
     print(f"Current Book: {currentbook}")
     print(f"TBR: {better_data}")
+    print(get_message_thread())
+    messages = get_messages("wegotfight")
+    print(messages)
 
     return render_template(
         "profile.html",
@@ -158,7 +167,7 @@ def profile():
         completed=completed,
         dnf=dnf,
         recs=recs,
-        messages=[],
+        messages=messages,
     )
 
 

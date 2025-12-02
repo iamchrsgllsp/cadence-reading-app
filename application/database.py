@@ -365,3 +365,66 @@ def diagnose_supabase_storage(supabase_client, bucket_name="playlist"):
 
 # Run diagnostics
 import uuid
+
+
+def get_message_thread():
+    """Retrieves all library entries for a specific user."""
+    supabase = get_supabase_client()
+    maxthread = 0
+    try:
+        response = supabase.table("messages").select("threadid").execute()
+        # Returns a list of dictionaries
+        maxid = response.data
+        for id in maxid:
+            if id["threadid"] > maxthread:
+                maxthread = id["threadid"]
+
+        print(maxthread)
+        return maxthread
+    except Exception as e:
+        print(f"Error fetching library: {e}")
+        return []
+
+
+def is_new(user, recipient):
+    supabase = get_supabase_client()
+    try:
+        response = supabase.rpc(
+            "check_conversation_exists", {"u_id": user, "r_id": recipient}
+        ).execute()
+
+        # The raw data returned by the RPC call
+        raw_data = response.data
+
+        # Determine if a conversation exists:
+
+        if isinstance(raw_data, bool):
+            # Case 1: Supabase client returned the boolean directly
+            conversation_exists = raw_data
+        elif isinstance(raw_data, list) and raw_data:
+            # Case 2: Supabase client returned a list (of dictionaries)
+            # Safely access the value. Note: The key is the function name.
+            conversation_exists = raw_data[0]["check_conversation_exists"]
+        else:
+            # Fallback for unexpected empty or non-existent data
+            return True  # Assume it's new if data is unexpected
+
+        # If the conversation exists (True), then it is NOT new (False)
+        return not conversation_exists
+
+    except Exception as e:
+        print(f"Error calling RPC: {e}")
+        # Return False, assuming a conversation might exist, or something went wrong
+        return False
+
+
+def get_messages(user):
+    supabase = get_supabase_client()
+    threads = "threadid"
+    try:
+        response = supabase.table("messages").select().eq("recipient", user).execute()
+        # Returns a list of dictionaries
+        return response.data
+    except Exception as e:
+        print(f"Error fetching library: {e}")
+        return []
