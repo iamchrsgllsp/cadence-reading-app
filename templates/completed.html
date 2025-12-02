@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <script>
-      window.INITIAL_RECS = {{ recs | tojson | safe }};
+     
     </script>
     <script src="{{ url_for('static', filename='js/topfive.js') }}"></script>
     <script src="{{ url_for('static', filename='js/htmx.js') }}"></script>
@@ -358,7 +358,7 @@
       /* Book Shelves */
       .shelves-grid {
         display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        grid-template-columns: auto;
         gap: 1.5rem;
       }
 
@@ -398,6 +398,8 @@
 
       .book-list {
         list-style: none;
+        display: grid;
+        grid-template-columns: auto;
       }
 
       .book-list li {
@@ -406,6 +408,8 @@
         color: var(--text-secondary);
         transition: all 0.2s ease;
         cursor: pointer;
+        display: grid;
+        grid-template-columns: auto auto;
       }
 
       .book-list li:last-child {
@@ -420,7 +424,7 @@
       }
 
       .book-list img {
-        height: 100px;
+        height: 100%;
         object-fit: cover;
         border-radius: 6px;
         margin-right: 1rem;
@@ -685,15 +689,9 @@
                 onclick="alert('Feature coming soon!')"
               >
               <img style="width: 25px; margin-right: 8px;" src="https://images.icon-icons.com/3106/PNG/96/person_avatar_account_user_icon_191606.png">
-                      Friends
+                      Add Friend
                       </button>
-              <button
-                class="btn btn-secondary"
-                onclick="alert('Feature coming soon!')"
-              >
-              <img style="width: 25px; margin-right: 8px;" src="https://images.icon-icons.com/2159/PNG/96/envelope_email_mail_icon_132952.png"><gap></gap>
-                Messages
-              </button>
+              
             </div>
           </div>
 
@@ -706,7 +704,7 @@
                 font-size: 0.9rem;
               "
             >
-              Drag a book from Completed to add it here (Max 5)
+              {{user}}'s favourite books
             </p>
             <ul id="top-five-list" class="book-list drag-target"></ul>
           </div>
@@ -727,102 +725,7 @@
         </aside>
 
         <main>
-          <div class="currently-reading">
-            <h2>📖 Currently Reading</h2>
-
-            <div class="book-feature">
-              {% for book in currentbook %}
-              <div class="books">
-                <img
-                  src="{{book.cover_url}}"
-                  alt="Book cover"
-                  onerror="this.src='https://via.placeholder.com/140x210/6366f1/ffffff?text=No+Cover'"
-                  loading="lazy"
-                />
-                <div class="book-feature-info">
-                  <h3>{{book.title}}</h3>
-                  <p>{{book.author}}</p>
-
-                  <div style="display: flex; gap: 1rem; margin-top: 1rem">
-                    {% if session %}
-                    <form
-                      hx-post="/htmx/update_page"
-                      style="display: flex; gap: 1rem; align-items: center"
-                      onsubmit="return false;"
-                    >
-                      <input
-                        type="hidden"
-                        name="book_id"
-                        value="{{ book.id or '' }}"
-                      />
-                      <input
-                        type="hidden"
-                        name="user"
-                        value="{{ user or '' }}"
-                      />
-                      <input
-                        type="hidden"
-                        name="total_pages"
-                        value="{{ book.total_pages or 528 }}"
-                      />
-
-                      <span
-                        style="
-                          color: var(--text-secondary);
-                          display: flex;
-                          gap: 0.5rem;
-                          align-items: center;
-                        "
-                      >
-                        📄 Page
-                        <input
-                          id="current-page-input-{{loop.index}}"
-                          class="page-input-field"
-                          type="number"
-                          min="1"
-                          max="{{ book.total_pages }}"
-                          value="{{ book.pages }}"
-                          name="current_page"
-                        />
-                        of {{ book.total_pages or 528 }}
-                      </span>
-
-                      <button
-                        type="submit"
-                        class="btn btn-secondary"
-                        hx-target="#feedback-{{loop.index}}"
-                        onclick="confettiBtnClick('current-page-input-{{loop.index}}', {{book.total_pages}})"
-                      >
-                        Update Pages
-                      </button>
-
-                      <span id="feedback-{{loop.index}}"></span>
-                    </form>
-                  </div>
-                  <div class="progress-bar">
-                    <div
-                      class="progress-fill"
-                      data-pages-read="{{book.pages}}"
-                      data-total-pages="{{book.total_pages}}"
-                    ></div>
-                  </div>
-
-                  {% endif %}
-                </div>
-                
-                <button 
-                    class="btn generate-playlist-btn" 
-                    data-author="{{book.author}}" 
-                    data-title="{{book.title}}"
-                    data-cover="{{book.cover_url}}"
-                >
-                    Generate Playlist
-                </button>
-                <div class="playlist-message"></div>
-                </div>
-              {% endfor %}
-            </div>
-          </div>
+          
           <h2
             style="
               font-size: 1.75rem;
@@ -833,111 +736,35 @@
             📚 Your Library
           </h2>
           <div class="shelves-grid">
-            <div class="shelf-card">
-              <h3
-                onclick="location.href='/{{user}}/tbr'"
-                style="cursor: pointer"
-              >
-                📚 To Be Read
-                <span class="shelf-count">{{ tbr | length }}</span>
-              </h3>
-              <ul class="book-list">
-                {% for book in tbr %}
-
-                <li>
-                  <h4>{{ book.title }}</h4>
-
-                  <p>{{ book.author }}</p>
-
-                  <img src="{{ book.cover_url }}" loading="lazy"/>
-
-                  <button
-                    class="add-currentbook-button"
-                    hx-post="/api/currentbook"
-                    hx-vals='{
-
-        "bookid": "{{book.id}}"
-
-      }'
-                    hx-on="htmx:response: if (event.detail.success) { window.reload(); }"
-                  >
-                    Start Reading
-                  </button>
-
-                  <button
-                    class="dnf-button"
-                    hx-post="/api/dnf"
-                    hx-vals='{
-
-        "bookid": "{{book.id}}"
-
-      }'
-                    hx-on="htmx:response: if (event.detail.success) { window.reload(); }"
-                  >
-                    DNF
-                  </button>
-
-                  <button
-                    class="add-to-library-button"
-                    hx-post="/api/removefromshelf"
-                    hx-vals='{
-
-        "bookid": "{{book.id}}"
-
-      }'
-                    hx-on="htmx:response: if (event.detail.success) { window.reload(); }"
-                  >
-                    Remove from shelf
-                  </button>
-                </li>
-
-                {% endfor %}
-              </ul>
-            </div>
+            
 
             <div class="shelf-card">
               <h3>
                 ✅ Completed
-                <span class="shelf-count">{{ completed | length }}</span>
+                                <span class="shelf-count">{{ completed | length }}</span>
                 </h3> 
                 <ul class="book-list">
                   {% for book in completed %}
-
+                  <button class="btn" onclick="location.href = '/book/{{book.book[0]}}'">  
                   <li
   class="drag-item"
-  draggable="true"
+  
   data-book-id="{{ book.id }}"
   data-book-title="{{ book.title }}"
 >
-    <h4>{{ book.title }}</h4>
+    <h4>{{ book.book[0] }}</h4>
 
-    <p>{{ book.author }}</p>
+    <p>{{ book.book[1] }}</p>
 
-    <img src="{{ book.cover_url }}" loading="lazy"/>
+    <img src="{{ book.book[2] }}" loading="lazy"/>
 </li>
+                  </button>
                   {% endfor %}
                 </ul>
               </h3>
             </div>
 
-            <div class="shelf-card">
-              <h3>
-                ⏸️ Did Not Finish
-                <span class="shelf-count">{{ dnf | length }}</span>
-              </h3>
-              <ul class="book-list">
-                {% for book in dnf %}
-
-                <li>
-                  <h4>{{ book.title }}</h4>
-
-                  <p>{{ book.author }}</p>
-
-                  <img src="{{ book.cover_url }}" loading="lazy"/>
-                </li>
-                {% endfor %}
-              </ul>
-            </div>
+            
           </div>
         </main>
       </div>

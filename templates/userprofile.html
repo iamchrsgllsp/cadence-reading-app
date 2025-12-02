@@ -731,6 +731,7 @@
                   src="{{book.cover_url}}"
                   alt="Book cover"
                   onerror="this.src='https://via.placeholder.com/140x210/6366f1/ffffff?text=No+Cover'"
+                  loading="lazy"
                 />
                 <div class="book-feature-info">
                   <h3>{{book.title}}</h3>
@@ -771,7 +772,7 @@
 
                   <p>{{ book.author }}</p>
 
-                  <img src="{{ book.cover_url }}" />
+                  <img src="{{ book.cover_url }}" loading="lazy" />
 
                   <button
                     class="add-currentbook-button"
@@ -819,7 +820,7 @@
 
             <div class="shelf-card">
               <h3>
-                ✅ Completed
+                ✅ <a href="/completed/{{user}}">Completed</a>
                 <span class="shelf-count">{{ completed | length }}</span>
                 </h3> 
                 <ul class="book-list">
@@ -835,7 +836,7 @@
 
     <p>{{ book.author }}</p>
 
-    <img src="{{ book.cover_url }}" />
+    <img src="{{ book.cover_url }}" loading="lazy"/>
 </li>
                   </button>
                   {% endfor %}
@@ -856,7 +857,7 @@
 
                   <p>{{ book.author }}</p>
 
-                  <img src="{{ book.cover_url }}" />
+                  <img src="{{ book.cover_url }}" loading="lazy"/>
                 </li>
                 {% endfor %}
               </ul>

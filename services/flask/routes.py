@@ -320,6 +320,24 @@ def user_tbr(user):
         return jsonify(tbr)
 
 
+@app.route("/completed/<user>")
+def get_completed(user):
+    completed = []
+    tbr = get_library(user)
+    for book in tbr:
+        status = book.get("status")
+        if status == "completed":
+            completed.append(book)
+        print(book)
+
+    return render_template("completed.html", completed=completed)
+
+
+@app.route("/roadmap")
+def roadmap():
+    return render_template("roadmap.html")
+
+
 @app.route("/dbtest")
 def dbtest():
     data = get_library()
