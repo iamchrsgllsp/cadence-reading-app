@@ -161,18 +161,21 @@ def profile():
     print(get_message_thread())
     messages = get_messages("wegotfight")
 
-    return render_template(
-        "profile.html",
-        img=img,
-        books=books,
-        user=user,
-        currentbook=currentbook,
-        tbr=better_data,
-        completed=completed,
-        dnf=dnf,
-        recs=recs,
-        messages=messages,
-    )
+    if session:
+        return render_template(
+            "profile.html",
+            img=img,
+            books=books,
+            user=user,
+            currentbook=currentbook,
+            tbr=better_data,
+            completed=completed,
+            dnf=dnf,
+            recs=recs,
+            messages=messages,
+        )
+    else:
+        return render_template("profile.html", messages=messages)
 
 
 """ Content for messages
