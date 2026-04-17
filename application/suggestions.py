@@ -80,7 +80,7 @@ def get_token_info(user_id=None):
             token_info = new_token_info
 
             # Update token in database
-            add_full_token_info(user_id, new_token_info)
+            # add_full_token_info(user_id, new_token_info)
 
         except Exception as e:
             print(f"Token refresh failed for user {user_id}: {e}")
