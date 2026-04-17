@@ -134,8 +134,8 @@ def profile():
                 )  # better_data is used for TBR in the original code
 
         # --- Other data initialization (Kept from original) ---
-        recs = get_top_five_by_username(session.get("user"))
-
+        # recs = get_top_five_by_username(session.get("user"))
+        recs = []
         # Assume get_profile_data() and get_profile() are defined elsewhere
         # And handle their potential absence gracefully.
         user = "Book Lover"
