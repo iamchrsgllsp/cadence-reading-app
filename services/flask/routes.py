@@ -176,7 +176,8 @@ def profile():
             messages=messages,
         )
     else:
-        return render_template("profile.html", messages=messages)
+        recs = []
+        return render_template("profile.html", recs=recs)
 
 
 """ Content for messages
