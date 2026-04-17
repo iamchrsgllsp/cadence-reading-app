@@ -155,10 +155,11 @@ def profile():
         {"title": "The Great Gatsby", "author": "F. Scott Fitzgerald"},
     ]
     # --- End other data initialization ---
-
+    """
     print(f"Current Book: {currentbook}")
     print(f"TBR: {better_data}")
     print(get_message_thread())
+    """
     messages = get_messages("wegotfight")
 
     if session:
