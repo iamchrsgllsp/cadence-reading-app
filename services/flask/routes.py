@@ -1,5 +1,6 @@
 from flask import (
     Flask,
+    Response,
     render_template,
     request,
     redirect,
@@ -390,9 +391,13 @@ def favicon():
 @app.route("/app_version")
 def app_version():
     print("Version check endpoint hit")
-    return jsonify(
-        {
-            "version_code": 1.1,
-            "download_url": "https://mpmblozcvymuwujwvefy.supabase.co/storage/v1/object/public/cadence_storage/cadence.apk",
-        }
+    return Response(
+        status=200,
+        reponse=json.dumps(
+            {
+                "version_code": 1.1,
+                "download_url": "https://mpmblozcvymuwujwvefy.supabase.co/storage/v1/object/public/cadence_storage/cadence.apk",
+            }
+        ),
+        content_type="application/json",
     )
