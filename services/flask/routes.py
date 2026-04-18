@@ -391,13 +391,15 @@ def favicon():
 @app.route("/app_version")
 def app_version():
     print("Version check endpoint hit")
+    # 1. FIXED: Corrected 'reponse' to 'response'
+    # 2. FIXED: version_code is now an integer to match your Flutter int.parse()
+    data = {
+        "version_code": 2,
+        "download_url": "https://mpmblozcvymuwujwvefy.supabase.co/storage/v1/object/public/cadence_storage/cadence.apk",
+    }
+
     return Response(
+        response=json.dumps(data),
         status=200,
-        reponse=json.dumps(
-            {
-                "version_code": 1.1,
-                "download_url": "https://mpmblozcvymuwujwvefy.supabase.co/storage/v1/object/public/cadence_storage/cadence.apk",
-            }
-        ),
         content_type="application/json",
     )
