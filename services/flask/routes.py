@@ -385,3 +385,13 @@ def clear():
 @app.route("/favicon.ico")
 def favicon():
     return redirect(url_for("static", filename="favicon.ico"))
+
+
+@app.route("/app_version")
+def app_version():
+    return jsonify(
+        {
+            "version_code": 1.1,
+            "download_url": "https://mpmblozcvymuwujwvefy.supabase.co/storage/v1/object/public/cadence_storage/cadence.apk",
+        }
+    )
