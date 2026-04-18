@@ -394,7 +394,7 @@ def app_version():
     # 1. FIXED: Corrected 'reponse' to 'response'
     # 2. FIXED: version_code is now an integer to match your Flutter int.parse()
     data = {
-        "version_code": 2,
+        "version_code": 10,
         "download_url": "https://mpmblozcvymuwujwvefy.supabase.co/storage/v1/object/public/cadence_storage/cadence.apk",
     }
 
