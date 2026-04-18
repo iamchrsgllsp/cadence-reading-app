@@ -389,6 +389,7 @@ def favicon():
 
 @app.route("/app_version")
 def app_version():
+    print("Version check endpoint hit")
     return jsonify(
         {
             "version_code": 1.1,
