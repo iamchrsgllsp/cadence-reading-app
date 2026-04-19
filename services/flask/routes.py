@@ -396,7 +396,7 @@ def app_version():
     data = {
         "version_code": 10,
         "download_url": "https://mpmblozcvymuwujwvefy.supabase.co/storage/v1/object/public/cadence_storage/cadence.apk",
-        "description": "Add new features and fix bugs in the latest version!",
+        "description": "Bug fixes and performance improvements!\n- Fixed a bug that caused the app to crash on startup for some users.\n- Improved loading times when fetching book recommendations.\n- Updated the user interface for a smoother experience.",
     }
 
     return Response(
