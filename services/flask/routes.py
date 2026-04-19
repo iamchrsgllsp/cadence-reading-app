@@ -396,7 +396,7 @@ def app_version():
     data = {
         "version_code": 10,
         "download_url": "https://mpmblozcvymuwujwvefy.supabase.co/storage/v1/object/public/cadence_storage/cadence.apk",
-        "description": "Bug fixes and performance improvements!\n- Fixed a bug that caused the app to crash on startup for some users.\n- Improved loading times when fetching book recommendations.\n- Updated the user interface for a smoother experience.",
+        "description": "Bug fixes and performance improvements!\nInitial Spotify Playlist integration - sample data from Project Hail Mary and Ludwig Goransson\n- Fixed a bug that caused the app to crash on startup for some users.\n- Improved loading times when fetching book recommendations.\n- Updated the user interface for a smoother experience.",
     }
 
     return Response(
