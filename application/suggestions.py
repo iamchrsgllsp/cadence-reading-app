@@ -9,7 +9,11 @@ from configfile import spotify_id as sid, spotify_secret as sid_sec
 
 # Import your database tools
 # Ensure 'supabase' is initialized in your application.database file
-from application.database import add_full_token_info, save_img_to_db, supabase
+from application.database import (
+    add_full_token_info,
+    save_img_to_db,
+    get_supabase_client,
+)
 
 # Configuration
 REDIRECT_URI = "https://cadence-reading-app.onrender.com/api_callback"
@@ -28,6 +32,7 @@ class SupabaseCacheHandler(CacheHandler):
         self.user_id = user_id
 
     def get_cached_token(self):
+        supabase = get_supabase_client()
         try:
             # Query your tokens table
             res = (
@@ -44,6 +49,7 @@ class SupabaseCacheHandler(CacheHandler):
         return None
 
     def save_token_to_cache(self, token_info):
+        supabase = get_supabase_client()
         try:
             # Prepare payload matching your table columns
             payload = {
