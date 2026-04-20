@@ -155,6 +155,7 @@ def app_callback(request):
 def get_profile_data(user_id=None):
     """Fetches full Spotify profile dictionary."""
     sp = get_spotify_client(user_id)
+    print(f"DEBUG: get_profile_data - Spotify client: {sp}")
     if not sp:
         return None
     try:
