@@ -191,6 +191,25 @@ def profile():
             },"""
 
 
+@app.route("/api/profile_data")
+def api_profile_data():
+    # 1. Get the user_id from the query parameters (e.g., ?user_id=123)
+    # If not in params, check session (to keep it compatible with web)
+    user_id = request.args.get("user_id") or session.get("user")
+
+    if not user_id:
+        return jsonify({"error": "No user_id provided"}), 400
+
+    # 2. Call your existing function from suggestions.py
+    # This function uses get_spotify_client(user_id) which handles the token
+    profile_data = get_profile_data(user_id)
+
+    if profile_data:
+        return jsonify(profile_data)
+    else:
+        return jsonify({"error": "Could not fetch profile or unauthorized"}), 401
+
+
 @app.route("/moretesting")
 def moretesting():
     return render_template("moretesting.html")
