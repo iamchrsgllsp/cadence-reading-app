@@ -226,3 +226,38 @@ def get_profile_data(user_id=None):
         print(f"Error fetching profile data: {e}")
 
         return None
+
+
+def get_profile(user_id=None):
+    """
+    Get user's Spotify profile picture.
+
+    Args:
+        user_id: Unique identifier for the user. If None, uses current session user.
+
+    Returns:
+        Profile image URL or None
+    """
+    if not user_id:
+        user_id = get_current_user_id()
+
+    sp = get_spotify_client(user_id)
+
+    if not sp:
+        return None
+
+    try:
+        data = sp.current_user()
+        session["user"] = data["id"]
+        print("Fetched user profile:", data["id"])
+
+        # Return profile image if available
+        if data.get("images") and len(data["images"]) > 1:
+            return data["images"][1]["url"]
+        elif data.get("images") and len(data["images"]) > 0:
+            return data["images"][0]["url"]
+
+        return None
+    except Exception as e:
+        print(f"Error fetching profile for user {user_id}: {e}")
+        return None
