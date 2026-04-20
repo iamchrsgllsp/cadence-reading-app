@@ -204,3 +204,25 @@ def upload_playlist_cover(sp, playlist_id, cover_url):
             sp.playlist_upload_cover_image(playlist_id, b64_img)
     except Exception as e:
         print(f"Cover upload error: {e}")
+
+
+def get_profile_data(user_id=None):
+    """Fetches full Spotify profile dictionary."""
+
+    sp = get_spotify_client(user_id)
+
+    print(f"DEBUG: get_profile_data - Spotify client: {sp}")
+
+    if not sp:
+
+        return None
+
+    try:
+
+        return sp.current_user()
+
+    except Exception as e:
+
+        print(f"Error fetching profile data: {e}")
+
+        return None
