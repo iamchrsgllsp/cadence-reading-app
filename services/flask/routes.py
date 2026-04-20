@@ -203,7 +203,7 @@ def api_profile_data():
     # 2. Call your existing function from suggestions.py
     # This function uses get_spotify_client(user_id) which handles the token
     profile_data = get_profile_data(user_id)
-
+    print(profile_data)
     if profile_data:
         return jsonify(profile_data)
     else:
