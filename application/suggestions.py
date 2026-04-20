@@ -108,10 +108,10 @@ def get_spotify_client(user_id=None):
     return spotipy.Spotify(auth=token_info.get("access_token"))
 
 
-def verify_token():
+def verify_token(platform):
     """Generate Spotify authorization URL."""
     sp_oauth = get_spotify_oauth()
-    auth_url = sp_oauth.get_authorize_url()
+    auth_url = sp_oauth.get_authorize_url(state=platform)
     return auth_url
 
 

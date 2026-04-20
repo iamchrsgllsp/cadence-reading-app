@@ -327,8 +327,7 @@ def verify():
 
     # We pass 'platform' into the Spotify 'state' parameter.
     # Spotify will pass this exact string back to our callback.
-    sp_oauth = get_spotify_oauth()
-    auth_url = sp_oauth.get_authorize_url(state=platform)
+    auth_url = verify_token(platform)
 
     print(f"Initiating login for platform: {platform}")
     return redirect(auth_url)
