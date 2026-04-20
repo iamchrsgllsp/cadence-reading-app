@@ -320,36 +320,41 @@ def friends():
     return render_template("friends.html")
 
 
-@app.route("/api_callback")
-def api_callback():
-    # 1. Run your existing spotipy logic
-    app_callback(request)
-
-    # 2. Get the user ID from the session (populated by app_callback)
-    user_id = session.get("user")
-
-    # 3. Check the flag we set in the /verify route
-    is_flutter = session.pop("is_flutter", False)  # pop removes it after reading
-
-    if is_flutter:
-        # Redirect to your Flutter Custom URL Scheme
-        return redirect(f"cadenceapp://auth?user_id={user_id}")
-
-    # Otherwise, continue to the web profile as usual
-    return redirect("/profile")
-
-
 @app.route("/verify")
 def verify():
-    # Check if the request came from Flutter
-    platform = request.args.get("platform")
-    if platform == "flutter":
-        session["is_flutter"] = True
-    else:
-        session["is_flutter"] = False
+    # Capture the platform (defaults to 'web' if not provided)
+    platform = request.args.get("platform", "web")
 
-    auth_url = verify_token()
+    # We pass 'platform' into the Spotify 'state' parameter.
+    # Spotify will pass this exact string back to our callback.
+    sp_oauth = get_spotify_oauth()
+    auth_url = sp_oauth.get_authorize_url(state=platform)
+
+    print(f"Initiating login for platform: {platform}")
     return redirect(auth_url)
+
+
+@app.route("/api_callback")
+def api_callback():
+    # 1. Check the state parameter FIRST (before session might change)
+    platform = request.args.get("state")
+
+    # 2. Run your existing spotipy logic from suggestions.py
+    # This handles the code exchange and populates the session
+    app_callback(request)
+
+    # 3. Get the user ID (now safely in the session from app_callback)
+    user_id = session.get("user")
+
+    print(f"Callback received. Platform: {platform}, User: {user_id}")
+
+    if platform == "flutter":
+        # Redirect using the Custom Scheme to wake up the Flutter App
+        # Ensure no spaces and correct host 'auth'
+        return redirect(f"cadenceapp://auth?user_id={user_id}")
+
+    # Default web behavior
+    return redirect("/profile")
 
 
 @app.route("/createplaylist")
