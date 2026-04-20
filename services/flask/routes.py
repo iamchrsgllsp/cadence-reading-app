@@ -303,17 +303,33 @@ def friends():
 
 @app.route("/api_callback")
 def api_callback():
-    # Don't reuse a SpotifyOAuth object because they store token info and you could leak user tokens if you reuse a SpotifyOAuth object
+    # 1. Run your existing spotipy logic
     app_callback(request)
 
+    # 2. Get the user ID from the session (populated by app_callback)
+    user_id = session.get("user")
+
+    # 3. Check the flag we set in the /verify route
+    is_flutter = session.pop("is_flutter", False)  # pop removes it after reading
+
+    if is_flutter:
+        # Redirect to your Flutter Custom URL Scheme
+        return redirect(f"cadenceapp://auth?user_id={user_id}")
+
+    # Otherwise, continue to the web profile as usual
     return redirect("/profile")
 
 
 @app.route("/verify")
 def verify():
-    # Don't reuse a SpotifyOAuth object because they store token info and you could leak user tokens if you reuse a SpotifyOAuth object
+    # Check if the request came from Flutter
+    platform = request.args.get("platform")
+    if platform == "flutter":
+        session["is_flutter"] = True
+    else:
+        session["is_flutter"] = False
+
     auth_url = verify_token()
-    print(auth_url)
     return redirect(auth_url)
 
 
@@ -326,14 +342,27 @@ def createplaylist():
 
 @app.route("/testgen", methods=["POST"])
 def testgen():
-    author = request.json.get("author")
-    title = request.json.get("title")
-    image = request.json.get("cover")
+    # Extract data from the Flutter POST request
+    data_json = request.json
+    author = data_json.get("author")
+    title = data_json.get("title")
+    image = data_json.get("cover")
+
+    # Get the user_id (sent from Flutter)
+    user_id = data_json.get("user_id") or session.get("user")
+
+    if not user_id:
+        return jsonify({"error": "User not authenticated"}), 401
+
+    # 1. Get recommendations
     data, books = get_playlist_recommendations(data={"author": author, "title": title})
-    playlist = create_playlist(data, books, image)
-    print(playlist)
-    # playlist = books
-    return playlist
+
+    # 2. Create the playlist using the specific user_id
+    # Your suggestions.py create_playlist function already accepts user_id!
+    playlist = create_playlist(data, books, image, user_id=user_id)
+
+    print(f"Playlist created for {user_id}: {playlist}")
+    return jsonify(playlist)
 
 
 @app.route("/book/<booktitle>")
