@@ -324,7 +324,7 @@ def testgen():
     image = data_json.get("cover")
 
     # Get the user_id (sent from Flutter)
-    user_id = data_json.get("user_id") or session.get("user")
+    user_id = data_json.get("botuser_id") or session.get("bot_user_id")
 
     if not user_id:
         return jsonify({"error": "User not authenticated"}), 401
