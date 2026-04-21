@@ -239,6 +239,8 @@ def get_profile(user_id=None):
         Profile image URL or None
     """
     if not user_id:
+        hanler = SupabaseCacheHandler(session.get("user"))
+        token_info = hanler.get_cached_token()
         temp_sp = spotipy.Spotify(auth=token_info.get("access_token"))
         user_id = temp_sp.current_user()["id"]
 
