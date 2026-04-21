@@ -79,26 +79,25 @@ def get_spotify_oauth(handler=None):
 
 
 def get_spotify_client():
-    """Always returns a client authenticated for the bot account."""
-    # Use the persistent Bot ID instead of the session
     handler = SupabaseCacheHandler(BOT_USER_ID)
     sp_oauth = get_spotify_oauth(handler=handler)
 
-    # validate_token automatically refreshes using the refresh_token
-    # stored in Supabase if the current access_token is expired.
     cached_token = handler.get_cached_token()
 
     if not cached_token:
-        print(
-            f"CRITICAL: No token found for Bot {BOT_USER_ID}. Manual login required once."
-        )
+        print(f"CRITICAL: No token found in Supabase for {BOT_USER_ID}")
         return None
 
+    # validate_token returns the valid token or a newly refreshed one
     token_info = sp_oauth.validate_token(cached_token)
 
     if not token_info:
+        print(
+            "DEBUG: Token validation failed. Token might be revoked or refresh failed."
+        )
         return None
 
+    # Ensure the access token is passed correctly
     return spotipy.Spotify(auth=token_info["access_token"])
 
 
