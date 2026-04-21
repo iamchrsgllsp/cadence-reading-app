@@ -239,7 +239,8 @@ def get_profile(user_id=None):
         Profile image URL or None
     """
     if not user_id:
-        user_id = get_current_user_id()
+        temp_sp = spotipy.Spotify(auth=token_info.get("access_token"))
+        user_id = temp_sp.current_user()["id"]
 
     sp = get_spotify_client(user_id)
 
@@ -261,3 +262,23 @@ def get_profile(user_id=None):
     except Exception as e:
         print(f"Error fetching profile for user {user_id}: {e}")
         return None
+
+
+def clear_session(user_id=None):
+    """
+    Clear session data for a specific user or all users.
+
+    Args:
+        user_id: If provided, clears only that user's data. Otherwise clears all.
+
+    Returns:
+        session object
+    """
+    if user_id:
+        handler = SupabaseCacheHandler(user_id)
+        token_key = handler.get_token_key(user_id)
+        session.pop(token_key, None)
+        if session.get("user") == user_id:
+            session.pop("user", None)
+
+    return session
