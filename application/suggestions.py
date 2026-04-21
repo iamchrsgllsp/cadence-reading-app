@@ -162,29 +162,26 @@ def spotify_search(sp, songs):
     return results
 
 
-def create_playlist(book, songs, cover_url, user_id=None):
-    sp = get_spotify_client(user_id)
+def create_playlist(book, songs, cover_url):
+    sp = get_spotify_client()
     if not sp:
         return None
 
     try:
-        me = sp.current_user()
-
+        # Create playlist under the bot's account
         playlist = sp.user_playlist_create(
-            user=me["id"],
+            user=BOT_USER_ID,
             name=f"cadence - {book['title']}",
             public=True,
             description=f"Playlist for: {book['title']} by {book['author']}",
         )
 
+        # ... rest of your track search and addition logic remains the same ...
         playlist_id = playlist["id"]
-
-        # Get track IDs using the already authenticated client
         found_tracks = spotify_search(sp, songs)
         track_uris = [f"spotify:track:{t['spotify_id']}" for t in found_tracks]
 
         if track_uris:
-            # Spotify allows max 100 tracks per request
             sp.playlist_add_items(playlist_id=playlist_id, items=track_uris[:100])
 
         if cover_url:
