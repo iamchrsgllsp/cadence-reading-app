@@ -169,31 +169,35 @@ def create_playlist(book, songs, cover_url):
         return None
 
     try:
-        # Dynamically get the ID of whoever the token belongs to
-        current_user_info = sp.current_user()
-        actual_id = current_user_info["id"]
-
+        # 1. Use user_playlist_create but pass the BOT_USER_ID explicitly
+        # 2. IMPORTANT: Set public=False.
+        # New dev apps often fail on public=True until they are 'Extended Access'
         playlist = sp.user_playlist_create(
-            user=actual_id,  # Use the ID from the token, not a hardcoded one
+            user=BOT_USER_ID,
             name=f"cadence - {book['title']}",
-            public=True,
-            description=f"Playlist for: {book['title']} by {book['author']}",
+            public=False,  # Try private first to bypass 403
+            collaborative=False,
+            description=f"Playlist for: {book['title']}",
         )
 
-        # ... rest of your track search and addition logic remains the same ...
         playlist_id = playlist["id"]
         found_tracks = spotify_search(sp, songs)
         track_uris = [f"spotify:track:{t['spotify_id']}" for t in found_tracks]
 
         if track_uris:
+            # 3. Use playlist_add_items (the modern endpoint)
+            # instead of user_playlist_add_tracks
             sp.playlist_add_items(playlist_id=playlist_id, items=track_uris[:100])
 
         if cover_url:
             upload_playlist_cover(sp, playlist_id, cover_url)
 
         return {"playlist_id": playlist_id}
+
     except Exception as e:
         print(f"Playlist creation error: {e}")
+        # If it still fails, check if your BOT_USER_ID in Supabase
+        # matches the one in the Spotify Developer Dashboard exactly.
         return None
 
 
