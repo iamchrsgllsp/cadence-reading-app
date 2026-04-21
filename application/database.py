@@ -104,7 +104,9 @@ def get_library(user: str) -> List[Dict[str, Any]]:
     """Retrieves all library entries for a specific user."""
     supabase = get_supabase_client()
     try:
-        response = supabase.table("library").select("*").eq("username", user).execute()
+        response = (
+            supabase.table("library").select("*").eq("username", "wegotfight").execute()
+        )
         # Returns a list of dictionaries
         return response.data
     except Exception as e:
