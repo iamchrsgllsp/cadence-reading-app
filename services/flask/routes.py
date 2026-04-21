@@ -108,12 +108,13 @@ def get_user_book():
 
 @app.route("/profile")
 def profile():
+    session["user"] = "wegotfight"  # Temporary hardcoded user for testing
     user_id = session.get("user")
     if not user_id:
         return render_template("profile.html", recs=[])
 
     # Fetch and organize library
-    library_data = get_library(user="wegotfight")
+    library_data = get_library(user_id)
     print(library_data)  # Using a test user for now
     sorted_books = organize_library(library_data)
 

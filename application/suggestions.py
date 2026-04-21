@@ -128,7 +128,7 @@ def app_callback(request):
         print(f"SUCCESS: Token saved for bot account {BOT_USER_ID}")
 
         # Optional: Sync session just for visual feedback in your UI
-        session["user"] = BOT_USER_ID
+        session["bot_user_id"] = BOT_USER_ID
 
     except Exception as e:
         print(f"Callback error: {e}")
