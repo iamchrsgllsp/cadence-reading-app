@@ -334,7 +334,7 @@ def testgen():
 
     # 2. Create the playlist using the specific user_id
     # Your suggestions.py create_playlist function already accepts user_id!
-    playlist = create_playlist(data, books, image, user_id=user_id)
+    playlist = create_playlist(data, books, image)
 
     print(f"Playlist created for {user_id}: {playlist}")
     return jsonify(playlist)
