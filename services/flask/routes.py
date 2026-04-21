@@ -113,7 +113,7 @@ def profile():
         return render_template("profile.html", recs=[])
 
     # Fetch and organize library
-    library_data = get_library("wegotfight")
+    library_data = get_library(user="wegotfight")
     print(library_data)  # Using a test user for now
     sorted_books = organize_library(library_data)
 
