@@ -68,6 +68,16 @@ def allbooks():
     return data
 
 
+@app.route("api/getuserbook")
+def get_user_book():
+    user_id = request.args.get("user_id") or session.get("user")
+    if not user_id:
+        return jsonify({"error": "User not authenticated"}), 401
+
+    data = get_library(user_id)
+    return jsonify(data)
+
+
 @app.route("/profile")
 def profile():
     # 1. Fetch library data (Returns a list of dictionaries from Supabase)
