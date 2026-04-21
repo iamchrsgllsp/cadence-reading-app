@@ -5,7 +5,11 @@ import requests
 import base64
 from flask import session
 from spotipy.oauth2 import SpotifyOAuth, CacheHandler
-from configfile import spotify_id as sid, spotify_secret as sid_sec
+from configfile import (
+    spotify_id as sid,
+    spotify_secret as sid_sec,
+    bot_id as BOT_USER_ID,
+)
 
 from application.database import (
     add_full_token_info,
@@ -73,18 +77,23 @@ def get_spotify_oauth(handler=None):
     )
 
 
-def get_spotify_client(user_id=None):
-    if not user_id:
-        user_id = session.get("user")
-
-    if not user_id:
-        return None
-
-    handler = SupabaseCacheHandler(user_id)
+def get_spotify_client():
+    """Always returns a client authenticated for the bot account."""
+    # Use the persistent Bot ID instead of the session
+    handler = SupabaseCacheHandler(BOT_USER_ID)
     sp_oauth = get_spotify_oauth(handler=handler)
 
-    # validate_token returns refreshed token if expired and updates Supabase automatically via handler
-    token_info = sp_oauth.validate_token(handler.get_cached_token())
+    # validate_token automatically refreshes using the refresh_token
+    # stored in Supabase if the current access_token is expired.
+    cached_token = handler.get_cached_token()
+
+    if not cached_token:
+        print(
+            f"CRITICAL: No token found for Bot {BOT_USER_ID}. Manual login required once."
+        )
+        return None
+
+    token_info = sp_oauth.validate_token(cached_token)
 
     if not token_info:
         return None
