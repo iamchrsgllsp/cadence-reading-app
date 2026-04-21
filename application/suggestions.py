@@ -18,8 +18,8 @@ from application.database import (
 )
 
 # Configuration
-REDIRECT_URI = "https://cadence-reading-app.onrender.com/api_callback"
-REDIRECT_URI2 = "http://127.0.0.1:3000/api_callback"
+REDIRECT_URI2 = "https://cadence-reading-app.onrender.com/api_callback"
+REDIRECT_URI = "http://127.0.0.1:3000/api_callback"
 SCOPE = "user-read-recently-played, user-top-read, user-read-currently-playing, playlist-modify-public, ugc-image-upload"
 
 # --- SUPABASE CACHE HANDLER ---
@@ -169,15 +169,17 @@ def create_playlist(book, songs, cover_url):
         return None
 
     try:
-        # 1. Use user_playlist_create but pass the BOT_USER_ID explicitly
-        # 2. IMPORTANT: Set public=False.
-        # New dev apps often fail on public=True until they are 'Extended Access'
+        # NEW FOR 2026: Always get 'me' first to ensure the token is active
+        # and you are hitting the /me endpoint
+        me = sp.current_user()
+
+        # FIX: Create as PRIVATE. New accounts often fail 403 on Public playlists
+        # until the app is moved out of "Development Mode".
         playlist = sp.user_playlist_create(
-            user=BOT_USER_ID,
+            user=me["id"],
             name=f"cadence - {book['title']}",
-            public=False,  # Try private first to bypass 403
-            collaborative=False,
-            description=f"Playlist for: {book['title']}",
+            public=False,  # <--- CRITICAL CHANGE
+            description=f"Playlist for {book['title']}",
         )
 
         playlist_id = playlist["id"]
@@ -185,19 +187,12 @@ def create_playlist(book, songs, cover_url):
         track_uris = [f"spotify:track:{t['spotify_id']}" for t in found_tracks]
 
         if track_uris:
-            # 3. Use playlist_add_items (the modern endpoint)
-            # instead of user_playlist_add_tracks
+            # Ensure you use playlist_add_items (uses the /items endpoint)
             sp.playlist_add_items(playlist_id=playlist_id, items=track_uris[:100])
 
-        if cover_url:
-            upload_playlist_cover(sp, playlist_id, cover_url)
-
         return {"playlist_id": playlist_id}
-
     except Exception as e:
-        print(f"Playlist creation error: {e}")
-        # If it still fails, check if your BOT_USER_ID in Supabase
-        # matches the one in the Spotify Developer Dashboard exactly.
+        print(f"2026 API Error: {e}")
         return None
 
 
