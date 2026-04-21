@@ -68,7 +68,7 @@ def allbooks():
     return data
 
 
-@app.route("api/getuserbook")
+@app.route("/api/getuserbook")
 def get_user_book():
     user_id = request.args.get("user_id") or session.get("user")
     if not user_id:
