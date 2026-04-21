@@ -113,13 +113,12 @@ def profile():
         return render_template("profile.html", recs=[])
 
     # Fetch and organize library
-    usr = "wegotfight"  # Using a test user for now
-    library_data = get_library(usr)
+    library_data = get_library("wegotfight")
     print(library_data)  # Using a test user for now
     sorted_books = organize_library(library_data)
 
     # Bot Profile Info (The account creating the playlists)
-    bot_name = "Cadence Bot"
+    bot_name = "wegotfight"
     bot_img = "https://www.creativefabrica.com/wp-content/uploads/2020/03/08/open-book-in-circle-icon-Graphics-3393563-1.jpg"
 
     profile_info = get_profile_data()  # Now uses Bot ID internally
