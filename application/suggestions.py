@@ -108,7 +108,7 @@ def verify_token(platform):
 
 
 def app_callback(request):
-    """Handles OAuth redirect and initial token storage."""
+    """Handles OAuth redirect and forces storage for the BOT_USER_ID."""
     sp_oauth = get_spotify_oauth()
     code = request.args.get("code")
 
@@ -116,17 +116,18 @@ def app_callback(request):
         return session
 
     try:
+        # 1. Get the token from Spotify using the auth code
         token_info = sp_oauth.get_access_token(code)
 
-        # Temporary client to get the Spotify ID
-        temp_sp = spotipy.Spotify(auth=token_info.get("access_token"))
-        user_id = temp_sp.current_user()["id"]
-
-        session["user"] = user_id
-
-        # Sync to Supabase
-        handler = SupabaseCacheHandler(user_id)
+        # 2. Use the BOT_USER_ID handler specifically
+        # This ensures the token is saved in the row the bot actually looks at
+        handler = SupabaseCacheHandler(BOT_USER_ID)
         handler.save_token_to_cache(token_info)
+
+        print(f"SUCCESS: Token saved for bot account {BOT_USER_ID}")
+
+        # Optional: Sync session just for visual feedback in your UI
+        session["user"] = BOT_USER_ID
 
     except Exception as e:
         print(f"Callback error: {e}")
