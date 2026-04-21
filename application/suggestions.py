@@ -169,10 +169,12 @@ def create_playlist(book, songs, cover_url):
         return None
 
     try:
-        botname = sp.current_user()
-        # Create playlist under the bot's account
+        # Dynamically get the ID of whoever the token belongs to
+        current_user_info = sp.current_user()
+        actual_id = current_user_info["id"]
+
         playlist = sp.user_playlist_create(
-            user=botname["id"],
+            user=actual_id,  # Use the ID from the token, not a hardcoded one
             name=f"cadence - {book['title']}",
             public=True,
             description=f"Playlist for: {book['title']} by {book['author']}",
