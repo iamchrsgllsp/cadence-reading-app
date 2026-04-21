@@ -48,7 +48,7 @@ class SupabaseCacheHandler(CacheHandler):
         supabase = get_supabase_client()
         try:
             payload = {
-                "user_id": "CadenceReadingApp",
+                "user_id": self.user_id,
                 "access_token": token_info.get("access_token"),
                 "refresh_token": token_info.get("refresh_token"),
                 "expires_at": token_info.get("expires_at"),
