@@ -109,6 +109,7 @@ def get_user_book():
 @app.route("/profile")
 def profile():
     # Temporary hardcoded user for testing
+    session["user"] = "wegotfight"  # This should be set during login/auth flow
     user_id = session.get("user")
     if not user_id:
         return render_template("profile.html", recs=[])
