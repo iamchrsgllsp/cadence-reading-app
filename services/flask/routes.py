@@ -46,6 +46,34 @@ completed = ["Between Two Fires", "The Running Man", "Buffalo Hunter Hunter"]
 dnf = ["Book A", "Book B"]
 
 
+def organize_library(raw_data):
+    """Sorts raw DB library data into status-based lists."""
+    categories = {"reading": [], "completed": [], "dnf": [], "tbr": []}
+
+    for book_data in raw_data:
+        book_details = book_data.get("book", [])
+        if not isinstance(book_details, list) or len(book_details) < 3:
+            continue
+
+        book_dict = {
+            "id": book_data.get("id"),
+            "title": book_details[0],
+            "author": book_details[1],
+            "cover_url": book_details[2],
+            "status": book_data.get("status"),
+            "pages": book_data.get("pages_read"),
+            "total_pages": book_data.get("total_pages"),
+        }
+
+        status = book_dict["status"]
+        if status in categories:
+            categories[status].append(book_dict)
+        else:
+            categories["tbr"].append(book_dict)
+
+    return categories
+
+
 @app.route("/")
 def index():
 
@@ -80,125 +108,34 @@ def get_user_book():
 
 @app.route("/profile")
 def profile():
-    # 1. Fetch library data (Returns a list of dictionaries from Supabase)
-    if session:
-        tbr = get_library(session.get("user"))
-        print(f"Raw data from Supabase: {tbr}")
+    user_id = session.get("user")
+    if not user_id:
+        return render_template("profile.html", recs=[])
 
-        better_data = []  # To Be Read (TBR)
-        currentbook = []  # Currently Reading
-        completed = []
-        dnf = []
+    # Fetch and organize library
+    library_data = get_library("wegotfight")  # Using a test user for now
+    sorted_books = organize_library(library_data)
 
-        # 2. Iterate over the list of dictionaries (book_data)
-        for book_data in tbr:
-            # Map Supabase column names to variables
-            book_id = book_data.get("id")
-            shelf_name = book_data.get(
-                "username"
-            )  # 'username' is the column name in DB
-            book_details = book_data.get(
-                "book"
-            )  # This is already a Python list/dict (not a JSON string)
-            status = book_data.get("status")
-            pages_read = book_data.get("pages_read")
-            total_pages = book_data.get("total_pages")
-            version = book_data.get("version")
+    # Bot Profile Info (The account creating the playlists)
+    bot_name = "Cadence Bot"
+    bot_img = "https://www.creativefabrica.com/wp-content/uploads/2020/03/08/open-book-in-circle-icon-Graphics-3393563-1.jpg"
 
-            # Ensure book_details is a list and has enough elements
-            if not isinstance(book_details, list) or len(book_details) < 3:
-                print(
-                    f"Skipping book ID {book_id} due to invalid or missing book details."
-                )
-                continue
+    profile_info = get_profile_data()  # Now uses Bot ID internally
+    if profile_info:
+        bot_name = profile_info.get("display_name", bot_name)
+        bot_img = get_profile() or bot_img
 
-            # Unpack the book details list
-            title = book_details[0]
-            author = book_details[1]
-            cover_url = book_details[2]
-
-            print(f"Processing book: {title}, Status: {status}")
-
-            # Construct the standardized dictionary for rendering
-            book_dict = {
-                "id": book_id,
-                "shelf": shelf_name,
-                "title": title,
-                "author": author,
-                "cover_url": cover_url,
-                "status": status,
-                "version": version,
-                "pages": pages_read,
-                "total_pages": total_pages,
-            }
-
-            # 3. Sort the books into the appropriate lists
-            if status == "reading":
-                currentbook.append(book_dict)
-            elif status == "completed":
-                completed.append(book_dict)
-            elif status == "dnf":
-                dnf.append(book_dict)
-            else:  # Assumed to be 'tbr' or uncategorized
-                better_data.append(
-                    book_dict
-                )  # better_data is used for TBR in the original code
-
-        # --- Other data initialization (Kept from original) ---
-        # recs = get_top_five_by_username(session.get("user"))
-        recs = []
-        # Assume get_profile_data() and get_profile() are defined elsewhere
-        # And handle their potential absence gracefully.
-        user = "Book Lover"
-        img = "https://www.creativefabrica.com/wp-content/uploads/2020/03/08/open-book-in-circle-icon-Graphics-3393563-1.jpg"
-
-    if session and callable(globals().get("get_profile_data")):
-        profile_data = get_profile_data()
-        if profile_data and profile_data.get("display_name"):
-            user = profile_data["display_name"]
-
-        if callable(globals().get("get_profile")):
-            profile_img = get_profile()
-            if profile_img:
-                img = profile_img
-
-    books = [  # This seems like placeholder data, keeping for consistency
-        {"title": "The Great Gatsby", "author": "F. Scott Fitzgerald"},
-    ]
-    # --- End other data initialization ---
-    """
-    print(f"Current Book: {currentbook}")
-    print(f"TBR: {better_data}")
-    print(get_message_thread())
-    """
-    messages = get_messages("wegotfight")
-
-    if session:
-        return render_template(
-            "profile.html",
-            img=img,
-            books=books,
-            user=user,
-            currentbook=currentbook,
-            tbr=better_data,
-            completed=completed,
-            dnf=dnf,
-            recs=recs,
-            messages=messages,
-        )
-    else:
-        recs = []
-        return render_template("profile.html", recs=recs)
-
-
-""" Content for messages
-            {"content": "hi there", "sender": "raidy", "read": "True"},
-            {"content": "hello", "sender": "dave", "read": "False"},
-            {
-                "content": "you should check this book out",
-                "sender": "goose",
-                "read": "False",
-            },"""
+    return render_template(
+        "profile.html",
+        img=bot_img,
+        user=bot_name,
+        currentbook=sorted_books["reading"],
+        tbr=sorted_books["tbr"],
+        completed=sorted_books["completed"],
+        dnf=sorted_books["dnf"],
+        recs=[],  # Add logic if needed
+        messages=get_messages("wegotfight"),
+    )
 
 
 @app.route("/api/profile_data")

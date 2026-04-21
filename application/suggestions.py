@@ -19,6 +19,7 @@ from application.database import (
 
 # Configuration
 REDIRECT_URI = "https://cadence-reading-app.onrender.com/api_callback"
+REDIRECT_URI2 = "http://127.0.0.1:3000/api_callback"
 SCOPE = "user-read-recently-played, user-top-read, user-read-currently-playing, playlist-modify-public, ugc-image-upload"
 
 # --- SUPABASE CACHE HANDLER ---
@@ -213,10 +214,10 @@ def upload_playlist_cover(sp, playlist_id, cover_url):
         print(f"Cover upload error: {e}")
 
 
-def get_profile_data(user_id=None):
+def get_profile_data():
     """Fetches full Spotify profile dictionary."""
 
-    sp = get_spotify_client(user_id)
+    sp = get_spotify_client()
 
     print(f"DEBUG: get_profile_data - Spotify client: {sp}")
 
@@ -246,7 +247,7 @@ def get_profile(user_id=None):
         Profile image URL or None
     """
 
-    sp = get_spotify_client(user_id)
+    sp = get_spotify_client()
 
     if not sp:
         return None
