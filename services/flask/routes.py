@@ -113,7 +113,9 @@ def profile():
         return render_template("profile.html", recs=[])
 
     # Fetch and organize library
-    library_data = get_library("wegotfight")  # Using a test user for now
+    usr = "wegotfight"  # Using a test user for now
+    library_data = get_library(usr)
+    print(library_data)  # Using a test user for now
     sorted_books = organize_library(library_data)
 
     # Bot Profile Info (The account creating the playlists)
