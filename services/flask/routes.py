@@ -120,13 +120,8 @@ def profile():
     sorted_books = organize_library(library_data)
 
     # Bot Profile Info (The account creating the playlists)
-    bot_name = "wegotfight"
+    bot_name = session["user"] if session.get("user") else "Book Bot"
     bot_img = "https://www.creativefabrica.com/wp-content/uploads/2020/03/08/open-book-in-circle-icon-Graphics-3393563-1.jpg"
-
-    profile_info = get_profile_data()  # Now uses Bot ID internally
-    if profile_info:
-        bot_name = profile_info.get("display_name", bot_name)
-        bot_img = get_profile() or bot_img
 
     return render_template(
         "profile.html",
