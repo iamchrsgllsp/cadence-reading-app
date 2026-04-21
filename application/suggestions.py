@@ -254,7 +254,7 @@ def get_profile(user_id=None):
 
     try:
         data = sp.current_user()
-        session["user"] = data["id"]
+        session["bot_user_id"] = data["id"]
         print("Fetched user profile:", data["id"])
 
         # Return profile image if available

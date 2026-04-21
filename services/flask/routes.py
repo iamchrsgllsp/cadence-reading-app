@@ -108,7 +108,7 @@ def get_user_book():
 
 @app.route("/profile")
 def profile():
-    session["user"] = "wegotfight"  # Temporary hardcoded user for testing
+    # Temporary hardcoded user for testing
     user_id = session.get("user")
     if not user_id:
         return render_template("profile.html", recs=[])
@@ -292,7 +292,9 @@ def api_callback():
     app_callback(request)
 
     # 3. Get the user ID (now safely in the session from app_callback)
-    user_id = session.get("user")
+    user_id = session.get(
+        "bot_user_id"
+    )  # This is the ID your bot uses to fetch the token
 
     print(f"Callback received. Platform: {platform}, User: {user_id}")
 
