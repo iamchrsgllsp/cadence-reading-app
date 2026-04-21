@@ -169,9 +169,10 @@ def create_playlist(book, songs, cover_url):
         return None
 
     try:
+        botname = sp.current_user()
         # Create playlist under the bot's account
         playlist = sp.user_playlist_create(
-            user=BOT_USER_ID,
+            user=botname["id"],
             name=f"cadence - {book['title']}",
             public=True,
             description=f"Playlist for: {book['title']} by {book['author']}",
