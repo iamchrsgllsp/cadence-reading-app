@@ -15,12 +15,14 @@
     const supabaseUrl = "{{ supabase_url }}";
     const supabaseKey = "{{ supabase_key }}";
     const supabase = supabase.createClient(supabaseUrl, supabaseKey);
-    const { data, error } = await supabase.auth.signInWithOAuth({
-  provider: 'google',
-  options: {
-    redirectTo: 'https://mpmblozcvymuwujwvefy.supabase.co/auth/v1/callback',
-  },
-})
+    
+    document.getElementById('google-login').onclick = async () => {
+    await supabase.auth.signInWithOAuth({
+      provider: 'google',
+      options: { redirectTo: 'http://localhost:8000/auth/callback' }
+    });
+  };
+
     </script>
     <script>
       // ====================================================================
@@ -696,9 +698,11 @@
             <h3>🎯 Quick Actions</h3>
             <div class="btn-group">
               {% if not session %}
-              <button class="btn btn-spotify" onclick="location.href='/verify'">
-                Connect Spotify
-              </button>
+              <button id="google-login">
+  <img src="google-icon.png" width="20"> Sign in with Google
+</button>
+
+
               {% endif %}
               <button class="btn" onclick="location.href='/clear'">
                 Clear Session
