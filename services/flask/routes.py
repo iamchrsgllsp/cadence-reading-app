@@ -25,6 +25,7 @@ from application.database import (
     get_message_thread,
     get_messages,
     is_new,
+    get_supabase_client,
 )
 import json, ast
 import os
@@ -133,6 +134,8 @@ def profile():
         dnf=sorted_books["dnf"],
         recs=[],  # Add logic if needed
         messages=get_messages("wegotfight"),
+        supabase_url=os.getenv("SUPABASE_URL"),
+        supabase_key=os.getenv("SUPABASE_KEY"),
     )
 
 
@@ -258,6 +261,13 @@ def user_profile(user):
         dnf=dnf,
         recs=recs,
     )
+
+
+@app.route("/auth/callback")
+def auth_callback(code: str):
+    # Exchange the code for a session
+    res = get_supabase_client().auth.exchange_code_for_session(code)
+    return {"message": "Logged in!", "user": res.user}
 
 
 @app.route("/friends")
