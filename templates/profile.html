@@ -12,18 +12,34 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script>
-    const supabaseUrl = "{{ supabase_url }}";
-    const supabaseKey = "{{ supabase_key }}";
-    const supabase = supabase.createClient(supabaseUrl, supabaseKey);
-    
-    document.getElementById('google-login').onclick = async () => {
-    await supabase.auth.signInWithOAuth({
-      provider: 'google',
-      options: { redirectTo: 'https://cadence-reading-app.onrender.com/auth/callback' }
-    });
-  };
+  // Use a self-invoking function to keep the scope clean
+  (function() {
+    const url = "{{ supabase_url }}";
+    const key = "{{ supabase_key }}";
 
-    </script>
+    // Only create the client if it hasn't been created yet
+    if (!window.supabaseClient) {
+      window.supabaseClient = supabase.createClient(url, key);
+      console.log("Supabase client initialized.");
+    }
+  })();
+
+  // Updated login function using the global client
+  async function handleGoogleLogin() {
+    const { data, error } = await window.supabaseClient.auth.signInWithOAuth({
+      provider: 'google',
+      options: { 
+        // Redirect back to your Python home page
+        redirectTo: window.location.origin 
+      }
+    });
+    
+    if (error) {
+      console.error("Login error:", error.message);
+      alert("Error: " + error.message);
+    }
+  }
+</script>
     <script>
       // ====================================================================
 
