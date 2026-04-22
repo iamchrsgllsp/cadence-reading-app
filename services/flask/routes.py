@@ -270,7 +270,7 @@ def user_profile(user):
 def auth_callback(code: str):
     # Exchange the code for a session
     res = get_supabase_client().auth.exchange_code_for_session(code)
-    session["user"] = res.user.id
+    session["user"] = res.user.id.toString()  # Store the user ID in the session
     return {"message": "Logged in!", "user": res.user}
 
 
