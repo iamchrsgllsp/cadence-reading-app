@@ -109,8 +109,6 @@ def get_user_book():
 
 @app.route("/profile")
 def profile():
-    # Temporary hardcoded user for testing
-    session["user"] = "wegotfight"  # This should be set during login/auth flow
     user_id = session.get("user")
     if not user_id:
         return render_template("profile.html", recs=[])
@@ -267,6 +265,7 @@ def user_profile(user):
 def auth_callback(code: str):
     # Exchange the code for a session
     res = get_supabase_client().auth.exchange_code_for_session(code)
+    session["user"] = res.user.id
     return {"message": "Logged in!", "user": res.user}
 
 
