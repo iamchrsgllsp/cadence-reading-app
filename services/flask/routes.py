@@ -28,7 +28,7 @@ from application.database import (
     get_supabase_client,
 )
 import json, ast
-import os
+from configfile import supabase_url, supabase_key
 
 app = Flask(__name__)
 app.secret_key = "supersecretkey"
@@ -134,8 +134,8 @@ def profile():
         dnf=sorted_books["dnf"],
         recs=[],  # Add logic if needed
         messages=get_messages("wegotfight"),
-        supabase_url=os.getenv("SUPABASE_URL"),
-        supabase_key=os.getenv("SUPABASE_KEY"),
+        supabase_url=supabase_url,
+        supabase_key=supabase_key,
     )
 
 
