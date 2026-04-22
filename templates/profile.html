@@ -19,7 +19,7 @@
     document.getElementById('google-login').onclick = async () => {
     await supabase.auth.signInWithOAuth({
       provider: 'google',
-      options: { redirectTo: 'https://mpmblozcvymuwujwvefy.supabase.co/auth/v1/callback' }
+      options: { redirectTo: 'https://cadence-reading-app.onrender.com/auth/callback' }
     });
   };
 
