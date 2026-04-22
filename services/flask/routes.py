@@ -111,7 +111,12 @@ def get_user_book():
 def profile():
     user_id = session.get("user")
     if not user_id:
-        return render_template("profile.html", recs=[])
+        return render_template(
+            "profile.html",
+            recs=[],
+            supabase_url=supabase_url,
+            supabase_key=supabase_key,
+        )
 
     # Fetch and organize library
     library_data = get_library(user_id)
