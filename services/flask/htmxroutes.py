@@ -55,53 +55,56 @@ def htmx_search():
 from flask import request, current_app
 
 
+from flask import request, current_app, jsonify
+
+
 @htmx_bp.route("/update_page", methods=["POST"])
 def update_page():
-    # 1. Safely retrieve form data, defaulting to None if key is missing.
-    print(request.form)
-    user_str = session.get("user")
-    book_id_str = request.form["book_id"]
-    current_page_str = request.form["current_page"]
-    total_pages_str = request.form["total_pages"]
-    if int(current_page_str) == int(total_pages_str):
-        print("Congratulations on finishing the book!")
-        complete_currentbook(user_str, book_id_str)
+    # 1. Extract Data
+    user_id = request.form.get("user_id")
+    book_id_str = request.form.get("book_id")
+    current_page_str = request.form.get("current_page")
+    total_pages_str = request.form.get("total_pages")
 
-    # 2. Check for missing critical data first.
-    if not book_id_str or not current_page_str:
-        # Log error or handle gracefully
-        current_app.logger.error("Missing book_id or current_page in form submission.")
-        return "Error: Missing Data", 400
+    # 2. Validation Logic
+    if not all([user_id, book_id_str, current_page_str]):
+        return "Missing Data", 400
 
-    # 3. Safely convert to integer only if the string is numeric.
     try:
-        # If user_str is 'None', the int() conversion will fail,
-        # so we convert to int only if the string is made of digits.
-        user_id = user_str  # Assuming user_str is already the correct type
         book_id = int(book_id_str)
         current_page = int(current_page_str)
 
+        # Perform the actual update
+        update_book_progress(user_id, book_id, current_page)
+
+        if current_page == int(total_pages_str or 0):
+            complete_currentbook(user_id, book_id)
+
     except ValueError:
-        # Log an error if the data cannot be converted to int (e.g., received "abc")
-        current_app.logger.error(
-            f"Invalid integer value received: user={user_str}, book={book_id_str}, page={current_page_str}"
+        return "Invalid Data Type", 400
+
+    # 3. Conditional Return based on Header
+    # Check if it's an HTMX request
+    if request.headers.get("HX-Request"):
+        return """
+        <script>
+            window.location.reload();
+        </script>
+        """
+
+    # Check if it's coming from a Dart/Flutter client
+    user_agent = request.headers.get("User-Agent", "")
+    if "Dart" in user_agent or request.accept_mimetypes.accept_json:
+        return (
+            jsonify(
+                {
+                    "status": "success",
+                    "message": f"Book {book_id} updated to page {current_page}",
+                    "user_id": user_id,
+                }
+            ),
+            200,
         )
-        return "Error: Invalid Data Type", 400
 
-    # 4. Execute your update logic
-    print(f"Updating user {user_id}, book {book_id} to page {current_page}")
-    update_book_progress(user_id, book_id, current_page)
-    print()
-    # 5. Return the htmx success fragment (Status 200 is default)
-    # Updated Python return statement
-
-    # Final, clean Python return statement (Target is the success span)
-
-    # --- SIMULATED PYTHON RETURN STRING (What /htmx/update_page should return) ---
-    return f"""
-    
-<script>
-    // This script runs immediately after the span is swapped into the DOM.
-    window.location.reload();
-</script>
-"""
+    # Default fallback
+    return "Update Successful", 200
