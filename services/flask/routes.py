@@ -109,6 +109,18 @@ def get_user_book():
 
 @app.route("/login")
 def login():
+    user_id = session.get("user_id")
+    profile_resp = (
+        get_supabase_client()
+        .table("profiles")
+        .select("display_name, avatar_url")
+        .eq("id", user_id)
+        .single()
+        .execute()
+    )
+    profile_data = profile_resp.data
+    print(f"Fetched profile data for user {user_id}: {profile_data}")
+    session["display_name"] = profile_data.get("display_name")
     return render_template(
         "login.html", supabase_url=supabase_url, supabase_key=supabase_key
     )
@@ -150,21 +162,11 @@ def profile():
 
     # 1. Fetch Profile Info from the 'profiles' table
     try:
-        profile_resp = (
-            get_supabase_client()
-            .table("profiles")
-            .select("display_name, avatar_url")
-            .eq("id", user_id)
-            .single()
-            .execute()
-        )
-        profile_data = profile_resp.data
-        print(f"Fetched profile data for user {user_id}: {profile_data}")
-
+        # Store display name in session for later use
         # Extract name and image with defaults
-        user_display_name = profile_data.get("display_name") or "New Explorer"
+        user_display_name = session.get("display_name") or "New Explorer"
         user_avatar = (
-            profile_data.get("avatar_url")
+            session.get("avatar_url")
             or "https://www.creativefabrica.com/wp-content/uploads/2020/03/08/open-book-in-circle-icon-Graphics-3393563-1.jpg"
         )
     except Exception as e:
@@ -173,7 +175,7 @@ def profile():
         user_avatar = "https://www.creativefabrica.com/wp-content/uploads/2020/03/08/open-book-in-circle-icon-Graphics-3393563-1.jpg"
 
     # 2. Fetch and organize library
-    library_data = get_library(user_id)
+    library_data = get_library(session.get("display_name"))  # Pass the user_id
     sorted_books = organize_library(library_data)
 
     return render_template(

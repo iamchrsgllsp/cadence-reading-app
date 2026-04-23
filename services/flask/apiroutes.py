@@ -35,12 +35,14 @@ def get_data():
 @api_bp.route("/addtolibrary", methods=["POST"])
 def add_to_library():
     # print(request.form)
+    attempt = session.get("display_name")
+
     data = ast.literal_eval(request.form["data"])
     print(data["key"])
     data = get_book_details_from_openlibrary(data["key"])
     print(data)
     book = [request.form["title"], request.form["author"], request.form["img"]]
-    user = session.get("user")
+    user = session.get("display_name")
     add_book_to_library(user, book, pages=data["page_count"])
 
     return Response(status=204, headers={"HX-Refresh": "true"})
@@ -50,7 +52,7 @@ def add_to_library():
 def remove_from_shelf():
     print(request.form)
     bookid = request.form["bookid"]
-    user = session.get("user")
+    user = session.get("display_name")
     remove_from_library(user, bookid)
     # Here you would add logic to remove the book from the user's shelf in the database
     # For example: remove_book_from_shelf(user, bookid)
@@ -61,7 +63,7 @@ def remove_from_shelf():
 def dnf():
     print(request.form)
     bookid = request.form["bookid"]
-    user = session.get("user")
+    user = session.get("display_name")
     dnfbook(user, bookid)
     # Here you would add logic to remove the book from the user's shelf in the database
     # For example: remove_book_from_shelf(user, bookid)
@@ -72,7 +74,7 @@ def dnf():
 def update_current_book():
     print(request.form)
     bookid = request.form["bookid"]
-    user = session.get("user")
+    user = session.get("display_name")
     update_currentbook(user, bookid)
     # Here you would add logic to remove the book from the user's shelf in the database
     # For example: remove_book_from_shelf(user, bookid)
@@ -97,7 +99,7 @@ def add_top_five():
         return {"data": "missing 'top_five' key"}, 400
 
     # Get the user (as you were doing)
-    user = session.get("user")
+    user = session.get("display_name")
 
     # 3. Call your function with the extracted data
     amend_top_five(
