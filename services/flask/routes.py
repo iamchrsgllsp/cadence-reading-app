@@ -460,7 +460,7 @@ def app_version():
     # 2. FIXED: version_code is now an integer to match your Flutter int.parse()
     data = {
         "version_code": 10,
-        "download_url": "https://mpmblozcvymuwujwvefy.supabase.co/storage/v1/object/public/cadence_storage/apk-release.apk",
+        "download_url": "https://mpmblozcvymuwujwvefy.supabase.co/storage/v1/object/public/cadence_storage/cadence.apk",
         "description": "📖 Cadence 📖\nNew features include:\nRole Badges\nStarted working on medals\nSign In\nAdd to Library on app\nInitial Shelf building:\n  - Completed Color Change\n  - Better Ui\n\nStay Tuned for more updates!",
     }
 
