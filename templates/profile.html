@@ -713,7 +713,10 @@
         {% endif %}
         <div class="user-header-content">
           <h1>{{ user }} 📚</h1>
-          <p>{{ user }}'s reading journey continues</p>
+          <p>{{ user }}'s badges:</p><br>
+          {% for badge in badges %}
+            <button onclick="alert('Badge Details:\n{{ badge.slug }}\nEarned on: {{ badge.earned_on }}\n{{badge.level_name}}')"><h2>{{badge.icon}}</h2></button>
+          {% endfor %}
         </div>
         
         {% if session %}
@@ -721,7 +724,7 @@
           <button class="btn btn-secondary">Suggest Features</button>
           <button class="btn btn-secondary">Provide Feedback</button>
           <button class="btn btn-secondary">Raise an issue</button>
-          <button class="btn btn-secondary" onclick="location.href='https://mpmblozcvymuwujwvefy.supabase.co/storage/v1/object/public/cadence_storage/cadence.apk'">Download Android APK</button>
+          <button class="btn btn" onclick="location.href='https://mpmblozcvymuwujwvefy.supabase.co/storage/v1/object/public/cadence_storage/cadence.apk'">Download Android APK</button>
         </div>
         {% endif %}
       </div>

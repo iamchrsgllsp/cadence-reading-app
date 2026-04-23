@@ -153,7 +153,7 @@ def profile():
         profile_resp = (
             get_supabase_client()
             .table("profiles")
-            .select("display_name, avatar_url, role")
+            .select("display_name, avatar_url, role, badges")
             .eq("id", user_id)
             .single()
             .execute()
@@ -205,7 +205,8 @@ def profile():
         role={
             "img": role,
             "name": session.get("role"),
-        },  # Pass role to template (default to 'reader')
+        },
+        badges=profile_data.get("badges", []),  # Pass badges to template
     )
 
 
