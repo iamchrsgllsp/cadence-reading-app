@@ -182,6 +182,7 @@
             body: JSON.stringify({
               uuid: data.user.id,
               email: data.user.email,
+              display_name: data.user.user_metadata.display_name,
             }),
           });
 
