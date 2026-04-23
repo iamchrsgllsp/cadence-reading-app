@@ -109,6 +109,9 @@ def get_user_book():
 
 @app.route("/profile")
 def profile():
+    # For testing purposes, we can set a dummy user in the session if it doesn't exist.
+    session["user"] = "wegotfight"
+
     user_id = session.get("user")
     if not user_id:
         return render_template(
@@ -409,7 +412,7 @@ def app_version():
     data = {
         "version_code": 10,
         "download_url": "https://mpmblozcvymuwujwvefy.supabase.co/storage/v1/object/public/cadence_storage/cadence.apk",
-        "description": "Bug fixes and performance improvements!\nInitial Spotify Playlist integration - sample data from Project Hail Mary and Ludwig Goransson\n- Fixed a bug that caused the app to crash on startup for some users.\n- Improved loading times when fetching book recommendations.\n- Updated the user interface for a smoother experience.",
+        "description": "📖 Cadence 📖\nNew features include:\n1. Google Sign-In\n2. Initial Shelf building:\n  - Completed Color Change\n  - Better Ui\n\nStay Tuned for more updates!",
     }
 
     return Response(
