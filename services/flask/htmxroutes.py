@@ -61,7 +61,7 @@ from flask import request, current_app, jsonify
 @htmx_bp.route("/update_page", methods=["POST"])
 def update_page():
     # 1. Extract Data
-    user_id = request.form.get("user_id")
+    user_id = request.form.get("user")
     book_id_str = request.form.get("book_id")
     current_page_str = request.form.get("current_page")
     total_pages_str = request.form.get("total_pages")
