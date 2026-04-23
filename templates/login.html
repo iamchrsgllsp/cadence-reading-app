@@ -108,11 +108,19 @@
         if (error) {
           msgBox.innerText = "Error: " + error.message;
         } else {
-          msgBox.style.color = "green";
-          msgBox.innerText = "Logged in as: " + data.user.email;
-          // Redirect user or update UI here
-          window.location.href = "/profile"; // Redirect to profile page after login
-          console.log("User data:", data.user);
+          // --- NEW CODE: Send the user info to Flask ---
+          const response = await fetch("/set_session", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ email: data.user.email }),
+          });
+
+          if (response.ok) {
+            msgBox.style.color = "green";
+            msgBox.innerText = "Logged in and session created!";
+            // Optional: redirect to a dashboard
+            window.location.href = "/profile";
+          }
         }
       }
     </script>

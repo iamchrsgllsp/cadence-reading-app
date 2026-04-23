@@ -112,6 +112,18 @@ def login():
     return render_template("login.html")
 
 
+@app.route("/set_session", methods=["POST"])
+def set_session():
+    data = request.json
+    user_email = data.get("email")
+
+    if user_email:
+        session["user"] = user_email  # Create the session
+        return jsonify({"status": "success"}), 200
+
+    return jsonify({"status": "error"}), 400
+
+
 @app.route("/profile")
 def profile():
     # For testing purposes, we can set a dummy user in the session if it doesn't exist.
