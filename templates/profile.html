@@ -378,6 +378,48 @@
         border-radius: 12px;
       }
 
+      /* 1. The Anchor: This makes sure the button stays relative to the image */
+.profile-wrapper {
+  position: relative;
+  flex-shrink: 0; /* Prevents the container from squishing */
+}
+
+/* 2. Style the existing image within the wrapper */
+.profile-wrapper img {
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 4px solid rgba(255, 255, 255, 0.3);
+  display: block; /* Removes bottom whitespace */
+}
+
+/* 3. The Overlay Button: Positioned absolute to the wrapper */
+.overlay-button {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  width: 32px;
+  height: 32px;
+  background: var(--primary);
+  border: 2px solid white;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+  transition: all 0.2s ease;
+  z-index: 10;
+  padding: 0;
+}
+
+.overlay-button:hover {
+  background: var(--accent);
+  transform: scale(1.1);
+}
+
       .progress-bar {
         width: 100%;
         height: 8px;
@@ -659,7 +701,15 @@
     <div class="container">
       <div class="user-header">
         {% if img %}
-        <img src="{{img}}" alt="Profile Image" />
+        <div class="profile-wrapper">
+          
+    <img src="{{img}}" alt="Profile Image" />
+    {% if role %}
+    <button class="overlay-button" onclick="alert('Role: {{role.name}}')">
+      {{role.img}}
+    </button>
+    {% endif %}
+  </div>
         {% endif %}
         <div class="user-header-content">
           <h1>{{ user }} 📚</h1>

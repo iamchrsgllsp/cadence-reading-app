@@ -153,7 +153,7 @@ def profile():
         profile_resp = (
             get_supabase_client()
             .table("profiles")
-            .select("display_name, avatar_url")
+            .select("display_name, avatar_url, role")
             .eq("id", user_id)
             .single()
             .execute()
@@ -164,6 +164,9 @@ def profile():
         session["avatar_url"] = profile_data.get(
             "avatar_url"
         )  # Store avatar URL in session for later use
+        session["role"] = profile_data.get(
+            "role"
+        )  # Store role in session for later use
         # Extract name and image with defaults
         user_display_name = session.get("display_name") or "New Explorer"
         user_avatar = (
@@ -178,7 +181,15 @@ def profile():
     # 2. Fetch and organize library
     library_data = get_library(session.get("display_name"))  # Pass the user_id
     sorted_books = organize_library(library_data)
+    role = session.get("role")
+    if role == "founder":
+        role = "👑"
+    elif role == "admin":
+        role = "🛠️"
+    elif role == "peanutbutter":
+        role = "🥜"
 
+        # Default to 'reader' if role is not set
     return render_template(
         "profile.html",
         img=user_avatar,  # Now comes from Supabase profiles
@@ -191,6 +202,10 @@ def profile():
         messages=get_messages(user_id),  # Switched from hardcoded string to user_id
         supabase_url=supabase_url,
         supabase_key=supabase_key,
+        role={
+            "img": role,
+            "name": session.get("role"),
+        },  # Pass role to template (default to 'reader')
     )
 
 
