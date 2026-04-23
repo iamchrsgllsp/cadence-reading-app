@@ -1,0 +1,120 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Supabase Login</title>
+    <style>
+      body {
+        font-family: sans-serif;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        background: #f4f4f9;
+      }
+      .auth-container {
+        background: white;
+        padding: 2rem;
+        border-radius: 8px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        width: 300px;
+      }
+      input {
+        width: 100%;
+        padding: 10px;
+        margin: 10px 0;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        box-sizing: border-box;
+      }
+      button {
+        width: 100%;
+        padding: 10px;
+        cursor: pointer;
+        border: none;
+        border-radius: 4px;
+        color: white;
+        margin-top: 5px;
+      }
+      .btn-login {
+        background-color: #3ecf8e;
+      }
+      .btn-signup {
+        background-color: #333;
+      }
+      #message {
+        margin-top: 15px;
+        font-size: 0.9rem;
+        color: #d33;
+        text-align: center;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="auth-container">
+      <h2>Supabase Auth</h2>
+      <input type="email" id="email" placeholder="Email" required />
+      <input type="password" id="password" placeholder="Password" required />
+
+      <button class="btn-login" onclick="handleLogin()">Log In</button>
+      <button class="btn-signup" onclick="handleSignUp()">Sign Up</button>
+
+      <div id="message"></div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <script>
+      // 1. Initialize Supabase Client
+      const url = "{{ supabase_url }}"; // Replace with your URL
+      const key = "{{ supabase_key }}"; // Replace with your Anon Key
+
+      if (!window.supabaseClient) {
+        window.supabaseClient = supabase.createClient(url, key);
+      }
+
+      const msgBox = document.getElementById("message");
+
+      // 2. Sign Up Function
+      async function handleSignUp() {
+        const email = document.getElementById("email").value;
+        const password = document.getElementById("password").value;
+
+        const { data, error } = await window.supabaseClient.auth.signUp({
+          email: email,
+          password: password,
+        });
+
+        if (error) {
+          msgBox.innerText = "Error: " + error.message;
+        } else {
+          msgBox.style.color = "green";
+          msgBox.innerText = "Check your email for a confirmation link!";
+        }
+      }
+
+      // 3. Login Function
+      async function handleLogin() {
+        const email = document.getElementById("email").value;
+        const password = document.getElementById("password").value;
+
+        const { data, error } =
+          await window.supabaseClient.auth.signInWithPassword({
+            email: email,
+            password: password,
+          });
+
+        if (error) {
+          msgBox.innerText = "Error: " + error.message;
+        } else {
+          msgBox.style.color = "green";
+          msgBox.innerText = "Logged in as: " + data.user.email;
+          // Redirect user or update UI here
+          window.location.href = "/profile"; // Redirect to profile page after login
+          console.log("User data:", data.user);
+        }
+      }
+    </script>
+  </body>
+</html>

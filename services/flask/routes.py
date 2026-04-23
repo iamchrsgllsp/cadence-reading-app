@@ -107,10 +107,15 @@ def get_user_book():
     return jsonify(data)
 
 
+@app.route("/login")
+def login():
+    return render_template("login.html")
+
+
 @app.route("/profile")
 def profile():
     # For testing purposes, we can set a dummy user in the session if it doesn't exist.
-    session["user"] = "wegotfight"
+    # session["user"] = "wegotfight"
 
     user_id = session.get("user")
     if not user_id:

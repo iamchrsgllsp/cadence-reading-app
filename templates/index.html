@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
@@ -463,7 +463,12 @@
         <div class="nav-links">
           <a href="#features">Features</a>
           <a href="/about">About</a>
+          {% if session.get('user') == "admin" %}
           <a href="/profile">Profile</a>
+          <a href="/logout">Logout</a>
+          {% else %}
+          <a href="/login">Sign Up / Login</a>
+          {% endif %}
         </div>
       </div>
     </nav>
