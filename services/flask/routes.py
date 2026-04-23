@@ -138,7 +138,7 @@ def logout():
 @app.route("/profile")
 def profile():
     # Use the UUID stored in session (we set this as 'user_id' in previous steps)
-    user_id = session.get("user_id")
+    user_id = session.get("display_name")
 
     if not user_id:
         return render_template(
