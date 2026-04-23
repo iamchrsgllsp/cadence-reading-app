@@ -138,7 +138,7 @@ def logout():
 @app.route("/profile")
 def profile():
     # Use the UUID stored in session (we set this as 'user_id' in previous steps)
-    user_id = session.get("display_name")
+    user_id = session.get("user_id")
 
     if not user_id:
         return render_template(
@@ -151,7 +151,8 @@ def profile():
     # 1. Fetch Profile Info from the 'profiles' table
     try:
         profile_resp = (
-            get_supabase_client.table("profiles")
+            get_supabase_client()
+            .table("profiles")
             .select("display_name, avatar_url")
             .eq("id", user_id)
             .single()
@@ -161,7 +162,7 @@ def profile():
         print(f"Fetched profile data for user {user_id}: {profile_data}")
 
         # Extract name and image with defaults
-        user_display_name = profile_data or "New Explorer"
+        user_display_name = profile_data.get("display_name") or "New Explorer"
         user_avatar = (
             profile_data.get("avatar_url")
             or "https://www.creativefabrica.com/wp-content/uploads/2020/03/08/open-book-in-circle-icon-Graphics-3393563-1.jpg"
