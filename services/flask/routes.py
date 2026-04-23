@@ -158,9 +158,10 @@ def profile():
             .execute()
         )
         profile_data = profile_resp.data
+        print(f"Fetched profile data for user {user_id}: {profile_data}")
 
         # Extract name and image with defaults
-        user_display_name = profile_data.get("display_name") or "New Explorer"
+        user_display_name = profile_data or "New Explorer"
         user_avatar = (
             profile_data.get("avatar_url")
             or "https://www.creativefabrica.com/wp-content/uploads/2020/03/08/open-book-in-circle-icon-Graphics-3393563-1.jpg"
