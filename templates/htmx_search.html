@@ -22,13 +22,13 @@
         class="add-to-library-button"
         hx-post="/api/addtolibrary"
         hx-vals='{
-        "title": "{{ item.get("title") }}",
-        "author": "{{ item.get("author_name", ["Unknown Author"]) | join(", ") }}",
-        "img": "https://covers.openlibrary.org/b/OLID/{{ item.get("cover_edition_key", "not_found") }}-M.jpg",
-        "data": "{{ item }}",
-        "user": "{{ session.get("display_name") }}"
-      }'
-        hx-on="htmx:response: if (event.detail.success) { window.reload(); }"
+    "title": {{ item.get("title") | tojson }},
+    "author": {{ (item.get("author_name", ["Unknown Author"]) | join(", ")) | tojson }},
+    "img": "https://covers.openlibrary.org/b/OLID/{{ item.get("cover_edition_key", "not_found") }}-M.jpg",
+    "data": {{ item | tojson }},
+    "user": {{ session.get("display_name") | tojson }}
+  }'
+        hx-on="htmx:response: if (event.detail.success) { window.location.reload(); }"
       >
         Add To Library
       </button>

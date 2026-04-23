@@ -34,18 +34,52 @@ def get_data():
 
 @api_bp.route("/addtolibrary", methods=["POST"])
 def add_to_library():
-    # print(request.form)
-    attempt = session.get("display_name")
+    try:
+        # 1. Get the 'data' string from the form and parse it as JSON
+        # This replaces ast.literal_eval and works for Flutter & HTMX
+        raw_data = request.form.get("data")
+        if not raw_data:
+            return Response("Missing 'data' field", status=400)
 
-    data = ast.literal_eval(request.form["data"])
-    print(data["key"])
-    data = get_book_details_from_openlibrary(data["key"])
-    print(data)
-    book = [request.form["title"], request.form["author"], request.form["img"]]
-    user = request.form["user"]
-    add_book_to_library(user, book, pages=data["page_count"])
+        data = json.loads(raw_data)
 
-    return Response(status=204, headers={"HX-Refresh": "true"})
+        # 2. Extract the key to fetch extra details from OpenLibrary
+        # We use .get() to prevent KeyErrors if 'key' is missing
+        ol_key = data.get("key")
+        if not ol_key:
+            return Response("Data object missing 'key'", status=400)
+
+        # Fetch external details (e.g., page count)
+        ol_details = get_book_details_from_openlibrary(ol_key)
+
+        # 3. Collect book info from the main form fields
+        # Note: Flutter and HTMX are now sending these as standard form fields
+        book = [
+            request.form.get("title", "Unknown Title"),
+            request.form.get("author", "Unknown Author"),
+            request.form.get("img", ""),
+        ]
+
+        # 4. Determine the user
+        # We prioritize the 'user' passed in the form, fall back to session
+        user = request.form.get("user") or session.get("display_name")
+
+        if not user:
+            return Response("User not identified", status=401)
+
+        # 5. Save to your database
+        add_book_to_library(user, book, pages=ol_details.get("page_count", 0))
+
+        # 204 No Content is standard for successful HTMX requests
+        # that don't need to swap HTML but need to trigger a refresh
+        return Response(status=204, headers={"HX-Refresh": "true"})
+
+    except json.JSONDecodeError:
+        return Response("Invalid JSON format in 'data' field", status=400)
+    except Exception as e:
+        # Log the actual error to your console for debugging
+        print(f"Error in add_to_library: {e}")
+        return Response("Internal Server Error", status=500)
 
 
 @api_bp.route("/removefromshelf", methods=["POST"])
