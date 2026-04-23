@@ -109,18 +109,6 @@ def get_user_book():
 
 @app.route("/login")
 def login():
-    user_id = session.get("user_id")
-    profile_resp = (
-        get_supabase_client()
-        .table("profiles")
-        .select("display_name, avatar_url")
-        .eq("id", user_id)
-        .single()
-        .execute()
-    )
-    profile_data = profile_resp.data
-    print(f"Fetched profile data for user {user_id}: {profile_data}")
-    session["display_name"] = profile_data.get("display_name")
     return render_template(
         "login.html", supabase_url=supabase_url, supabase_key=supabase_key
     )
@@ -162,7 +150,20 @@ def profile():
 
     # 1. Fetch Profile Info from the 'profiles' table
     try:
-        # Store display name in session for later use
+        profile_resp = (
+            get_supabase_client()
+            .table("profiles")
+            .select("display_name, avatar_url")
+            .eq("id", user_id)
+            .single()
+            .execute()
+        )
+        profile_data = profile_resp.data
+        print(f"Fetched profile data for user {user_id}: {profile_data}")
+        session["display_name"] = profile_data.get("display_name")
+        session["avatar_url"] = profile_data.get(
+            "avatar_url"
+        )  # Store avatar URL in session for later use
         # Extract name and image with defaults
         user_display_name = session.get("display_name") or "New Explorer"
         user_avatar = (

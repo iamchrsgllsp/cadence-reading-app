@@ -5,7 +5,11 @@
       src="https://covers.openlibrary.org/b/OLID/{{item.get('cover_edition_key', 'not_found')}}-M.jpg"
       alt="Cover for {{ item.get('title', 'Untitled') }}"
       class="book-image"
-      onerror="this.onerror=null;this.src='https://www.google.com/search?q=https://placehold.co/128x192/f3f4f6/a1a1aa%3Ftext%3DNo%2BCover';"
+      onerror="
+        this.onerror = null;
+        this.src =
+          'https://www.google.com/search?q=https://placehold.co/128x192/f3f4f6/a1a1aa%3Ftext%3DNo%2BCover';
+      "
     />
   </div>
   <div class="book-info">
@@ -14,19 +18,20 @@
       By: {{ item.get('author_name', ['Unknown Author']) | join(', ') }}
     </p>
     <div class="card-actions">
-    <button
-      class="add-to-library-button"
-      hx-post="/api/addtolibrary"
-      hx-vals='{
+      <button
+        class="add-to-library-button"
+        hx-post="/api/addtolibrary"
+        hx-vals='{
         "title": "{{ item.get("title") }}",
         "author": "{{ item.get("author_name", ["Unknown Author"]) | join(", ") }}",
         "img": "https://covers.openlibrary.org/b/OLID/{{ item.get("cover_edition_key", "not_found") }}-M.jpg",
-        "data": "{{ item }}"
+        "data": "{{ item }}",
+        "user": "{{ session.get("display_name") }}"
       }'
-      hx-on="htmx:response: if (event.detail.success) { window.reload(); }"
-    >
-      Add To Library
-    </button>
+        hx-on="htmx:response: if (event.detail.success) { window.reload(); }"
+      >
+        Add To Library
+      </button>
       <button class="dummy-button">Dummy Button</button>
     </div>
   </div>

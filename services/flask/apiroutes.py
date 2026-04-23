@@ -42,7 +42,7 @@ def add_to_library():
     data = get_book_details_from_openlibrary(data["key"])
     print(data)
     book = [request.form["title"], request.form["author"], request.form["img"]]
-    user = session.get("display_name")
+    user = request.form["user"]
     add_book_to_library(user, book, pages=data["page_count"])
 
     return Response(status=204, headers={"HX-Refresh": "true"})
