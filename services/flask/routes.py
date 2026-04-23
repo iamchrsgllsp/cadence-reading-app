@@ -109,7 +109,9 @@ def get_user_book():
 
 @app.route("/login")
 def login():
-    return render_template("login.html")
+    return render_template(
+        "login.html", supabase_url=supabase_url, supabase_key=supabase_key
+    )
 
 
 @app.route("/set_session", methods=["POST"])
@@ -122,6 +124,12 @@ def set_session():
         return jsonify({"status": "success"}), 200
 
     return jsonify({"status": "error"}), 400
+
+
+@app.route("/logout")
+def logout():
+    session.pop("user", None)
+    return "Logged out!"
 
 
 @app.route("/profile")
