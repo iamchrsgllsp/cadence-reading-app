@@ -461,7 +461,7 @@ def app_version():
     data = {
         "version_code": 10,
         "download_url": "https://mpmblozcvymuwujwvefy.supabase.co/storage/v1/object/public/cadence_storage/cadence.apk",
-        "description": "📖 Cadence 📖\nNew features include:\n1. Sign In\n2. Initial Shelf building:\n  - Completed Color Change\n  - Better Ui\n\nStay Tuned for more updates!",
+        "description": "📖 Cadence 📖\nNew features include:\nSign In\nAdd to Library on app\nInitial Shelf building:\n  - Completed Color Change\n  - Better Ui\n\nStay Tuned for more updates!",
     }
 
     return Response(
