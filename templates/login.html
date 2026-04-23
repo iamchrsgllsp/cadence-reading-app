@@ -20,6 +20,11 @@
         box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
         width: 300px;
       }
+      h2 {
+        margin-top: 0;
+        font-size: 1.5rem;
+        text-align: center;
+      }
       input {
         width: 100%;
         padding: 10px;
@@ -30,12 +35,13 @@
       }
       button {
         width: 100%;
-        padding: 10px;
+        padding: 12px;
         cursor: pointer;
         border: none;
         border-radius: 4px;
         color: white;
-        margin-top: 5px;
+        margin-top: 10px;
+        font-weight: bold;
       }
       .btn-login {
         background-color: #3ecf8e;
@@ -43,22 +49,48 @@
       .btn-signup {
         background-color: #333;
       }
+
       #message {
         margin-top: 15px;
         font-size: 0.9rem;
         color: #d33;
         text-align: center;
       }
+
+      .toggle-link {
+        display: block;
+        text-align: center;
+        margin-top: 15px;
+        font-size: 0.85rem;
+        color: #007bff;
+        text-decoration: none;
+        cursor: pointer;
+      }
+
+      /* Hidden by default */
+      #display-name-container {
+        display: none;
+      }
     </style>
   </head>
   <body>
     <div class="auth-container">
-      <h2>Sign Up / Login to Cadence</h2>
+      <h2 id="auth-title">Login to Cadence</h2>
+
+      <div id="display-name-container">
+        <input type="text" id="display_name" placeholder="Display Name" />
+      </div>
+
       <input type="email" id="email" placeholder="Email" required />
       <input type="password" id="password" placeholder="Password" required />
 
-      <button class="btn-login" onclick="handleLogin()">Log In</button>
-      <button class="btn-signup" onclick="handleSignUp()">Sign Up</button>
+      <button id="main-button" class="btn-login" onclick="handleSubmit()">
+        Log In
+      </button>
+
+      <a id="toggle-auth" class="toggle-link" onclick="toggleMode()"
+        >Don't have an account? Sign Up</a
+      >
 
       <div id="message"></div>
     </div>
@@ -66,35 +98,70 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
     <script>
-      // 1. Initialize Supabase Client
-      const url = "{{ supabase_url }}"; // Replace with your URL
-      const key = "{{ supabase_key }}"; // Replace with your Anon Key
-
+      // Initialize Supabase Client
+      const url = "{{ supabase_url }}";
+      const key = "{{ supabase_key }}";
       if (!window.supabaseClient) {
         window.supabaseClient = supabase.createClient(url, key);
       }
 
       const msgBox = document.getElementById("message");
+      let isSignUpMode = false;
 
-      // 2. Sign Up Function
+      // Switch between Login and Sign Up UI
+      function toggleMode() {
+        isSignUpMode = !isSignUpMode;
+        const nameContainer = document.getElementById("display-name-container");
+        const title = document.getElementById("auth-title");
+        const mainBtn = document.getElementById("main-button");
+        const toggleLink = document.getElementById("toggle-auth");
+
+        if (isSignUpMode) {
+          nameContainer.style.display = "block";
+          title.innerText = "Create Account";
+          mainBtn.innerText = "Sign Up";
+          mainBtn.className = "btn-signup";
+          toggleLink.innerText = "Already have an account? Log In";
+        } else {
+          nameContainer.style.display = "none";
+          title.innerText = "Login to Cadence";
+          mainBtn.innerText = "Log In";
+          mainBtn.className = "btn-login";
+          toggleLink.innerText = "Don't have an account? Sign Up";
+        }
+      }
+
+      // Router for the main button
+      function handleSubmit() {
+        if (isSignUpMode) {
+          handleSignUp();
+        } else {
+          handleLogin();
+        }
+      }
+
       async function handleSignUp() {
         const email = document.getElementById("email").value;
         const password = document.getElementById("password").value;
+        const displayName = document.getElementById("display_name").value;
 
         const { data, error } = await window.supabaseClient.auth.signUp({
           email: email,
           password: password,
+          options: {
+            data: { display_name: displayName },
+          },
         });
 
         if (error) {
-          msgBox.innerText = "Error: " + error.message;
+          msgBox.style.color = "#d33";
+          msgBox.innerText = error.message;
         } else {
           msgBox.style.color = "green";
           msgBox.innerText = "Check your email for a confirmation link!";
         }
       }
 
-      // 3. Login Function
       async function handleLogin() {
         const email = document.getElementById("email").value;
         const password = document.getElementById("password").value;
@@ -106,20 +173,20 @@
           });
 
         if (error) {
-          msgBox.innerText = "Error: " + error.message;
+          msgBox.style.color = "#d33";
+          msgBox.innerText = error.message;
         } else {
-          // --- NEW CODE: Send the user info to Flask ---
           const response = await fetch("/set_session", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ email: data.user.email }),
+            body: JSON.stringify({
+              uuid: data.user.id,
+              email: data.user.email,
+            }),
           });
 
           if (response.ok) {
-            msgBox.style.color = "green";
-            msgBox.innerText = "Logged in and session created!";
-            // Optional: redirect to a dashboard
-            window.location.href = "/profile";
+            window.location.href = "/dashboard";
           }
         }
       }

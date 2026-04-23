@@ -117,10 +117,13 @@ def login():
 @app.route("/set_session", methods=["POST"])
 def set_session():
     data = request.json
+    user_uuid = data.get("uuid")
     user_email = data.get("email")
 
-    if user_email:
-        session["user"] = user_email  # Create the session
+    if user_uuid:
+        # Store both for easy access later
+        session["user_id"] = user_uuid
+        session["user_email"] = user_email
         return jsonify({"status": "success"}), 200
 
     return jsonify({"status": "error"}), 400
@@ -134,10 +137,9 @@ def logout():
 
 @app.route("/profile")
 def profile():
-    # For testing purposes, we can set a dummy user in the session if it doesn't exist.
-    # session["user"] = "wegotfight"
+    # Use the UUID stored in session (we set this as 'user_id' in previous steps)
+    user_id = session.get("user_id")
 
-    user_id = session.get("user")
     if not user_id:
         return render_template(
             "profile.html",
@@ -146,25 +148,42 @@ def profile():
             supabase_key=supabase_key,
         )
 
-    # Fetch and organize library
-    library_data = get_library(user_id)
-    print(library_data)  # Using a test user for now
-    sorted_books = organize_library(library_data)
+    # 1. Fetch Profile Info from the 'profiles' table
+    try:
+        profile_resp = (
+            get_supabase_client.table("profiles")
+            .select("display_name, avatar_url")
+            .eq("id", user_id)
+            .single()
+            .execute()
+        )
+        profile_data = profile_resp.data
 
-    # Bot Profile Info (The account creating the playlists)
-    bot_name = session["user"] if session.get("user") else "Book Bot"
-    bot_img = "https://www.creativefabrica.com/wp-content/uploads/2020/03/08/open-book-in-circle-icon-Graphics-3393563-1.jpg"
+        # Extract name and image with defaults
+        user_display_name = profile_data.get("display_name") or "New Explorer"
+        user_avatar = (
+            profile_data.get("avatar_url")
+            or "https://www.creativefabrica.com/wp-content/uploads/2020/03/08/open-book-in-circle-icon-Graphics-3393563-1.jpg"
+        )
+    except Exception as e:
+        print(f"Error fetching profile: {e}")
+        user_display_name = "User"
+        user_avatar = "https://www.creativefabrica.com/wp-content/uploads/2020/03/08/open-book-in-circle-icon-Graphics-3393563-1.jpg"
+
+    # 2. Fetch and organize library
+    library_data = get_library(user_id)
+    sorted_books = organize_library(library_data)
 
     return render_template(
         "profile.html",
-        img=bot_img,
-        user=bot_name,
+        img=user_avatar,  # Now comes from Supabase profiles
+        user=user_display_name,  # Now comes from Supabase profiles
         currentbook=sorted_books["reading"],
         tbr=sorted_books["tbr"],
         completed=sorted_books["completed"],
         dnf=sorted_books["dnf"],
-        recs=[],  # Add logic if needed
-        messages=get_messages("wegotfight"),
+        recs=[],
+        messages=get_messages(user_id),  # Switched from hardcoded string to user_id
         supabase_url=supabase_url,
         supabase_key=supabase_key,
     )
