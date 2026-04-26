@@ -10,6 +10,7 @@ from flask import (
     jsonify,
     send_from_directory,
 )
+from supabase_auth import datetime
 from application.suggestions import (
     verify_token,
     app_callback,
@@ -52,6 +53,14 @@ def organize_library(raw_data):
     categories = {"reading": [], "completed": [], "dnf": [], "tbr": []}
 
     for book_data in raw_data:
+        last_updated = book_data.get("last_updated", "Unknown")
+        if last_updated and last_updated != "Unknown":
+            # Parse the ISO string (stripping the 'Z' or offset for simplicity)
+            dt_obj = datetime.fromisoformat(last_updated.replace("Z", "+00:00"))
+            # Format it: e.g., "Apr 26, 2026 - 03:46 PM"
+            last_updated = dt_obj.strftime("%b %d, %Y - %I:%M %p")
+        else:
+            last_updated = "Unknown"
 
         book_dict = {
             "id": book_data.get("id"),
@@ -61,6 +70,7 @@ def organize_library(raw_data):
             "status": book_data.get("status"),
             "pages": book_data.get("pages_read"),
             "total_pages": book_data.get("total_pages"),
+            "last_updated": last_updated,
         }
 
         status = book_dict["status"]

@@ -95,7 +95,7 @@ def dnf():
 def update_current_book():
     print(request.form)
     bookid = request.form["bookid"]
-    user = session.get("display_name")
+    user = session.get("display_name") or request.form.get("user")
     update_currentbook(user, bookid)
     # Here you would add logic to remove the book from the user's shelf in the database
     # For example: remove_book_from_shelf(user, bookid)
