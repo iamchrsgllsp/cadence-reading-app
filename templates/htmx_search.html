@@ -1,19 +1,22 @@
-{% if books %} {% for item in books %}
+{% if books %} {% for item in books %} {# Only render the card if pageCount
+exists and is greater than 0 #} {% if item.get('volumeInfo',
+{}).get('pageCount', 0) > 0 %}
 <div class="book-card">
   <div class="book-cover">
     <img
-      src={{ item.get('volumeInfo', {}).get('imageLinks', {}).get('thumbnail', '') }}
+      src="{{ item.get('volumeInfo', {}).get('imageLinks', {}).get('thumbnail', '') }}"
       alt="Cover for {{ item.get('volumeInfo', {}).get('title', '') }}"
       class="book-image"
       onerror="
         this.onerror = null;
-        this.src =
-          'https://www.google.com/search?q=https://placehold.co/128x192/f3f4f6/a1a1aa%3Ftext%3DNo%2BCover';
+        this.src = 'https://placehold.co/128x192/f3f4f6/a1a1aa?text=No+Cover';
       "
     />
   </div>
   <div class="book-info">
-    <h2 class="book-title">{{ item.get('volumeInfo', {}).get('title', '') }}</h2>
+    <h2 class="book-title">
+      {{ item.get('volumeInfo', {}).get('title', '') }}
+    </h2>
     <p class="book-author">
       By: {{ item.get('volumeInfo', {}).get('authors', ['Unknown Author'])[0] }}
     </p>
@@ -22,13 +25,14 @@
         class="add-to-library-button"
         hx-post="/api/addtolibrary"
         hx-vals='{
-    "title": {{ item.get("volumeInfo", {}).get("title", "") | tojson }},
-    "author": {{ (item.get("volumeInfo", {}).get("authors", ["Unknown Author"]) | join(", ")) | tojson }},
-    "img": {{ item.get("volumeInfo", {}).get("imageLinks", {}).get("thumbnail", "") | tojson }},
-    "data": {{ item | tojson }},
-    "user": {{ session.get("display_name") | tojson }}
-  }'
-        hx-on="htmx:response: if (event.detail.success) { window.location.reload(); }"
+              "title": {{ item.get("volumeInfo", {}).get("title", "Unknown Title") | tojson }},
+              "author": {{ (item.get("volumeInfo", {}).get("authors") | join(", ") if item.get("volumeInfo", {}).get("authors") else "Unknown Author") | tojson }},
+              "img": {{ item.get("volumeInfo", {}).get("imageLinks", {}).get("thumbnail", "") | tojson }},
+              "isbn": {{ (item.get("volumeInfo", {}).get("industryIdentifiers", []) | selectattr("type", "equalto", "ISBN_13") | map(attribute="identifier") | first or item.get("volumeInfo", {}).get("industryIdentifiers", [{}])[0].get("identifier", "")) | tojson }},
+              "pages": {{ item.get("volumeInfo", {}).get("pageCount") | tojson }},
+              "user": {{ session.get("display_name") | tojson }}
+            }'
+        hx-on::after-request="if (event.detail.successful) { window.location.reload(); }"
       >
         Add To Library
       </button>
@@ -36,7 +40,6 @@
     </div>
   </div>
 </div>
-{% endfor %} {% else %}
-<!-- Placeholder content when no books are passed initially -->
+{% endif %} {% endfor %} {% else %}
 <p class="placeholder-text">Search results will appear here!</p>
 {% endif %}

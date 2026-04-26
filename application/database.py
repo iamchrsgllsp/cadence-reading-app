@@ -112,7 +112,9 @@ def get_library(user: str) -> List[Dict[str, Any]]:
         return []
 
 
-def add_book_to_library(user: str, book: List[Any], pages: int):
+def add_book_to_library(
+    user: str, title: str, author: str, isbn: str, cover_url: str, pages: int
+):
     """Adds a new book entry to the library."""
     supabase = get_supabase_client()
     try:
@@ -123,9 +125,13 @@ def add_book_to_library(user: str, book: List[Any], pages: int):
 
         data_to_insert = {
             "username": user,
-            "book": book,
+            "title": title,
+            "author": author,
+            "isbn": isbn,
+            "cover_url": cover_url,
             "total_pages": pages,
             "status": "",  # Assuming initial status is 'To Be Read'
+            "date_added": datetime.utcnow().isoformat(),  # Optional: track when added
         }
 
         response = supabase.table("library").insert(data_to_insert).execute()

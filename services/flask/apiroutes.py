@@ -13,6 +13,7 @@ from application.database import (
 )
 import json
 import ast
+import datetime
 
 
 api_bp = Blueprint(
@@ -37,28 +38,15 @@ def add_to_library():
     try:
         # 1. Get the 'data' string from the form and parse it as JSON
         # This replaces ast.literal_eval and works for Flutter & HTMX
-        raw_data = request.form.get("data")
+        raw_data = request.form
         if not raw_data:
             return Response("Missing 'data' field", status=400)
 
-        data = json.loads(raw_data)
-
-        # 2. Extract the key to fetch extra details from OpenLibrary
-        # We use .get() to prevent KeyErrors if 'key' is missing
-        ol_key = data.get("key")
-        if not ol_key:
-            return Response("Data object missing 'key'", status=400)
-
-        # Fetch external details (e.g., page count)
-        ol_details = get_book_details_from_openlibrary(ol_key)
-
-        # 3. Collect book info from the main form fields
-        # Note: Flutter and HTMX are now sending these as standard form fields
-        book = [
-            request.form.get("title", "Unknown Title"),
-            request.form.get("author", "Unknown Author"),
-            request.form.get("img", ""),
-        ]
+        title = request.form.get("title", "Unknown Title")
+        author = request.form.get("author", "Unknown Author")
+        img = request.form.get("img", "")
+        isbn = request.form.get("isbn", "")
+        pages = request.form.get("pages", "0")
 
         # 4. Determine the user
         # We prioritize the 'user' passed in the form, fall back to session
@@ -68,7 +56,7 @@ def add_to_library():
             return Response("User not identified", status=401)
 
         # 5. Save to your database
-        add_book_to_library(user, book, pages=ol_details.get("page_count", 0))
+        add_book_to_library(user, title, author, isbn, img, int(pages))
 
         # 204 No Content is standard for successful HTMX requests
         # that don't need to swap HTML but need to trigger a refresh

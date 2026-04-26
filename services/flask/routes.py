@@ -52,15 +52,12 @@ def organize_library(raw_data):
     categories = {"reading": [], "completed": [], "dnf": [], "tbr": []}
 
     for book_data in raw_data:
-        book_details = book_data.get("book", [])
-        if not isinstance(book_details, list) or len(book_details) < 3:
-            continue
 
         book_dict = {
             "id": book_data.get("id"),
-            "title": book_details[0],
-            "author": book_details[1],
-            "cover_url": book_details[2],
+            "title": book_data.get("title"),
+            "author": book_data.get("author"),
+            "cover_url": book_data.get("cover_url"),
             "status": book_data.get("status"),
             "pages": book_data.get("pages_read"),
             "total_pages": book_data.get("total_pages"),
