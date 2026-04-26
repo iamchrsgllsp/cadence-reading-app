@@ -99,7 +99,18 @@ def update_current_book():
     update_currentbook(user, bookid)
     # Here you would add logic to remove the book from the user's shelf in the database
     # For example: remove_book_from_shelf(user, bookid)
-    return Response(status=204, headers={"HX-Refresh": "true"})
+    if (
+        "Dart" in request.headers.get("User-Agent", "")
+        or request.accept_mimetypes.accept_json
+    ):
+        return jsonify(
+            {
+                "status": "success",
+                "message": f"Book {bookid} set as current for user {user}",
+            }
+        )
+    else:
+        return Response(status=204, headers={"HX-Refresh": "true"})
 
 
 @api_bp.route("/addtopfive", methods=["POST"])
