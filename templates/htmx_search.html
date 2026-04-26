@@ -31,6 +31,7 @@ exists and is greater than 0 #} {% if item.get('volumeInfo',
               "isbn": {{ (item.get("volumeInfo", {}).get("industryIdentifiers", []) | selectattr("type", "equalto", "ISBN_13") | map(attribute="identifier") | first or item.get("volumeInfo", {}).get("industryIdentifiers", [{}])[0].get("identifier", "")) | tojson }},
               "pages": {{ item.get("volumeInfo", {}).get("pageCount") | tojson }},
               "user": {{ session.get("display_name") | tojson }}
+              "description": {{ item.get("volumeInfo", {}).get("description", "No description available.") | tojson }}
             }'
         hx-on::after-request="if (event.detail.successful) { window.location.reload(); }"
       >
