@@ -85,11 +85,19 @@ def remove_from_shelf():
 def dnf():
     print(request.form)
     bookid = request.form["bookid"]
-    user = session.get("display_name")
-    dnfbook(user, bookid)
-    # Here you would add logic to remove the book from the user's shelf in the database
-    # For example: remove_book_from_shelf(user, bookid)
-    return Response(status=204, headers={"HX-Refresh": "true"})
+    if "Dart" in request.headers.get("User-Agent", ""):
+        user = request.form.get("user")
+        dnfbook(user, bookid)
+        return jsonify(
+            {
+                "status": "success",
+                "message": f"Book {bookid} set as current for user {user}",
+            }
+        )
+    else:
+        user = session.get("display_name")
+        dnfbook(user, bookid)
+        return Response(status=204, headers={"HX-Refresh": "true"})
 
 
 @api_bp.route("/currentbook", methods=["POST"])
