@@ -99,10 +99,7 @@ def update_current_book():
 
     # Here you would add logic to remove the book from the user's shelf in the database
     # For example: remove_book_from_shelf(user, bookid)
-    if (
-        "Dart" in request.headers.get("User-Agent", "")
-        or request.accept_mimetypes.accept_json
-    ):
+    if "Dart" in request.headers.get("User-Agent", ""):
         user = request.form.get("user")
         update_currentbook(user, bookid)
         return jsonify(
