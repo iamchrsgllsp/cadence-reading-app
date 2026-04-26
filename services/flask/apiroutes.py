@@ -46,6 +46,7 @@ def add_to_library():
         img = request.form.get("img", "")
         isbn = request.form.get("isbn", "")
         pages = request.form.get("pages", "0")
+        description = request.form.get("description", "No description available.")
 
         # 4. Determine the user
         # We prioritize the 'user' passed in the form, fall back to session
@@ -55,7 +56,7 @@ def add_to_library():
             return Response("User not identified", status=401)
 
         # 5. Save to your database
-        add_book_to_library(user, title, author, isbn, img, int(pages))
+        add_book_to_library(user, title, author, isbn, img, int(pages), description)
 
         # 204 No Content is standard for successful HTMX requests
         # that don't need to swap HTML but need to trigger a refresh
