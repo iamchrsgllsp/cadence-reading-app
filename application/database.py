@@ -184,10 +184,11 @@ def remove_from_library(user: str, book_id: int):
         print(f"Error removing book: {e}")
 
 
-def update_book_progress(
-    user: str, book_id: int, pages_read: int, last_updated: datetime
-):
+def update_book_progress(user: str, book_id: int, pages_read: int):
     """Updates the pages read for a specific book."""
+    last_updated_iso = (
+        datetime.now().isoformat()
+    )  # Store the last updated time as an ISO string
     supabase = get_supabase_client()
     try:
         response = (
@@ -195,7 +196,7 @@ def update_book_progress(
             .update(
                 {
                     "pages_read": pages_read,
-                    "last_updated": last_updated.isoformat() if last_updated else None,
+                    "last_updated": last_updated_iso,  # Store as ISO string for consistency
                 }
             )
             .eq("username", user)
