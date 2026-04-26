@@ -2,8 +2,8 @@
 <div class="book-card">
   <div class="book-cover">
     <img
-      src="https://covers.openlibrary.org/b/OLID/{{item.get('cover_edition_key', 'not_found')}}-M.jpg"
-      alt="Cover for {{ item.get('title', 'Untitled') }}"
+      src={{ item.get('volumeInfo', {}).get('imageLinks', {}).get('thumbnail', '') }}
+      alt="Cover for {{ item.get('volumeInfo', {}).get('title', '') }}"
       class="book-image"
       onerror="
         this.onerror = null;
@@ -13,18 +13,18 @@
     />
   </div>
   <div class="book-info">
-    <h2 class="book-title">{{item.get('title')}}</h2>
+    <h2 class="book-title">{{ item.get('volumeInfo', {}).get('title', '') }}</h2>
     <p class="book-author">
-      By: {{ item.get('author_name', ['Unknown Author']) | join(', ') }}
+      By: {{ item.get('volumeInfo', {}).get('authors', ['Unknown Author'])[0] }}
     </p>
     <div class="card-actions">
       <button
         class="add-to-library-button"
         hx-post="/api/addtolibrary"
         hx-vals='{
-    "title": {{ item.get("title") | tojson }},
-    "author": {{ (item.get("author_name", ["Unknown Author"]) | join(", ")) | tojson }},
-    "img": "https://covers.openlibrary.org/b/OLID/{{ item.get("cover_edition_key", "not_found") }}-M.jpg",
+    "title": {{ item.get("volumeInfo", {}).get("title", "") | tojson }},
+    "author": {{ (item.get("volumeInfo", {}).get("authors", ["Unknown Author"]) | join(", ")) | tojson }},
+    "img": {{ item.get("volumeInfo", {}).get("imageLinks", {}).get("thumbnail", "") | tojson }},
     "data": {{ item | tojson }},
     "user": {{ session.get("display_name") | tojson }}
   }'

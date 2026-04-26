@@ -5,6 +5,7 @@ from application.database import (
     update_book_progress,
     complete_currentbook,
 )
+from configfile import google_books_key as bookkey
 
 htmx_bp = Blueprint(
     "htmx", __name__, template_folder="../../templates", static_folder="../../static"
@@ -44,11 +45,14 @@ def htmxposting():
 def htmx_search():
     query = request.args.get("search")
     print(f"Search query: {query}")
-    url = f"https://openlibrary.org/search.json?q={query}"
-    response = requests.get(url)
-    data = response.json()
-    books = data.get("docs", [])[:10]  # Get first 10 results
-    print(books)
+    if query:
+        url = f"https://www.googleapis.com/books/v1/volumes?q=intitle:{query}&key={bookkey}"
+        response = requests.get(url)
+        data = response.json()
+        books = data.get("items", [])[:10]  # Get first 10 results
+        print(books)
+    else:
+        books = []
     return render_template("htmx_search.html", books=books)
 
 
