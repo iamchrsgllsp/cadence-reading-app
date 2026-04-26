@@ -53,7 +53,10 @@ def htmx_search():
         print(books)
     else:
         books = []
-    return render_template("htmx_search.html", books=books)
+    if "Dart" in request.headers.get("User-Agent", ""):
+        return {"books": books}
+    else:
+        return render_template("htmx_search.html", books=books)
 
 
 from flask import request, current_app
