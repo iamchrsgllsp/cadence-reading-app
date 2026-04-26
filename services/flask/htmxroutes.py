@@ -76,6 +76,7 @@ def update_page():
     book_id_str = request.form.get("book_id")
     current_page_str = request.form.get("current_page")
     total_pages_str = request.form.get("total_pages")
+    last_updated = request.form.get("last_updated")
 
     # 2. Validation Logic
     if not all([user_id, book_id_str, current_page_str]):
@@ -86,7 +87,7 @@ def update_page():
         current_page = int(current_page_str)
 
         # Perform the actual update
-        update_book_progress(user_id, book_id, current_page)
+        update_book_progress(user_id, book_id, current_page, last_updated)
 
         if current_page == int(total_pages_str or 0):
             complete_currentbook(user_id, book_id)

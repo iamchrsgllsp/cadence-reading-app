@@ -184,13 +184,20 @@ def remove_from_library(user: str, book_id: int):
         print(f"Error removing book: {e}")
 
 
-def update_book_progress(user: str, book_id: int, pages_read: int):
+def update_book_progress(
+    user: str, book_id: int, pages_read: int, last_updated: datetime
+):
     """Updates the pages read for a specific book."""
     supabase = get_supabase_client()
     try:
         response = (
             supabase.table("library")
-            .update({"pages_read": pages_read})
+            .update(
+                {
+                    "pages_read": pages_read,
+                    "last_updated": last_updated.isoformat() if last_updated else None,
+                }
+            )
             .eq("username", user)
             .eq("id", book_id)
             .execute()
