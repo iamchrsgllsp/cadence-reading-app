@@ -63,6 +63,10 @@ def add_to_library():
             user = session.get("display_name")
             add_book_to_library(user, title,author,isbn,cover_url,pages,description)
             return Response(status=204, headers={"HX-Refresh": "true"})
+    except Exception as e:
+        # Log the actual error to your console for debugging
+        print(f"Error in add_to_library: {e}")
+        return Response("Internal Server Error", status=500)
 
 
 @api_bp.route("/removefromshelf", methods=["POST"])
