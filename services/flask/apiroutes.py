@@ -43,7 +43,7 @@ def add_to_library():
 
         title = request.form.get("title", "Unknown Title")
         author = request.form.get("author", "Unknown Author")
-        img = request.form.get("img", "")
+        cover_url = request.form.get("img", "")
         isbn = request.form.get("isbn", "")
         pages = request.form.get("pages", "0")
         description = request.form.get("description", "No description available.")
