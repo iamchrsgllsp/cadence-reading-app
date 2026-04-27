@@ -50,24 +50,19 @@ def add_to_library():
 
         # 4. Determine the user
         # We prioritize the 'user' passed in the form, fall back to session
-        user = request.form.get("user") or session.get("display_name")
-
-        if not user:
-            return Response("User not identified", status=401)
-
-        # 5. Save to your database
-        add_book_to_library(user, title, author, isbn, img, int(pages), description)
-
-        # 204 No Content is standard for successful HTMX requests
-        # that don't need to swap HTML but need to trigger a refresh
-        return Response(status=204, headers={"HX-Refresh": "true"})
-
-    except json.JSONDecodeError:
-        return Response("Invalid JSON format in 'data' field", status=400)
-    except Exception as e:
-        # Log the actual error to your console for debugging
-        print(f"Error in add_to_library: {e}")
-        return Response("Internal Server Error", status=500)
+        if "Dart" in request.headers.get("User-Agent", ""):
+            user = request.form.get("user")
+            add_book_to_library(user, title,author,isbn,cover_url,pages,description)
+            return jsonify(
+            {
+                "status": "success",
+                "message": f"Book {title} set as current for user {user}",
+            }
+        )
+        else:
+            user = session.get("display_name")
+            add_book_to_library(user, title,author,isbn,cover_url,pages,description)
+            return Response(status=204, headers={"HX-Refresh": "true"})
 
 
 @api_bp.route("/removefromshelf", methods=["POST"])
