@@ -134,7 +134,7 @@ def add_book_to_library(
             "title": title,
             "author": author,
             "isbn": isbn,
-            "cover_url": cover_url,
+            "cover_url": img,
             "total_pages": pages,
             "status": "",  # Assuming initial status is 'To Be Read'
             "date_added": datetime.utcnow().isoformat(),
