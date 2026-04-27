@@ -52,17 +52,12 @@ def add_to_library():
         # We prioritize the 'user' passed in the form, fall back to session
         if "Dart" in request.headers.get("User-Agent", ""):
             user = request.form.get("user")
-            add_book_to_library(user, title,author,isbn,cover_url,pages,description)
-            return jsonify(
-            {
-                "status": "success",
-                "message": f"Book {title} set as current for user {user}",
-            }
-        )
+            
         else:
             user = session.get("display_name")
-            add_book_to_library(user, title,author,isbn,cover_url,pages,description)
-            return Response(status=204, headers={"HX-Refresh": "true"})
+        
+        add_book_to_library(user, title,author,isbn,cover_url,pages,description)
+        return Response(status=204, headers={"HX-Refresh": "true"})
     except Exception as e:
         # Log the actual error to your console for debugging
         print(f"Error in add_to_library: {e}")
