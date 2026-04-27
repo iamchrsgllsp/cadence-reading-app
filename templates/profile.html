@@ -961,7 +961,7 @@
               <ul class="book-list">
                 {% for book in tbr %}
 
-                <li>
+                <li class="{{book.id}}" onclick="alert('Testing out description on click:\n{{book.description}}')">
                   <h4>{{ book.title }}</h4>
 
                   <p>{{ book.author }}</p>
@@ -1025,6 +1025,7 @@
   draggable="true"
   data-book-id="{{ book.id }}"
   data-book-title="{{ book.title }}"
+  onclick="alert('Testing out description on click:\n{{book.description}}')"
 >
     <h4>{{ book.title }}</h4>
 
@@ -1045,7 +1046,7 @@
               <ul class="book-list">
                 {% for book in dnf %}
 
-                <li>
+                <li onclick="alert('Testing out description on click:\n{{book.description}}')">
                   <h4>{{ book.title }}</h4>
 
                   <p>{{ book.author }}</p>
