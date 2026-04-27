@@ -19,6 +19,7 @@ exists and is greater than 0 #} {% if item.get('volumeInfo',
     </h2>
     <p class="book-author">
       By: {{ item.get('volumeInfo', {}).get('authors', ['Unknown Author'])[0] }}
+      {{item.get('volumeInfo', {}).get('description', '')}}
     </p>
     <div class="card-actions">
       <button
