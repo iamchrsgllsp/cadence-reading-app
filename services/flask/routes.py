@@ -71,6 +71,7 @@ def organize_library(raw_data):
             "pages": book_data.get("pages_read"),
             "total_pages": book_data.get("total_pages"),
             "last_updated": last_updated,
+            "description": book_data.get("description")
         }
 
         status = book_dict["status"]
