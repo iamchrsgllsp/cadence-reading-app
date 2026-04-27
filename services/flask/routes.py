@@ -484,7 +484,7 @@ def app_version():
     data = {
         "version_code": 10,
         "download_url": "https://mpmblozcvymuwujwvefy.supabase.co/storage/v1/object/public/cadence_storage/cadence.apk",
-        "description": "📖 Cadence 📖\nNew features include:\nRole Badges\nStarted working on medals\nSign In\nAdd to Library on app\nInitial Shelf building:\n  - Completed Color Change\n  - Better Ui\n\nStay Tuned for more updates!",
+        "description": '✨ New Features are Live on Cadence! ✨\nThe library is open! 📖 We’ve hit some major milestones in our latest update:\n✅ Total Library Overhaul – Your books have never looked better.\n✅ Role Badges – Earn your stripes.\n✅ Seamless Sign-In – Jump straight back into the action.\n✅ App Integration – Save titles on the go with "Add to Library."\n✅ The Full Shelf – A beautiful new way to browse.\n🏗️ Sneak Peek: The Medals system is currently in development!\nKeep your eyes peeled for more updates! 🚀',
     }
 
     return Response(
