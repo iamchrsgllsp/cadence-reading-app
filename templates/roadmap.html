@@ -1,27 +1,33 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>cadence - Your Personal Reading Companion</title>
+    <title>cadence - Roadmap</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;800&family=Playfair+Display:wght@700;900&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,600;1,400&family=DM+Sans:wght@300;400;500;600&display=swap"
       rel="stylesheet"
     />
+
     <style>
+      /* Unified CSS Variables from profile.html */
       :root {
-        --color-primary: #6366f1;
-        --color-secondary: #ec4899;
-        --color-accent: #10b981;
-        --color-purple: #a855f7;
-        --color-orange: #f97316;
-        --color-cyan: #06b6d4;
-        --color-background: #0f172a;
-        --color-card: #1e293b;
-        --color-text: #f8fafc;
-        --color-text-muted: #cbd5e1;
-        --font-body: "Poppins", sans-serif;
-        --font-heading: "Playfair Display", serif;
+        --primary: #7c6af7;
+        --primary-dark: #5b4fcf;
+        --primary-light: #a99df9;
+        --secondary: #9f6ef5;
+        --accent: #f472b6;
+        --bg-main: #0d1117;
+        --bg-card: #161b24;
+        --bg-card-hover: #1e2736;
+        --text-primary: #e8edf5;
+        --text-secondary: #8a97b0;
+        --text-muted: #536075;
+        --border: #242e3f;
+        --border-subtle: #1c2535;
+        --success: #34d399;
       }
 
       * {
@@ -31,529 +37,488 @@
       }
 
       body {
-        font-family: var(--font-body);
-        background: var(--color-background);
-        color: var(--color-text);
+        font-family: "DM Sans", sans-serif;
+        background: var(--bg-main);
+        color: var(--text-primary);
         line-height: 1.6;
-        overflow-x: hidden;
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
       }
 
-      /* Animated gradient background */
-      body::before {
+      /* ─── Hero Header (Matching .user-header in profile.html) ─── */
+      .roadmap-header {
+        position: relative;
+        padding: 5rem 2rem;
+        text-align: center;
+        background: linear-gradient(
+          130deg,
+          #1b1545 0%,
+          #1a1030 50%,
+          #120e2a 100%
+        );
+        border-bottom: 1px solid rgba(124, 106, 247, 0.2);
+        overflow: hidden;
+      }
+
+      /* Subtle decorative grain and glow orbs */
+      .roadmap-header::before {
         content: "";
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background: linear-gradient(
-          135deg,
-          #667eea 0%,
-          #764ba2 25%,
-          #f093fb 50%,
-          #4facfe 75%,
-          #00f2fe 100%
-        );
-        opacity: 0.03;
-        z-index: -1;
-        animation: gradientShift 15s ease infinite;
+        position: absolute;
+        inset: 0;
+        background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
+        pointer-events: none;
       }
 
-      @keyframes gradientShift {
-        0%,
-        100% {
-          transform: translateX(0) translateY(0);
-        }
-        25% {
-          transform: translateX(5%) translateY(5%);
-        }
-        50% {
-          transform: translateX(-5%) translateY(5%);
-        }
-        75% {
-          transform: translateX(5%) translateY(-5%);
-        }
-      }
-
-      /* Floating orbs */
-      .orb {
-        position: fixed;
-        border-radius: 50%;
-        filter: blur(80px);
-        opacity: 0.4;
-        animation: float 20s ease-in-out infinite;
-        z-index: -1;
-      }
-
-      .orb1 {
-        width: 400px;
-        height: 400px;
-        background: linear-gradient(
-          135deg,
-          var(--color-primary),
-          var(--color-secondary)
-        );
-        top: -200px;
-        right: -200px;
-        animation-delay: 0s;
-      }
-
-      .orb2 {
+      .roadmap-header::after {
+        content: "";
+        position: absolute;
+        top: -60px;
+        right: -60px;
         width: 300px;
         height: 300px;
-        background: linear-gradient(
-          135deg,
-          var(--color-accent),
-          var(--color-cyan)
+        background: radial-gradient(
+          circle,
+          rgba(124, 106, 247, 0.15) 0%,
+          transparent 70%
         );
-        bottom: -150px;
-        left: -150px;
-        animation-delay: 7s;
+        pointer-events: none;
       }
 
-      .orb3 {
-        width: 350px;
-        height: 350px;
-        background: linear-gradient(
-          135deg,
-          var(--color-purple),
-          var(--color-orange)
-        );
-        top: 50%;
-        left: 50%;
-        animation-delay: 14s;
+      .roadmap-header h1 {
+        font-family: "Lora", serif;
+        font-size: clamp(2.2rem, 6vw, 3.5rem);
+        color: var(--text-primary);
+        position: relative;
+        z-index: 1;
+        margin-bottom: 1rem;
       }
 
-      @keyframes float {
-        0%,
-        100% {
-          transform: translate(0, 0) scale(1);
-        }
-        33% {
-          transform: translate(50px, -50px) scale(1.1);
-        }
-        66% {
-          transform: translate(-50px, 50px) scale(0.9);
-        }
+      .roadmap-header p {
+        color: var(--text-secondary);
+        font-size: 1.1rem;
+        position: relative;
+        z-index: 1;
       }
 
-      /* Navigation */
-      nav {
-        background: rgba(30, 41, 59, 0.8);
-        backdrop-filter: blur(20px);
-        box-shadow: 0 4px 30px rgba(0, 0, 0, 0.3);
-        padding: 1.2rem 0;
-        position: sticky;
-        top: 0;
-        z-index: 100;
-        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-      }
-
-      .nav-container {
-        max-width: 1200px;
+      /* ─── Layout & Content ─── */
+      .container {
+        max-width: 1100px;
         margin: 0 auto;
+        padding: 4rem 2rem;
+        flex: 1;
+      }
+
+      .roadmap-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+        gap: 2rem;
+      }
+
+      /* Using .card hover effects from profile.html */
+      .roadmap-card {
+        background: var(--bg-card);
+        border-radius: 20px;
+        padding: 2.5rem;
+        border: 1px solid var(--border);
+        transition: all 0.25s ease;
+        position: relative;
+      }
+
+      .roadmap-card:hover {
+        border-color: rgba(124, 106, 247, 0.4);
+        transform: translateY(-5px);
+        box-shadow: 0 12px 32px rgba(0, 0, 0, 0.3);
+      }
+
+      .roadmap-card h2 {
+        font-family: "Lora", serif;
+        color: var(--primary-light);
+        margin-bottom: 1.5rem;
+        font-size: 1.75rem;
+        border-bottom: 1px solid var(--border-subtle);
+        padding-bottom: 1rem;
         display: flex;
         justify-content: space-between;
         align-items: center;
-        padding: 0 20px;
       }
 
-      .logo {
-        font-family: var(--font-heading);
-        font-size: 2rem;
-        font-weight: 900;
-        background: linear-gradient(
-          135deg,
-          var(--color-primary),
-          var(--color-secondary),
-          var(--color-accent)
-        );
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        background-clip: text;
-        text-decoration: none;
-        animation: shimmer 3s ease-in-out infinite;
+      .roadmap-card h3 {
+        font-size: 0.85rem;
+        text-transform: uppercase;
+        letter-spacing: 0.12em;
+        color: var(--accent);
+        margin: 1.5rem 0 1rem;
       }
 
-      @keyframes shimmer {
-        0%,
-        100% {
-          filter: hue-rotate(0deg);
-        }
-        50% {
-          filter: hue-rotate(20deg);
-        }
+      .roadmap-card ul {
+        list-style: none;
       }
 
-      .nav-links a {
-        color: var(--color-text);
-        text-decoration: none;
-        margin-left: 30px;
-        font-weight: 600;
-        transition: all 0.3s;
+      .roadmap-card li {
+        margin-bottom: 1.5rem;
+        padding-left: 1.5rem;
         position: relative;
       }
 
-      .nav-links a::after {
-        content: "";
+      .roadmap-card li::before {
+        content: "•";
+        color: var(--primary);
         position: absolute;
-        bottom: -5px;
         left: 0;
-        width: 0;
-        height: 2px;
-        background: linear-gradient(
-          90deg,
-          var(--color-primary),
-          var(--color-secondary)
-        );
-        transition: width 0.3s;
+        font-weight: bold;
+        font-size: 1.2rem;
       }
 
-      .nav-links a:hover {
-        color: var(--color-primary);
+      .roadmap-card li h4 {
+        color: var(--text-primary);
+        font-size: 1.1rem;
+        margin-bottom: 0.4rem;
       }
 
-      .nav-links a:hover::after {
-        width: 100%;
+      .roadmap-card li p {
+        color: var(--text-secondary);
+        font-size: 0.95rem;
+        line-height: 1.6;
       }
 
-      /* Hero Section */
-      .hero {
-        text-align: center;
-        padding: 6rem 20px 8rem 20px;
-        position: relative;
+      /* Status Tag styling based on .success */
+      .tag-go-live {
+        background: rgba(52, 211, 153, 0.15);
+        color: var(--success);
+        padding: 0.3rem 0.8rem;
+        border-radius: 20px;
+        font-size: 0.7rem;
+        font-weight: 700;
+        border: 1px solid rgba(52, 211, 153, 0.3);
+        letter-spacing: 0.05em;
       }
 
-      .hero h1 {
-        font-family: var(--font-heading);
-        font-size: 4.5rem;
-        font-weight: 900;
-        margin: 0 0 1.5rem 0;
-        letter-spacing: -1px;
-        background: linear-gradient(
-          135deg,
-          #fff -60%,
-          var(--color-primary) 10%,
-          var(--color-secondary) 100%
-        );
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        background-clip: text;
-        animation: fadeInUp 0.8s ease-out;
+      /* ─── Global Footer ─── */
+      .site-footer {
+        background: #090c10;
+        padding: 4rem 2rem;
+        border-top: 1px solid var(--border);
+        color: var(--text-muted);
       }
 
-      @keyframes fadeInUp {
-        from {
-          opacity: 0;
-          transform: translateY(30px);
-        }
-        to {
-          opacity: 1;
-          transform: translateY(0);
-        }
+      .footer-container {
+        max-width: 1100px;
+        margin: 0 auto;
+        display: grid;
+        grid-template-columns: 1.5fr repeat(3, 1fr);
+        gap: 3rem;
       }
 
-      .hero p {
-        font-size: 1.4rem;
-        max-width: 700px;
-        margin: 0 auto 3rem auto;
-        font-weight: 400;
-        color: var(--color-text-muted);
-        animation: fadeInUp 0.8s ease-out 0.2s both;
+      .footer-brand h2 {
+        font-family: "Lora", serif;
+        color: var(--text-primary);
+        margin-bottom: 1rem;
       }
 
-      /* CTA Button */
-      .cta-btn {
-        display: inline-block;
-        background: linear-gradient(
-          135deg,
-          var(--color-primary),
-          var(--color-secondary)
-        );
-        color: var(--color-text);
-        padding: 1.2rem 3rem;
-        border-radius: 50px;
+      .footer-links h4 {
+        color: var(--text-primary);
+        font-size: 0.9rem;
+        margin-bottom: 1.2rem;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+      }
+
+      .footer-links ul {
+        list-style: none;
+      }
+
+      .footer-links li {
+        margin-bottom: 0.6rem;
+      }
+
+      .footer-links a {
+        color: var(--text-secondary);
+        text-decoration: none;
+        font-size: 0.9rem;
+        transition: color 0.2s;
+      }
+
+      .footer-links a:hover {
+        color: var(--primary-light);
+      }
+
+      .footer-bottom {
+        max-width: 1100px;
+        margin: 3rem auto 0;
+        padding-top: 2rem;
+        border-top: 1px solid var(--border-subtle);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        font-size: 0.85rem;
+      }
+
+      .social-links {
+        display: flex;
+        gap: 1.5rem;
+      }
+
+      .social-links a {
+        color: var(--text-muted);
         text-decoration: none;
         font-size: 1.2rem;
-        font-weight: 700;
-        letter-spacing: 0.5px;
-        transition: all 0.4s;
-        box-shadow: 0 10px 40px rgba(99, 102, 241, 0.4);
-        position: relative;
-        overflow: hidden;
-        animation: fadeInUp 0.8s ease-out 0.4s both;
+        transition: color 0.2s;
       }
 
-      .cta-btn::before {
-        content: "";
-        position: absolute;
-        top: 0;
-        left: -100%;
-        width: 100%;
-        height: 100%;
-        background: linear-gradient(
-          90deg,
-          transparent,
-          rgba(255, 255, 255, 0.3),
-          transparent
-        );
-        transition: left 0.5s;
+      .social-links a:hover {
+        color: var(--accent);
       }
 
-      .cta-btn:hover::before {
-        left: 100%;
+      .back-to-top {
+        background: transparent;
+        border: 1px solid var(--border);
+        color: var(--text-secondary);
+        padding: 0.5rem 1rem;
+        border-radius: 8px;
+        cursor: pointer;
+        font-family: inherit;
+        transition: all 0.2s;
       }
 
-      .cta-btn:hover {
-        transform: translateY(-3px) scale(1.05);
-        box-shadow: 0 15px 50px rgba(99, 102, 241, 0.6);
+      .back-to-top:hover {
+        border-color: var(--primary);
+        color: var(--primary-light);
       }
 
-      /* Content Section */
-      .content-section {
-        max-width: 1200px;
-        margin: 0 auto 5rem auto;
-        padding: 0 20px;
-        text-align: center;
-      }
-
-      .content-section h2 {
-        font-family: var(--font-heading);
-        font-size: 3rem;
-        background: linear-gradient(
-          135deg,
-          var(--color-accent),
-          var(--color-cyan)
-        );
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        background-clip: text;
-        margin-bottom: 3rem;
-        font-weight: 900;
-      }
-
-      .features {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-        gap: 30px;
-        margin-top: 3rem;
-      }
-
-      .feature-item {
-        padding: 35px 25px;
-        border-radius: 20px;
-        background: rgba(30, 41, 59, 0.6);
-        backdrop-filter: blur(20px);
-        border: 1px solid rgba(255, 255, 255, 0.1);
-        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-        position: relative;
-        overflow: hidden;
-      }
-
-      .feature-item::before {
-        content: "";
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background: linear-gradient(
-          135deg,
-          var(--color-primary),
-          var(--color-secondary)
-        );
-        opacity: 0;
-        transition: opacity 0.4s;
-        z-index: -1;
-      }
-
-      .feature-item:hover::before {
-        opacity: 0.1;
-      }
-
-      .feature-item:hover {
-        transform: translateY(-10px);
-        box-shadow: 0 20px 60px rgba(99, 102, 241, 0.3);
-        border-color: rgba(99, 102, 241, 0.5);
-      }
-
-      .feature-item h3 {
-        background: linear-gradient(
-          135deg,
-          var(--color-primary),
-          var(--color-accent)
-        );
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        background-clip: text;
-        font-size: 1.6rem;
-        margin: 0 0 1rem 0;
-        font-weight: 700;
-      }
-
-      .feature-item p {
-        color: var(--color-text-muted);
-        line-height: 1.8;
-      }
-
-      .feature-item img {
-        width: 100%;
-        margin-top: 20px;
-        border-radius: 15px;
-        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
-        transition: transform 0.4s;
-      }
-
-      .feature-item:hover img {
-        transform: scale(1.05);
-      }
-
-      /* Footer */
-      footer {
-        text-align: center;
-        padding: 3rem 0;
-        color: var(--color-text-muted);
-        font-size: 0.95rem;
-        border-top: 1px solid rgba(255, 255, 255, 0.1);
-        background: rgba(30, 41, 59, 0.5);
-        backdrop-filter: blur(20px);
-      }
-
-      footer a {
-        color: var(--color-text-muted);
-        transition: color 0.3s;
-      }
-
-      footer a:hover {
-        color: var(--color-primary);
-      }
-
-      /* Responsiveness */
       @media (max-width: 768px) {
-        .hero h1 {
-          font-size: 3rem;
+        .footer-container {
+          grid-template-columns: 1fr 1fr;
         }
-
-        .hero p {
-          font-size: 1.15rem;
-        }
-
-        .content-section h2 {
-          font-size: 2.2rem;
-        }
-
-        .nav-links {
-          display: none;
-        }
-
-        .features {
-          grid-template-columns: 1fr;
+        .footer-bottom {
+          flex-direction: column;
+          gap: 1.5rem;
+          text-align: center;
         }
       }
     </style>
   </head>
   <body>
-    <div class="orb orb1"></div>
-    <div class="orb orb2"></div>
-    <div class="orb orb3"></div>
+    <header class="roadmap-header">
+      <h1>Cadence Roadmap 📚</h1>
+      <p>Check here for the latest updates and features!</p>
+      <p>
+        Our android app is now available for download! And includes patch notes
+        when new updates are available.
+      </p>
+    </header>
 
-    <nav>
-      <div class="nav-container">
-        <a href="/" class="logo">cadence 📚</a>
-        <div class="nav-links">
-          <a href="/">Features</a>
-          <a href="/about">About</a>
-          <a href="/profile">Profile</a>
-        </div>
-      </div>
-    </nav>
-
-    <div class="content-section" id="features">
-      <h2>Built for Book Lovers, by Book Lovers.</h2>
-      <div class="features">
-        <div class="feature-item">
-          <h3>🎵 Cadence Roadmap</h3>
-          <div class="period">
-          <h2>Q1 2026</h2>
-          
+    <div class="container">
+      <div class="roadmap-grid">
+        <section class="roadmap-card">
+          <h2>Ongoing Behind The Scenes</h2>
+          <h3>Everythings an RPG</h3>
           <ul>
-            <h3>Community Update:</h3>
+            <li>
+              <h4>Levelling system</h4>
+              <p>
+                Gain experience points for every book you complete, level your
+                profile, unlock badges and get access to new features.
+              </p>
+            </li>
+            <li>
+              <h4>Badges and Roles</h4>
+              <p>
+                Gain badges for completing reading challenges, hitting
+                milestones, and more. Show off your reading achievements on your
+                profile.
+                <br />
+                View roles of users when they run a book club, host discussions,
+                or contribute to the community in other ways.
+              </p>
+            </li>
           </ul>
-          <li>
-            <h4>Friend Profile</h4>
-            <p>
-              View your friends book, add them to your TBR, start discussions on your favourite books
-            </p>
-            
-          </li>
-          <li>
-            <h4>Messages</h4>
-            <p>Send your friends messages or share new books</p>
-          </li>
-          
+          <h3>Wider Community Features</h3>
           <ul>
-            
-          </div>
-          <div class="period">
-          <h2>Q4 2025</h2>
-          <p>Initial go-live</p>
-          <p>
-            Features to include: Logging and tracking books, generating book
-            playlist, open call for features
+            <li>
+              <h4>Bookclubs</h4>
+              <p>
+                Join or create book clubs. Moderate discussions, set current
+                book for everyone each month, schedule meetups and more.
+              </p>
+            </li>
+            <li>
+              <h4>Import and Export CSV</h4>
+              <p>
+                Easily import data from other platforms and export your Cadence
+                data for other platforms or your own analysis.
+              </p>
+            </li>
+            <li>
+              <h4>Offline app functionality</h4>
+              <p>
+                Update book progress and status even offline, sync when you're
+                back online.
+              </p>
+            </li>
+            <li>
+              <h4>Social Sharing</h4>
+              <p>
+                Customisable shareable graphics to show off your reading stats,
+                current reads, badges to share easily on social media or with
+                friends.
+              </p>
+            </li>
+          </ul>
+        </section>
+        <section class="roadmap-card">
+          <h2>Q2 2026</h2>
+          <h3>Community Update</h3>
+          <ul>
+            <li>
+              <h4>Friend Profiles</h4>
+              <p>
+                View your friends' books, add them to your TBR, and start
+                discussions on your favorites.
+              </p>
+            </li>
+            <li>
+              <h4>Friend Reading</h4>
+              <p>
+                See what friends are also reading the same book and compare
+                stats on the fly. This is currently showing on android app to
+                bug test along with friends system and so you can get a feel for
+                it - let us know if you want this visual turned off for now.
+              </p>
+            </li>
+            <li>
+              <h4>Messages</h4>
+              <p>
+                Send your friends messages or share new book discoveries
+                directly.
+              </p>
+            </li>
+          </ul>
+          <h3>Better stats, recommendations and global features</h3>
+          <ul>
+            <li>
+              <h4>Multi-Format Tracking</h4>
+              <p>Track progress for Audio, Kindle, and Hardcover books.</p>
+            </li>
+            <li>
+              <h4>It's in the details</h4>
+              <p>
+                Better stats including genre breakdowns, reading pace, and more
+                to help you understand your reading habits and preferences.
+              </p>
+            </li>
+            <li>
+              <h4>Global Recommendations</h4>
+              <p>
+                Get personalized book suggestions based on your reading history
+                as well as trending books in the Cadence community.
+              </p>
+            </li>
+          </ul>
+        </section>
+
+        <section class="roadmap-card">
+          <h2>Q1 2026 - May<span class="tag-go-live">LIVE</span></h2>
+          <p style="color: var(--text-secondary); margin-bottom: 1rem">
+            Initial go-live and platform launch.
           </p>
+
+          <h3>Book Logging</h3>
           <ul>
-            <h3>Book Logging:</h3>
+            <li>
+              <h4>Shelf Management</h4>
+              <p>
+                Search and manage your TBR, Completed, and DNF lists seamlessly.
+              </p>
+            </li>
+            <li>
+              <h4>Progress Tracking</h4>
+              <p>Sync and update your reading progress across devices.</p>
+            </li>
+            <li>
+              <h4>Reading Stats</h4>
+              <p>
+                Visualize your genre breakdown via interactive charts.
+                <br />
+                Simple graph currently with more detailed stats coming soon.
+              </p>
+            </li>
           </ul>
-          <li>
-            <h4>Currently Reading</h4>
-            <p>
-              Track pages within your currently reading list, choose version of
-              book (audio, kindle, paperback, hardcover)
-            </p>
-            <p>Surprises when finishing books</p>
-          </li>
-          <li>
-            <h4>TBR</h4>
-            <p>Search and add books to your TBR</p>
-          </li>
-          <li>
-            <h4>Completed</h4>
-            <p>Finish your books and show them off</p>
-          </li>
-          <li>
-            <h4>DNF</h4>
-            <p>Not vibing with a book, add it to your DNF list</p>
-          </li>
-          <li>
-            <h4>Stats</h4>
-            <p>View your book stats - completion, dnf'ing, genre and version etc</p>
-          </li>
+
+          <h3>Android App</h3>
           <ul>
-            <h3>Generate Spotify Playlist:</h3>
+            <li>
+              <h4>Fully Functional</h4>
+              <p>
+                Sync your profile, log books, and explore recommendations on the
+                go
+              </p>
+            </li>
+            <li>
+              <h4>Pre PlayStore updating</h4>
+              <p>
+                In app updates and bug fixes will be pushed directly to users
+                until we launch on the PlayStore later this year.
+              </p>
+            </li>
           </ul>
-          <li>
-            <h4>Currently Reading</h4>
-            <p>
-              Create a playlist to accompany your reading - automatically add it to Spotify to enjoy
-            </p>
-            
-          </li>
-          <li>
-            <h4>Profile Playlist</h4>
-            <p>Set your favourite playlist on your profile - reliving those myspace days</p>
-          </li>
-          
-          </div>
-        </div>
-        </div>
+        </section>
       </div>
     </div>
 
-    <footer>
-      <p>
-        &copy; 2025 cadence. All rights reserved. |
-        <a href="/privacy">Privacy Policy</a>
-      </p>
+    <footer class="site-footer">
+      <div class="footer-container">
+        <div class="footer-brand">
+          <h2>Cadence</h2>
+          <p>
+            Track your reading journey, discover new worlds, and level up your
+            literary life.
+          </p>
+        </div>
+
+        <div class="footer-links">
+          <h4>Platform</h4>
+          <ul>
+            <li><a href="/">Home</a></li>
+            <li><a href="/explore">Explore recs</a></li>
+            <li><a href="/stats">Global Stats</a></li>
+          </ul>
+        </div>
+
+        <div class="footer-links">
+          <h4>Support</h4>
+          <ul>
+            <li><a href="#">Report Issue</a></li>
+            <li><a href="#">Feedback</a></li>
+            <li><a href="#">FAQ</a></li>
+          </ul>
+        </div>
+
+        <div class="footer-links">
+          <h4>Legal</h4>
+          <ul>
+            <li><a href="#">Privacy Policy</a></li>
+            <li><a href="#">Terms of Use</a></li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="footer-bottom">
+        <div class="copyright">
+          &copy; 2026 Cadence Reader. Built for bookworms.
+        </div>
+        <div class="social-links">
+          <a href="#" aria-label="Twitter">𝕏</a>
+          <a href="#" aria-label="GitHub">󱄓</a>
+          <a href="#" aria-label="Discord">󰙯</a>
+        </div>
+        <button
+          class="back-to-top"
+          onclick="window.scrollTo({ top: 0, behavior: 'smooth' })"
+        >
+          ↑ Back to Top
+        </button>
+      </div>
     </footer>
   </body>
 </html>

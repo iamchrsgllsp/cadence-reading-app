@@ -3,68 +3,155 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Cadence Login</title>
+    <title>Cadence - Auth</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,600;1,400&family=DM+Sans:wght@300;400;500;600&display=swap"
+      rel="stylesheet"
+    />
     <style>
+      /* Unified CSS Variables from roadmap.html */
+      :root {
+        --primary: #7c6af7;
+        --primary-dark: #5b4fcf;
+        --primary-light: #a99df9;
+        --secondary: #9f6ef5;
+        --accent: #f472b6;
+        --bg-main: #0d1117;
+        --bg-card: #161b24;
+        --bg-card-hover: #1e2736;
+        --text-primary: #e8edf5;
+        --text-secondary: #8a97b0;
+        --text-muted: #536075;
+        --border: #242e3f;
+        --border-subtle: #1c2535;
+        --success: #34d399;
+      }
+
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
       body {
-        font-family: sans-serif;
+        font-family: "DM Sans", sans-serif;
+        background: var(--bg-main);
+        background: linear-gradient(
+          130deg,
+          #1b1545 0%,
+          #1a1030 50%,
+          #120e2a 100%
+        );
+        color: var(--text-primary);
         display: flex;
         justify-content: center;
         align-items: center;
-        height: 100vh;
-        background: #f4f4f9;
+        min-height: 100vh;
+        position: relative;
+        overflow: hidden;
       }
+
+      /* Subtle decorative grain (matching roadmap header) */
+      body::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
+        pointer-events: none;
+      }
+
       .auth-container {
-        background: white;
-        padding: 2rem;
-        border-radius: 8px;
-        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        width: 300px;
+        background: var(--bg-card);
+        padding: 3rem 2.5rem;
+        border-radius: 20px;
+        border: 1px solid var(--border);
+        box-shadow: 0 12px 32px rgba(0, 0, 0, 0.3);
+        width: 100%;
+        max-width: 400px;
+        position: relative;
+        z-index: 1;
+        transition: transform 0.25s ease;
       }
+
       h2 {
-        margin-top: 0;
-        font-size: 1.5rem;
+        font-family: "Lora", serif;
+        margin-bottom: 2rem;
+        font-size: 2rem;
         text-align: center;
+        color: var(--text-primary);
       }
+
       input {
         width: 100%;
-        padding: 10px;
-        margin: 10px 0;
-        border: 1px solid #ddd;
-        border-radius: 4px;
-        box-sizing: border-box;
+        padding: 12px 16px;
+        margin: 12px 0;
+        background: var(--bg-main);
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        color: var(--text-primary);
+        font-family: inherit;
+        font-size: 1rem;
+        transition: border-color 0.2s;
       }
+
+      input:focus {
+        outline: none;
+        border-color: var(--primary-light);
+      }
+
       button {
         width: 100%;
-        padding: 12px;
+        padding: 14px;
         cursor: pointer;
         border: none;
-        border-radius: 4px;
+        border-radius: 10px;
         color: white;
-        margin-top: 10px;
-        font-weight: bold;
+        margin-top: 1.5rem;
+        font-weight: 600;
+        font-size: 1rem;
+        transition: all 0.2s ease;
       }
+
       .btn-login {
-        background-color: #3ecf8e;
+        background: var(--primary);
       }
+
+      .btn-login:hover {
+        background: var(--primary-dark);
+        transform: translateY(-2px);
+      }
+
       .btn-signup {
-        background-color: #333;
+        background: var(--secondary);
+      }
+
+      .btn-signup:hover {
+        opacity: 0.9;
+        transform: translateY(-2px);
       }
 
       #message {
-        margin-top: 15px;
+        margin-top: 1.5rem;
         font-size: 0.9rem;
-        color: #d33;
+        min-height: 1.2rem;
         text-align: center;
       }
 
       .toggle-link {
         display: block;
         text-align: center;
-        margin-top: 15px;
-        font-size: 0.85rem;
-        color: #007bff;
+        margin-top: 1.5rem;
+        font-size: 0.9rem;
+        color: var(--text-secondary);
         text-decoration: none;
         cursor: pointer;
+        transition: color 0.2s;
+      }
+
+      .toggle-link:hover {
+        color: var(--primary-light);
       }
 
       /* Hidden by default */
@@ -75,7 +162,7 @@
   </head>
   <body>
     <div class="auth-container">
-      <h2 id="auth-title">Login to Cadence</h2>
+      <h2 id="auth-title">Welcome Back</h2>
 
       <div id="display-name-container">
         <input type="text" id="display_name" placeholder="Display Name" />
@@ -108,7 +195,6 @@
       const msgBox = document.getElementById("message");
       let isSignUpMode = false;
 
-      // Switch between Login and Sign Up UI
       function toggleMode() {
         isSignUpMode = !isSignUpMode;
         const nameContainer = document.getElementById("display-name-container");
@@ -118,20 +204,19 @@
 
         if (isSignUpMode) {
           nameContainer.style.display = "block";
-          title.innerText = "Create Account";
-          mainBtn.innerText = "Sign Up";
+          title.innerText = "Join Cadence";
+          mainBtn.innerText = "Create Account";
           mainBtn.className = "btn-signup";
           toggleLink.innerText = "Already have an account? Log In";
         } else {
           nameContainer.style.display = "none";
-          title.innerText = "Login to Cadence";
+          title.innerText = "Welcome Back";
           mainBtn.innerText = "Log In";
           mainBtn.className = "btn-login";
           toggleLink.innerText = "Don't have an account? Sign Up";
         }
       }
 
-      // Router for the main button
       function handleSubmit() {
         if (isSignUpMode) {
           handleSignUp();
@@ -154,10 +239,10 @@
         });
 
         if (error) {
-          msgBox.style.color = "#d33";
+          msgBox.style.color = "#f472b6"; // Accent/Pink color for errors
           msgBox.innerText = error.message;
         } else {
-          msgBox.style.color = "green";
+          msgBox.style.color = "var(--success)";
           msgBox.innerText = "Check your email for a confirmation link!";
         }
       }
@@ -173,7 +258,7 @@
           });
 
         if (error) {
-          msgBox.style.color = "#d33";
+          msgBox.style.color = "#f472b6";
           msgBox.innerText = error.message;
         } else {
           const response = await fetch("/set_session", {

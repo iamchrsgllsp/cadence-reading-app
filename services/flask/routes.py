@@ -71,7 +71,7 @@ def organize_library(raw_data):
             "pages": book_data.get("pages_read"),
             "total_pages": book_data.get("total_pages"),
             "last_updated": last_updated,
-            "description": book_data.get("description")
+            "description": book_data.get("description"),
         }
 
         status = book_dict["status"]
@@ -86,7 +86,9 @@ def organize_library(raw_data):
 @app.route("/")
 def index():
 
-    return render_template("index.html")
+    return render_template(
+        "index.html", supabase_url=supabase_url, supabase_key=supabase_key
+    )
 
 
 @app.route("/home")
@@ -140,7 +142,7 @@ def set_session():
 @app.route("/logout")
 def logout():
     session.pop("user", None)
-    return "Logged out!"
+    return redirect("/")
 
 
 @app.route("/profile")
@@ -207,7 +209,9 @@ def profile():
         completed=sorted_books["completed"],
         dnf=sorted_books["dnf"],
         recs=[],
-        messages=get_messages(user_id),  # Switched from hardcoded string to user_id
+        messages=get_messages(
+            user_display_name
+        ),  # Switched from hardcoded string to user_id
         supabase_url=supabase_url,
         supabase_key=supabase_key,
         role={
