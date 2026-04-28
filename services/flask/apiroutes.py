@@ -10,6 +10,7 @@ from application.database import (
     remove_from_library,
     update_currentbook,
     dnfbook,
+    get_messages,
 )
 import json
 import ast
@@ -52,11 +53,11 @@ def add_to_library():
         # We prioritize the 'user' passed in the form, fall back to session
         if "Dart" in request.headers.get("User-Agent", ""):
             user = request.form.get("user")
-            
+
         else:
             user = session.get("display_name")
-        
-        add_book_to_library(user, title,author,isbn,cover_url,pages,description)
+
+        add_book_to_library(user, title, author, isbn, cover_url, pages, description)
         return Response(status=204, headers={"HX-Refresh": "true"})
     except Exception as e:
         # Log the actual error to your console for debugging
@@ -149,3 +150,13 @@ def add_top_five():
 def sendmsg():
     msgcontext = request.form
     return msgcontext
+
+
+@api_bp.route("/getmessages", methods=["GET"])
+def get_messages_route():
+    if "Dart" in request.headers.get("User-Agent", ""):
+        user = request.args.get("user")
+    else:
+        user = session.get("display_name")
+    messages = get_messages(user)
+    return jsonify(messages)
