@@ -10,6 +10,7 @@ from flask import (
     jsonify,
     send_from_directory,
 )
+import supabase
 from supabase_auth import datetime
 from application.suggestions import (
     verify_token,
@@ -137,6 +138,16 @@ def set_session():
         return jsonify({"status": "success"}), 200
 
     return jsonify({"status": "error"}), 400
+
+
+@app.route("/terms")
+def terms():
+    return render_template("terms.html")
+
+
+@app.route("/privacy")
+def privacy():
+    return render_template("privacy.html")
 
 
 @app.route("/logout")
@@ -357,6 +368,25 @@ def auth_callback(code: str):
 @app.route("/friends")
 def friends():
     return render_template("friends.html")
+
+
+@app.route("/reset-password", methods=["POST"])
+def reset_password():
+    email = request.json.get("email")
+    if not email:
+        return jsonify({"error": "Email is required"}), 400
+
+    try:
+        supabase.auth.resetPasswordForEmail(
+            email,
+            {
+                redirectTo: window.location.origin + "/reset-password",
+            },
+        )
+        return jsonify({"message": "Password reset email sent!"})
+    except Exception as e:
+        print(f"Error occurred: {e}")
+        return jsonify({"error": "Failed to send password reset email"}), 500
 
 
 @app.route("/verify")
