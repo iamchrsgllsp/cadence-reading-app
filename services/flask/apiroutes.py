@@ -176,6 +176,8 @@ def get_messages_route():
         # Extract "Bearer <token>" from header
         auth_header = request.headers.get("Authorization")
         token = auth_header.split(" ")[1] if auth_header else None
+        session["display_name"] = user  # Store in session for consistency
+        session["access_token"] = token  # Store in session for consistency
     else:
         # Web uses the Flask session
         user = session.get("display_name")
@@ -185,5 +187,5 @@ def get_messages_route():
         return jsonify({"error": "No token provided"}), 401
 
     # 2. Pass the token and user to your database function
-    messages = get_messages(user, token)
+    messages = get_messages()
     return jsonify(messages)
