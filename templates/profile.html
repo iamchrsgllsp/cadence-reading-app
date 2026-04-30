@@ -1292,6 +1292,74 @@
           text-align: center;
         }
       }
+      /* The Modal Backdrop */
+      .modal-overlay {
+        display: none; /* Hidden by default */
+        position: fixed;
+        z-index: 1000;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.5); /* Dim background */
+        align-items: center;
+        justify-content: center;
+      }
+
+      /* The Modal Card */
+      .modal-card {
+        background-color: white;
+        padding: 20px;
+        border-radius: 12px;
+        width: 400px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+      }
+
+      h3 {
+        margin: 0;
+        font-family: sans-serif;
+        font-size: 1.1rem;
+      }
+
+      textarea {
+        width: 100%;
+        height: 100px;
+        padding: 10px;
+        border: 1px solid #ccc;
+        border-radius: 6px;
+        box-sizing: border-box; /* Ensures padding doesn't break width */
+        resize: none;
+      }
+
+      .modal-actions {
+        display: flex;
+        justify-content: flex-end;
+        gap: 10px;
+      }
+
+      /* Button Styling */
+      .btn {
+        padding: 8px 16px;
+        border-radius: 6px;
+        cursor: pointer;
+        border: none;
+        font-weight: bold;
+      }
+      .btn-open {
+        background-color: #28a745;
+        color: white;
+      }
+      .btn-send {
+        background-color: #007bff;
+        color: white;
+      }
+      .btn-cancel {
+        background-color: #eee;
+        color: #333;
+      }
     </style>
   </head>
   <body>
@@ -1432,6 +1500,7 @@
                     <button
                       class="btn btn-secondary"
                       style="font-size: 0.75rem; padding: 0.25rem 0.6rem"
+                      onclick="openModal('{{msg.id}}', '{{msg.sender}}')"
                     >
                       Reply
                     </button>
@@ -1851,6 +1920,79 @@
         } else {
           dbmsgContainer.style.display = "none";
         }
+      }
+    </script>
+    <div id="replyModal" class="modal-overlay">
+      <div class="modal-card">
+        <h3 id="modalTitle">New Reply</h3>
+        <textarea id="replyText" placeholder="Write your message..."></textarea>
+
+        <div class="modal-actions">
+          <button class="btn btn-cancel" onclick="closeModal()">Cancel</button>
+          <button
+            class="btn btn-send"
+            onclick="
+              sendReply(
+                currentMsgId,
+                document.getElementById('modalTitle').innerText,
+              )
+            "
+          >
+            Send
+          </button>
+        </div>
+      </div>
+    </div>
+    <script>
+      let currentMsgId = null;
+
+      function openModal(id, senderName) {
+        currentMsgId = id;
+
+        // Update the modal title dynamically
+        document.getElementById("modalTitle").innerText = senderName;
+
+        // Show the modal
+        document.getElementById("replyModal").style.display = "flex";
+        document.getElementById("replyText").focus();
+      }
+
+      function closeModal() {
+        document.getElementById("replyModal").style.display = "none";
+        document.getElementById("replyText").value = "";
+      }
+
+      function sendReply(threadId, recipientName) {
+        const text = document.getElementById("replyText").value;
+
+        if (!text.trim()) {
+          alert("Please type a response.");
+          return;
+        }
+
+        // Example: Sending the data back to a Flask route via fetch
+        fetch("/api/submit_reply", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            thread: threadId,
+            user: "{{ user }}", // Added quotes here
+            recipient: recipientName,
+            message: text,
+          }),
+        })
+          .then((response) => {
+            if (response.ok) {
+              alert("Reply Sent!");
+              closeModal();
+            } else {
+              // It's good practice to handle server errors (400, 500, etc.)
+              alert("Error sending reply.");
+            }
+          })
+          .catch((error) => console.error("Fetch error:", error));
       }
     </script>
 

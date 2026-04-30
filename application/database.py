@@ -449,3 +449,23 @@ def get_messages(user):
     except Exception as e:
         print(f"Error fetching library: {e}")
         return []
+
+
+def send_message(thread, sender, recipient, content):
+    supabase = get_supabase_client()
+    try:
+        data_to_insert = {
+            "sender": sender,
+            "recipient": recipient,
+            "content": content,
+            "threadid": thread,  # Increment thread ID for new message
+            "created_at": datetime.utcnow().isoformat(),
+        }
+
+        response = supabase.table("messages").insert(data_to_insert).execute()
+
+        print(
+            f"Message sent from {sender} to {recipient}. Status: {response.status_code}"
+        )
+    except Exception as e:
+        print(f"Error sending message: {e}")

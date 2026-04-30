@@ -8,6 +8,7 @@ from application.database import (
     amend_top_five,
     add_book_to_library,
     remove_from_library,
+    send_message,
     update_currentbook,
     dnfbook,
     get_messages,
@@ -146,10 +147,22 @@ def add_top_five():
     return {"data": "success"}
 
 
-@api_bp.route("/sendmsg", methods=["POST"])
+@api_bp.route("/submit_reply", methods=["POST"])
 def sendmsg():
-    msgcontext = request.form
-    return msgcontext
+    if "Dart" in request.headers.get("User-Agent", ""):
+        request_data = request.get_json()
+        thread = request_data.get("thread")
+        user = request_data.get("user")
+        recipient = request_data.get("recipient")
+        message = request_data.get("message")
+    else:
+        request_data = request.get_json()
+        thread = request_data.get("thread")
+        user = request_data.get("user")
+        recipient = request_data.get("recipient")
+        message = request_data.get("message")
+    send_message(thread, user, recipient, message)
+    return Response(status=204, headers={"HX-Refresh": "true"})
 
 
 @api_bp.route("/getmessages", methods=["GET"])
