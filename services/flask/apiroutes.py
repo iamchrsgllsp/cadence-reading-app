@@ -16,7 +16,6 @@ from application.database import (
 import json
 import ast
 
-
 api_bp = Blueprint(
     "api", __name__, template_folder="../../templates", static_folder="../../static"
 )
@@ -165,11 +164,26 @@ def sendmsg():
     return Response(status=204, headers={"HX-Refresh": "true"})
 
 
+from flask import request, session, jsonify
+
+
 @api_bp.route("/getmessages", methods=["GET"])
 def get_messages_route():
+    # 1. Determine the user and the token
     if "Dart" in request.headers.get("User-Agent", ""):
+        # Flutter sends data via Headers and Args
         user = request.args.get("user")
+        # Extract "Bearer <token>" from header
+        auth_header = request.headers.get("Authorization")
+        token = auth_header.split(" ")[1] if auth_header else None
     else:
+        # Web uses the Flask session
         user = session.get("display_name")
-    messages = get_messages(user)
+        token = session.get("access_token")
+
+    if not token:
+        return jsonify({"error": "No token provided"}), 401
+
+    # 2. Pass the token and user to your database function
+    messages = get_messages(user, token)
     return jsonify(messages)
