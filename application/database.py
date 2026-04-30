@@ -1,4 +1,5 @@
 import json
+import token
 from typing import List, Dict, Any, Optional
 from configfile import supabase_key, supabase_url
 from PIL import Image
@@ -6,7 +7,7 @@ import requests
 from io import BytesIO
 import uuid
 from datetime import datetime
-
+from flask import session, jsonify, Response
 
 # Install this package: pip install supabase
 from supabase import create_client, Client
@@ -439,16 +440,25 @@ def is_new(user, recipient):
         return False
 
 
-def get_messages(user):
+def get_messages():
     supabase = get_supabase_client()
-    threads = "threadid"
-    try:
-        response = supabase.table("messages").select().eq("recipient", user).execute()
-        # Returns a list of dictionaries
-        return response.data
-    except Exception as e:
-        print(f"Error fetching library: {e}")
+
+    # 1. Get the 'passport' (token) and the 'name' from the Flask session
+    token = session.get("access_token")
+    my_name = session.get("display_name")
+    print(f"DEBUG: Current Token: {session.get('access_token')[:10]}...")
+    print(f"DEBUG: Filtering for recipient: {session.get('display_name')}")
+    if not token:
         return []
+
+    # 2. Authenticate the backend request
+    supabase.auth.set_session(token, "")
+
+    # 3. Query. RLS ensures you can't spoof 'my_name'
+    # because the token is verified by the DB.
+    response = supabase.table("messages").select("*").eq("recipient", my_name).execute()
+
+    return response.data
 
 
 def send_message(thread, sender, recipient, content):

@@ -132,9 +132,14 @@ def set_session():
     user_email = data.get("email")
 
     if user_uuid:
+        session["access_token"] = data.get(
+            "token"
+        )  # Store the access token in the session
         # Store both for easy access later
         session["user_id"] = user_uuid
         session["user_email"] = user_email
+        session["display_name"] = data.get("display_name")
+
         return jsonify({"status": "success"}), 200
 
     return jsonify({"status": "error"}), 400
@@ -210,7 +215,7 @@ def profile():
     elif role == "peanutbutter":
         role = "🥜"
 
-        # Default to 'reader' if role is not set
+    # Default to 'reader' if role is not set
     return render_template(
         "profile.html",
         img=user_avatar,  # Now comes from Supabase profiles
@@ -220,9 +225,7 @@ def profile():
         completed=sorted_books["completed"],
         dnf=sorted_books["dnf"],
         recs=[],
-        messages=get_messages(
-            user_display_name
-        ),  # Switched from hardcoded string to user_id
+        messages=get_messages(),  # Switched from hardcoded string to user_id
         supabase_url=supabase_url,
         supabase_key=supabase_key,
         role={
