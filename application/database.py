@@ -446,7 +446,8 @@ def get_messages():
     # 1. Get the 'passport' (token) and the 'name' from the Flask session
     token = session.get("access_token")
     my_name = session.get("display_name")
-
+    print(f"Token from session: {token}")
+    print(f"User from session: {my_name}")
     if not token:
         return []
 

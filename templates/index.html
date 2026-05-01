@@ -655,7 +655,7 @@
             if (error) throw error;
 
             // Sync with Flask Session immediately after update
-            await syncSession(data.user);
+            await syncSession(data.user, data.session.access_token);
             msgBox.style.color = "var(--success)";
             msgBox.innerText = "Password updated! Redirecting...";
             setTimeout(() => (window.location.href = "/profile"), 1500);
@@ -687,7 +687,7 @@
             const { data, error } =
               await supabaseClient.auth.signInWithPassword({ email, password });
             if (error) throw error;
-            await syncSession(data.user);
+            await syncSession(data.user, data.session.access_token);
             window.location.href = "/profile";
           }
         } catch (err) {
@@ -696,7 +696,7 @@
         }
       }
 
-      async function syncSession(user) {
+      async function syncSession(user, token) {
         await fetch("/set_session", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -704,6 +704,7 @@
             uuid: user.id,
             email: user.email,
             display_name: user.user_metadata.display_name || "Explorer",
+            token: token,
           }),
         });
       }

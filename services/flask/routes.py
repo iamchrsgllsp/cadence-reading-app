@@ -130,7 +130,7 @@ def set_session():
     data = request.json
     user_uuid = data.get("uuid")
     user_email = data.get("email")
-
+    print(data)
     if user_uuid:
         session["access_token"] = data.get(
             "token"
