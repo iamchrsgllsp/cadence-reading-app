@@ -94,8 +94,8 @@
           class="message {{ 'sent' if msg.sender_id == session.get('user_id') else 'received' }}"
         >
           <span class="sender-name">
-            {{ "You" if msg.sender_id == session.get('user_id') else
-            msg.sender_id }}
+            {{ "You" if msg.profiles.display_name == session.get('display_name')
+            else msg.threads.display_name}}
           </span>
 
           <div class="content">{{ msg.content }}</div>
@@ -109,7 +109,7 @@
 
       <!-- The Send Message Form -->
       <form
-        action="{{ url_for('send_message') }}"
+        action="{{ url_for('send_message_supabase') }}"
         method="POST"
         class="input-area"
       >

@@ -469,14 +469,16 @@ def createplaylist():
 @app.route("/send_message", methods=["POST"])
 def send_message_supabase():
     # Get data from the form
-    thread_id = request.json.get("thread_id")
-    content = request.json.get("message")
 
     if "Dart" in request.headers.get("User-Agent", ""):
+        thread_id = request.json.get("thread_id")
+        content = request.json.get("message")
         auth_header = request.headers.get("Authorization")
         token = auth_header.split(" ")[1] if auth_header else None
         sender_id = request.json.get("sender_id")
     else:
+        thread_id = request.form.get("thread_id")
+        content = request.form.get("message")
         token = session.get("access_token")
         sender_id = session.get("user_id")
 
@@ -562,13 +564,11 @@ def chat_room(thread_id):
 
         # 3. Fetch Messages for this thread
         # We order by created_at so the conversation flows naturally
-        messages_query = (
-            supabase.table("messages")
-            .select("*")
-            .eq("thread_id", thread_id)
-            .order("created_at", desc=False)
-            .execute()
-        )
+        messages_query = supabase.table("messages").select("""
+                *,
+                threads(display_name),
+                profiles!sender_id(display_name)
+            """).eq("thread_id", thread_id).order("created_at", desc=False).execute()
 
         return render_template(
             "chat.html", thread=thread_data, messages=messages_query.data
