@@ -469,6 +469,8 @@ def createplaylist():
 @app.route("/send_message", methods=["POST"])
 def send_message_supabase():
     # Get data from the form
+    thread_id = request.json.get("thread_id")
+    content = request.json.get("message")
 
     if "Dart" in request.headers.get("User-Agent", ""):
         thread_id = request.json.get("thread_id")
@@ -477,8 +479,6 @@ def send_message_supabase():
         token = auth_header.split(" ")[1] if auth_header else None
         sender_id = request.json.get("sender_id")
     else:
-        thread_id = request.form.get("thread_id")
-        content = request.form.get("message")
         token = session.get("access_token")
         sender_id = session.get("user_id")
 
