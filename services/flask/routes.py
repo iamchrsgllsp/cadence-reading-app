@@ -471,8 +471,13 @@ def send_message_supabase():
     # Get data from the form
     thread_id = request.json.get("thread_id")
     content = request.json.get("message")
-    token = session.get("access_token")
-    sender_id = session.get("user_id")
+
+    if "Dart" in request.headers.get("User-Agent", ""):
+        token = request.json.get("token")
+        sender_id = request.json.get("sender_id")
+    else:
+        token = session.get("access_token")
+        sender_id = session.get("user_id")
 
     send_message(thread_id, sender_id, content, token)
 
