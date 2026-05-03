@@ -7,11 +7,11 @@ from application.logic import (
 from application.database import (
     amend_top_five,
     add_book_to_library,
+    get_latest_messages_for_modal,
     remove_from_library,
     send_message,
     update_currentbook,
     dnfbook,
-    get_messages,
 )
 import json
 import ast
@@ -187,5 +187,5 @@ def get_messages_route():
         return jsonify({"error": "No token provided"}), 401
 
     # 2. Pass the token and user to your database function
-    messages = get_messages()
+    messages = get_latest_messages_for_modal()
     return jsonify(messages)

@@ -1495,13 +1495,15 @@
               <div id="dbmsg">
                 {% for msg in messages %} {% if msg.read != "True" %}
                 <div id="msg">
-                  <p>{{ msg.sender }}</p>
-                  <p>{{ msg.content }}</p>
+                  <p id="thread-id" style="display: none;">{{msg.thread_id}}</p>
+                  <p>{{ msg.profiles.display_name }}</p>
+                  <p>{{ msg.content}}</p>
+                  <p>Sent: {{ msg.created_at }}</p>
                   <div class="msg-actions">
                     <button
                       class="btn btn-secondary"
                       style="font-size: 0.75rem; padding: 0.25rem 0.6rem"
-                      onclick="openModal('{{msg.id}}', '{{msg.sender}}')"
+                      onclick="openModal('{{msg.thread_id}}', '{{ msg.profiles.display_name }}')"
                     >
                       Reply
                     </button>
@@ -1926,6 +1928,7 @@
     <div id="replyModal" class="modal-overlay">
       <div class="modal-card">
         <h3 id="modalTitle">New Reply</h3>
+        <p id="thread-id"></p>
         <textarea id="replyText" placeholder="Write your message..."></textarea>
 
         <div class="modal-actions">
@@ -1934,7 +1937,7 @@
             class="btn btn-send"
             onclick="
               sendReply(
-                currentMsgId,
+                document.getElementById('thread-id').innerText,
                 document.getElementById('modalTitle').innerText,
               )
             "
@@ -1951,6 +1954,7 @@
         currentMsgId = id;
 
         // Update the modal title dynamically
+        document.getElementById("thread-id").innerText = id;
         document.getElementById("modalTitle").innerText = senderName;
 
         // Show the modal
@@ -1963,7 +1967,7 @@
         document.getElementById("replyText").value = "";
       }
 
-      function sendReply(threadId, recipientName) {
+      function sendReply(threadId) {
         const text = document.getElementById("replyText").value;
 
         if (!text.trim()) {
@@ -1972,15 +1976,14 @@
         }
 
         // Example: Sending the data back to a Flask route via fetch
-        fetch("/api/submit_reply", {
+        fetch("/send_message", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
           },
           body: JSON.stringify({
-            thread: threadId,
+            thread_id: threadId,
             user: "{{ user }}", // Added quotes here
-            recipient: recipientName,
             message: text,
           }),
         })

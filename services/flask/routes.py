@@ -22,12 +22,14 @@ from application.suggestions import (
 )
 from application.logic import get_book_recommendations, get_playlist_recommendations
 from application.database import (
+    get_latest_messages_for_modal,
     get_top_five_by_username,
     get_library,
-    get_message_thread,
-    get_messages,
+    get_my_threads,
+    get_my_inbox,
     is_new,
     get_supabase_client,
+    send_message,
 )
 import json, ast
 from configfile import supabase_url, supabase_key
@@ -97,6 +99,19 @@ def home():
     return render_template("home.html")
 
 
+@app.route("/inbox")
+def inbox():
+    token = session.get("access_token")
+    user_id = session.get("user_id")
+
+    if not token:
+        return redirect(url_for("login"))
+
+    inbox = get_my_inbox()
+    # This function now returns the full thread data with display names
+    return render_template("inbox.html", threads=inbox)
+
+
 @app.route("/about")
 def about():
     return render_template("about.html")
@@ -143,6 +158,20 @@ def set_session():
         return jsonify({"status": "success"}), 200
 
     return jsonify({"status": "error"}), 400
+
+
+@app.route("/new_chat")
+def new_chat_page():
+    token = session.get("access_token")
+    if not token:
+        return redirect(url_for("login"))
+
+    supabase = get_supabase_client()
+    # Fetch all users so the current user can pick someone to message
+    # In a real app, you might want to filter this by 'friends' or 'contacts'
+    response = supabase.table("profiles").select("id, display_name").execute()
+
+    return render_template("create_thread.html", all_users=response.data)
 
 
 @app.route("/terms")
@@ -225,7 +254,7 @@ def profile():
         completed=sorted_books["completed"],
         dnf=sorted_books["dnf"],
         recs=[],
-        messages=get_messages(),  # Switched from hardcoded string to user_id
+        messages=get_latest_messages_for_modal(),  # Switched from hardcoded string to user_id
         supabase_url=supabase_url,
         supabase_key=supabase_key,
         role={
@@ -435,6 +464,113 @@ def createplaylist():
     if session:
         playlist_id = create_playlist()
         return f"Playlist created! ID: {playlist_id}"
+
+
+@app.route("/send_message", methods=["POST"])
+def send_message_supabase():
+    # Get data from the form
+    thread_id = request.json.get("thread_id")
+    content = request.json.get("message")
+    token = session.get("access_token")
+    sender_id = session.get("user_id")
+
+    send_message(thread_id, sender_id, content, token)
+
+    return {"data": "Message sent successfully!"}
+
+
+@app.route("/create_thread", methods=["POST"])
+def create_thread():
+    token = session.get("access_token")
+    my_id = session.get("user_id")
+
+    if not token:
+        return redirect(url_for("login"))
+
+    participant_ids = request.form.getlist("user_ids")
+    participant_names = request.form.getlist("user_names")
+    group_name_input = request.form.get("group_name")
+
+    if not participant_ids:
+        return "Please select at least one user", 400
+
+    thread_type = "group" if len(participant_ids) > 1 else "private"
+
+    # Determine the final display name to be stored in the 'threads' table
+    if group_name_input:
+        final_display_name = group_name_input
+    elif thread_type == "group":
+        final_display_name = ", ".join(participant_names)
+    else:
+        # For private, it's just the other person's name
+        final_display_name = (
+            participant_names[0] if participant_names else "Private Chat"
+        )
+
+    # Add yourself to the IDs
+    participant_ids.append(my_id)
+
+    supabase = get_supabase_client()
+    supabase.auth.set_session(token, "")
+
+    try:
+        response = supabase.rpc(
+            "create_new_chat",
+            {
+                "participant_ids": participant_ids,
+                "thread_name": final_display_name,  # Stored in threads.display_name
+                "thread_type": thread_type,
+            },
+        ).execute()
+
+        return redirect(url_for("chat_room", thread_id=response.data))
+
+    except Exception as e:
+        print(f"Error: {e}")
+        return "Failed to create chat.", 500
+
+
+@app.route("/chat/<thread_id>")
+def chat_room(thread_id):
+    # 1. Session Check
+    token = session.get("access_token")
+    user_id = session.get("user_id")
+
+    if not token:
+        return redirect(url_for("login"))
+
+    supabase = get_supabase_client()
+    # Important: Tell Supabase who is asking so RLS works
+    supabase.auth.set_session(token, "")
+
+    try:
+        # 2. Fetch Thread Metadata
+        # We need this to show the chat name (e.g., "Project Team") at the top
+        thread_query = (
+            supabase.table("threads").select("*").eq("id", thread_id).single().execute()
+        )
+        thread_data = thread_query.data
+
+        if not thread_data:
+            return "Thread not found or access denied", 404
+
+        # 3. Fetch Messages for this thread
+        # We order by created_at so the conversation flows naturally
+        messages_query = (
+            supabase.table("messages")
+            .select("*")
+            .eq("thread_id", thread_id)
+            .order("created_at", desc=False)
+            .execute()
+        )
+
+        return render_template(
+            "chat.html", thread=thread_data, messages=messages_query.data
+        )
+
+    except Exception as e:
+        print(f"Error loading chat: {e}")
+        return "You do not have permission to view this chat.", 403
 
 
 @app.route("/testgen", methods=["POST"])

@@ -1,0 +1,135 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Chat: {{ thread.name or "Conversation" }}</title>
+    <style>
+      .chat-container {
+        max-width: 600px;
+        margin: 20px auto;
+        font-family: sans-serif;
+      }
+      .back-link {
+        display: block;
+        margin-bottom: 10px;
+        text-decoration: none;
+        color: #007bff;
+      }
+
+      #message-box {
+        height: 450px;
+        border: 1px solid #ddd;
+        padding: 15px;
+        overflow-y: scroll;
+        background: #f9f9f9;
+        display: flex;
+        flex-direction: column;
+      }
+
+      .message {
+        margin-bottom: 15px;
+        padding: 10px;
+        border-radius: 8px;
+        max-width: 80%;
+      }
+
+      /* Style for messages sent by the logged-in user */
+      .sent {
+        align-self: flex-end;
+        background-color: #007bff;
+        color: white;
+      }
+
+      /* Style for messages sent by others */
+      .received {
+        align-self: flex-start;
+        background-color: #e9e9eb;
+        color: black;
+      }
+
+      .sender-name {
+        font-size: 0.75rem;
+        display: block;
+        margin-bottom: 3px;
+        font-weight: bold;
+      }
+      .timestamp {
+        font-size: 0.65rem;
+        opacity: 0.7;
+        margin-top: 5px;
+        display: block;
+      }
+
+      .input-area {
+        margin-top: 15px;
+        display: flex;
+        gap: 10px;
+      }
+      .input-area input {
+        flex-grow: 1;
+        padding: 10px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+      }
+      .input-area button {
+        padding: 10px 20px;
+        background: #28a745;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="chat-container">
+      <a href="{{ url_for('inbox') }}" class="back-link">← Back to Inbox</a>
+
+      <h2>{{ thread.name or "Direct Message" }}</h2>
+
+      <div id="message-box">
+        {% for msg in messages %}
+        <!-- Logic to determine if the message is 'sent' or 'received' -->
+        <div
+          class="message {{ 'sent' if msg.sender_id == session.get('user_id') else 'received' }}"
+        >
+          <span class="sender-name">
+            {{ "You" if msg.sender_id == session.get('user_id') else
+            msg.sender_id }}
+          </span>
+
+          <div class="content">{{ msg.content }}</div>
+
+          <span class="timestamp"
+            >{{ msg.created_at[:16].replace('T', ' ') }}</span
+          >
+        </div>
+        {% endfor %}
+      </div>
+
+      <!-- The Send Message Form -->
+      <form
+        action="{{ url_for('send_message') }}"
+        method="POST"
+        class="input-area"
+      >
+        <input type="hidden" name="thread_id" value="{{ thread.id }}" />
+        <input
+          type="text"
+          name="content"
+          placeholder="Type your message..."
+          required
+          autocomplete="off"
+          autofocus
+        />
+        <button type="submit">Send</button>
+      </form>
+    </div>
+
+    <script>
+      // Auto-scroll to the bottom of the chat box on load
+      const messageBox = document.getElementById("message-box");
+      messageBox.scrollTop = messageBox.scrollHeight;
+    </script>
+  </body>
+</html>

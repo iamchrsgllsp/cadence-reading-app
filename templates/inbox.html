@@ -1,0 +1,72 @@
+<!doctype html>
+<html>
+  <head>
+    <title>Your Inbox</title>
+    <style>
+      .inbox-container {
+        max-width: 500px;
+        margin: auto;
+        font-family: sans-serif;
+      }
+      .thread-item {
+        display: block;
+        padding: 15px;
+        border: 1px solid #ddd;
+        margin-bottom: 10px;
+        text-decoration: none;
+        color: #333;
+        border-radius: 8px;
+        transition: background 0.2s;
+      }
+      .thread-item:hover {
+        background: #f0f0f0;
+      }
+      .thread-name {
+        font-weight: bold;
+        font-size: 1.1rem;
+      }
+      .thread-meta {
+        font-size: 0.8rem;
+        color: #666;
+        margin-top: 5px;
+      }
+      .new-chat-btn {
+        display: inline-block;
+        padding: 10px 15px;
+        background: #28a745;
+        color: white;
+        text-decoration: none;
+        border-radius: 5px;
+        margin-bottom: 20px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="inbox-container">
+      <h1>Messages</h1>
+
+      <a href="{{ url_for('new_chat_page') }}" class="new-chat-btn"
+        >+ Start New Chat</a
+      >
+
+      <div class="threads-list">
+        {% for thread in threads %}
+        <a
+          href="{{ url_for('chat_room', thread_id=thread.id) }}"
+          class="thread-item"
+        >
+          <div class="thread-name">
+            {% if thread.type == 'group' %} 👥 {{ thread.name or "Unnamed Group"
+            }} {% else %} 👤 {{thread.display_name}} {% endif %}
+          </div>
+          <div class="thread-meta">
+            Last activity: {{ thread.updated_at[:10] }}
+          </div>
+        </a>
+        {% else %}
+        <p>No conversations yet. Start one!</p>
+        {% endfor %}
+      </div>
+    </div>
+  </body>
+</html>

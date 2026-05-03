@@ -1,0 +1,232 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Start New Conversation</title>
+    <style>
+      :root {
+        --primary-color: #007bff;
+        --success-color: #28a745;
+        --bg-color: #f4f7f6;
+        --text-color: #333;
+      }
+
+      body {
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        background-color: var(--bg-color);
+        color: var(--text-color);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 100vh;
+        margin: 0;
+      }
+
+      .create-thread-container {
+        background: white;
+        padding: 30px;
+        border-radius: 12px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        width: 100%;
+        max-width: 450px;
+      }
+
+      h2 {
+        margin-top: 0;
+        font-size: 1.5rem;
+        color: #222;
+        border-bottom: 2px solid #eee;
+        padding-bottom: 10px;
+      }
+
+      .form-group {
+        margin: 20px 0;
+      }
+
+      label {
+        display: block;
+        margin-bottom: 8px;
+        font-weight: 600;
+        font-size: 0.9rem;
+      }
+
+      input[type="text"] {
+        width: 100%;
+        padding: 10px;
+        border: 1px solid #ddd;
+        border-radius: 6px;
+        box-sizing: border-box;
+        font-size: 1rem;
+      }
+
+      hr {
+        border: 0;
+        border-top: 1px solid #eee;
+        margin: 20px 0;
+      }
+
+      .user-selection-box {
+        max-height: 250px;
+        overflow-y: auto;
+        border: 1px solid #ddd;
+        border-radius: 6px;
+        padding: 5px;
+        background: #fafafa;
+      }
+
+      .user-option {
+        display: flex;
+        align-items: center;
+        padding: 10px;
+        border-radius: 4px;
+        transition: background 0.2s;
+      }
+
+      .user-option:hover {
+        background-color: #f0f7ff;
+      }
+
+      .user-option input[type="checkbox"] {
+        margin-right: 12px;
+        width: 18px;
+        height: 18px;
+        cursor: pointer;
+      }
+
+      .user-option label {
+        margin-bottom: 0;
+        cursor: pointer;
+        flex-grow: 1;
+      }
+
+      .submit-btn {
+        width: 100%;
+        padding: 12px;
+        background-color: var(--primary-color);
+        color: white;
+        border: none;
+        border-radius: 6px;
+        font-size: 1rem;
+        font-weight: bold;
+        cursor: pointer;
+        margin-top: 20px;
+        transition: background 0.3s;
+      }
+
+      .submit-btn:hover {
+        background-color: #0056b3;
+      }
+
+      .back-link {
+        display: block;
+        text-align: center;
+        margin-top: 15px;
+        font-size: 0.85rem;
+        color: #666;
+        text-decoration: none;
+      }
+
+      .back-link:hover {
+        text-decoration: underline;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="create-thread-container">
+      <h2>New Conversation</h2>
+
+      <form
+        action="{{ url_for('create_thread') }}"
+        method="POST"
+        id="threadForm"
+      >
+        <!-- Group Name -->
+        <div class="form-group">
+          <label for="group_name">Group Name (Optional)</label>
+          <input
+            type="text"
+            name="group_name"
+            id="group_name"
+            placeholder="e.g. Family Chat or Project X"
+          />
+        </div>
+
+        <hr />
+
+        <!-- User Selection List -->
+        <div class="form-group">
+          <label>Select Participants</label>
+          <div class="user-selection-box">
+            {% for user in all_users %} {% if user.id != session.get('user_id')
+            %}
+            <div class="user-option">
+              <!-- Checkbox for the actual UUID -->
+              <input
+                type="checkbox"
+                name="user_ids"
+                value="{{ user.id }}"
+                id="user_{{ user.id }}"
+                class="user-checkbox"
+              />
+
+              <!-- Hidden input for the Display Name -->
+              <!-- Disabled by default so it only sends if the user is checked -->
+              <input
+                type="hidden"
+                name="user_names"
+                value="{{ user.display_name or user.email }}"
+                id="name_{{ user.id }}"
+                disabled
+              />
+
+              <label for="user_{{ user.id }}">
+                {{ user.display_name or user.email }}
+              </label>
+            </div>
+            {% endif %} {% else %}
+            <p style="padding: 10px; font-size: 0.9rem; color: #888">
+              No other users found.
+            </p>
+            {% endfor %}
+          </div>
+        </div>
+
+        <button type="submit" class="submit-btn">Create Chat</button>
+        <a href="{{ url_for('inbox') }}" class="back-link"
+          >Cancel and go back</a
+        >
+      </form>
+    </div>
+
+    <script>
+      /**
+       * This script ensures that the 'user_names' list sent to Flask
+       * perfectly matches the 'user_ids' list by enabling the hidden
+       * inputs only when the corresponding checkbox is checked.
+       */
+      document.querySelectorAll(".user-checkbox").forEach((checkbox) => {
+        checkbox.addEventListener("change", function () {
+          // Find the hidden name input associated with this user ID
+          const nameInput = document.getElementById("name_" + this.value);
+          if (nameInput) {
+            nameInput.disabled = !this.checked;
+          }
+        });
+      });
+
+      // Simple validation: Ensure at least one person is selected
+      document
+        .getElementById("threadForm")
+        .addEventListener("submit", function (e) {
+          const checkedCount = document.querySelectorAll(
+            ".user-checkbox:checked",
+          ).length;
+          if (checkedCount === 0) {
+            e.preventDefault();
+            alert("Please select at least one person to start a chat.");
+          }
+        });
+    </script>
+  </body>
+</html>

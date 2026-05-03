@@ -1,6 +1,7 @@
 import json
 import token
 from typing import List, Dict, Any, Optional
+from urllib import response
 from configfile import supabase_key, supabase_url
 from PIL import Image
 import requests
@@ -385,27 +386,21 @@ def diagnose_supabase_storage(supabase_client, bucket_name="playlist"):
     print("\n=== END DIAGNOSTICS ===\n")
 
 
-# Run diagnostics
-import uuid
-
-
-def get_message_thread():
-    """Retrieves all library entries for a specific user."""
+def get_my_threads():
     supabase = get_supabase_client()
-    maxthread = 0
-    try:
-        response = supabase.table("messages").select("threadid").execute()
-        # Returns a list of dictionaries
-        maxid = response.data
-        for id in maxid:
-            if id["threadid"] > maxthread:
-                maxthread = id["threadid"]
-
-        print(maxthread)
-        return maxthread
-    except Exception as e:
-        print(f"Error fetching library: {e}")
-        return []
+    token = session.get("access_token")
+    supabase.auth.set_session(token, "")
+    user = supabase.auth.get_user()
+    uid = user.user.id
+    # This query fetches threads where the user is a participant
+    # It joins through the thread_participants table
+    response = (
+        supabase.table("thread_participants")
+        .select("thread:thread_id(id, name, type, updated_at)")
+        .eq("user_id", uid)  # In Python, you might need to extract UID from the token
+        .execute()
+    )
+    return response.data
 
 
 def is_new(user, recipient):
@@ -440,42 +435,117 @@ def is_new(user, recipient):
         return False
 
 
-def get_messages():
-    supabase = get_supabase_client()
-
-    # 1. Get the 'passport' (token) and the 'name' from the Flask session
+def get_latest_messages_for_modal(limit=5):
+    """
+    Fetches the latest messages across ALL threads the user is a part of.
+    Useful for a 'Recent Activity' or 'Notifications' modal.
+    """
     token = session.get("access_token")
-    my_name = session.get("display_name")
-    print(f"Token from session: {token}")
-    print(f"User from session: {my_name}")
+    user_id = session.get("user_id")
+    if not token or not user_id:
+        return []
+
+    supabase = get_supabase_client()
+    supabase.auth.set_session(token, "")
+
+    try:
+        # 1. Get all Thread IDs where the user is a participant
+        participant_resp = (
+            supabase.table("thread_participants")
+            .select("thread_id")
+            .eq("user_id", user_id)
+            .execute()
+        )
+
+        # Create a simple list of UUIDs: ['uuid-1', 'uuid-2']
+        thread_ids = [item["thread_id"] for item in participant_resp.data]
+
+        if not thread_ids:
+            return []
+
+        # 2. Get the latest messages from those specific threads
+        # We use .in_() to filter by multiple thread IDs at once
+        messages_resp = (
+            supabase.table("messages")
+            .select("""
+                *,
+                threads(display_name),
+                profiles!sender_id(display_name)
+            """)
+            .in_("thread_id", thread_ids)
+            .neq("sender_id", user_id)
+            .order("created_at", desc=True)  # Get newest first for the modal
+            .limit(limit)
+            .execute()
+        )
+
+        return messages_resp.data
+
+    except Exception as e:
+        print(f"Error fetching aggregate messages: {e}")
+        return []
+
+
+def get_my_inbox():
+    supabase = get_supabase_client()
+    token = session.get("access_token")
     if not token:
         return []
 
-    # 2. Authenticate the backend request
+    supabase = get_supabase_client()
     supabase.auth.set_session(token, "")
 
-    # 3. Query. RLS ensures you can't spoof 'my_name'
-    # because the token is verified by the DB.
-    response = supabase.table("messages").select("*").eq("recipient", my_name).execute()
-
-    return response.data
-
-
-def send_message(thread, sender, recipient, content):
-    supabase = get_supabase_client()
     try:
-        data_to_insert = {
-            "sender": sender,
-            "recipient": recipient,
-            "content": content,
-            "threadid": thread,  # Increment thread ID for new message
-            "created_at": datetime.utcnow().isoformat(),
-        }
-
-        response = supabase.table("messages").insert(data_to_insert).execute()
-
-        print(
-            f"Message sent from {sender} to {recipient}. Status: {response.status_code}"
+        # Simplified query: Get the memberships first
+        # We use a cleaner join syntax
+        response = supabase.table("thread_participants").select("""
+        thread_id,
+        threads!inner (
+            id,
+            name,
+            type,
+            updated_at,
+            display_name
         )
+    """).eq("user_id", session.get("user_id")).execute()
+
+        # Extract the nested 'threads' object into a clean list
+        threads = [item["threads"] for item in response.data]
+        # Note: 'auth_users' would be your custom profiles table
+        return response.data
+    except Exception as e:
+        # CHECK YOUR TERMINAL FOR THIS OUTPUT
+        print("--- INBOX ERROR DEBUG ---")
+        print(f"Error Type: {type(e)}")
+        print(f"Error Message: {e}")
+        print("-------------------------")
+        return f"Could not load inbox. Error: {e}", 500
+
+
+def send_message(thread_id, sender_id, content, token):
+
+    supabase = get_supabase_client()
+    supabase.auth.set_session(token, "")
+
+    try:
+        # 1. Insert the message
+        # RLS will automatically verify if the user belongs to this thread
+        message_data = {
+            "thread_id": thread_id,
+            "sender_id": sender_id,
+            "content": content,
+        }
+        supabase.table("messages").insert(message_data).execute()
+        update_time = datetime.now().isoformat()
+        # 2. Update the thread's 'updated_at' timestamp
+        # This pushes the thread to the top of the inbox
+        supabase.table("threads").update({"updated_at": update_time}).eq(
+            "id", thread_id
+        ).execute()
+
     except Exception as e:
         print(f"Error sending message: {e}")
+        # In a real app, you'd want to flash an error message to the user here
+
+    # Redirect back to the chat room
+    return {"success": True, "message": "Message sent successfully"}
