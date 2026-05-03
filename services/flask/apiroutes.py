@@ -8,6 +8,7 @@ from application.database import (
     amend_top_five,
     add_book_to_library,
     get_latest_messages_for_modal,
+    get_supabase_client,
     remove_from_library,
     send_message,
     update_currentbook,
@@ -187,5 +188,42 @@ def get_messages_route():
         return jsonify({"error": "No token provided"}), 401
 
     # 2. Pass the token and user to your database function
-    messages = get_latest_messages_for_modal()
-    return jsonify(messages)
+    supabase = get_supabase_client()
+    supabase.auth.set_session(token, "")
+
+    try:
+        # 1. Get all Thread IDs where the user is a participant
+        participant_resp = (
+            supabase.table("thread_participants")
+            .select("thread_id")
+            .eq("user_id", user)
+            .execute()
+        )
+
+        # Create a simple list of UUIDs: ['uuid-1', 'uuid-2']
+        thread_ids = [item["thread_id"] for item in participant_resp.data]
+
+        if not thread_ids:
+            return []
+
+        # 2. Get the latest messages from those specific threads
+        # We use .in_() to filter by multiple thread IDs at once
+        messages_resp = (
+            supabase.table("messages")
+            .select("""
+                *,
+                threads(display_name),
+                profiles!sender_id(display_name)
+            """)
+            .in_("thread_id", thread_ids)
+            .neq("sender_id", user)
+            .order("created_at", desc=True)  # Get newest first for the modal
+            .limit(5)
+            .execute()
+        )
+
+        return messages_resp.data
+
+    except Exception as e:
+        print(f"Error fetching aggregate messages: {e}")
+        return []
