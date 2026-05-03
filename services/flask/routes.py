@@ -473,7 +473,8 @@ def send_message_supabase():
     content = request.json.get("message")
 
     if "Dart" in request.headers.get("User-Agent", ""):
-        token = request.json.get("token")
+        auth_header = request.headers.get("Authorization")
+        token = auth_header.split(" ")[1] if auth_header else None
         sender_id = request.json.get("sender_id")
     else:
         token = session.get("access_token")
