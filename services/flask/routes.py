@@ -478,11 +478,12 @@ def send_message_supabase():
         auth_header = request.headers.get("Authorization")
         token = auth_header.split(" ")[1] if auth_header else None
         sender_id = request.json.get("sender_id")
+        shared_data = request.json.get("data")
     else:
         token = session.get("access_token")
         sender_id = session.get("user_id")
 
-    send_message(thread_id, sender_id, content, token)
+    send_message(thread_id, sender_id, content, token, shared_data)
 
     return {"data": "Message sent successfully!"}
 

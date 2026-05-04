@@ -522,7 +522,7 @@ def get_my_inbox():
         return f"Could not load inbox. Error: {e}", 500
 
 
-def send_message(thread_id, sender_id, content, token):
+def send_message(thread_id, sender_id, content, token, shared_data):
 
     supabase = get_supabase_client()
     supabase.auth.set_session(token, "")
@@ -534,6 +534,7 @@ def send_message(thread_id, sender_id, content, token):
             "thread_id": thread_id,
             "sender_id": sender_id,
             "content": content,
+            "shared_data": shared_data,  # Store the shared data as JSON
         }
         supabase.table("messages").insert(message_data).execute()
         update_time = datetime.now().isoformat()
