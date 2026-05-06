@@ -20,4 +20,4 @@ def gr_import_parser(file_content):
         json.dump(data, jsonf, indent=4)
 
     # Return the data so your route can use it
-    return data
+    return json.dumps(data, indent=4)
