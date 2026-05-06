@@ -1,4 +1,5 @@
 from flask import Blueprint, render_template, request, Response, session, jsonify
+from application.gr_importer import gr_import_parser
 from application.logic import (
     fetch_data_from_api,
     process_data,
@@ -165,7 +166,46 @@ def sendmsg():
     return Response(status=204, headers={"HX-Refresh": "true"})
 
 
-from flask import request, session, jsonify
+@api_bp.route("/goodreadsimport", methods=["POST"])
+def goodreads_import():
+    # 1. Identify the user
+    # If it's coming from Flutter, you likely aren't using browser sessions.
+    # You should grab the user ID from the form fields sent by Flutter.
+    if "Dart" in request.headers.get("User-Agent", ""):
+        user = request.form.get("user")
+        goodreads_id = request.form.get("bookid")  # Matches your Flutter 'bookid' field
+    else:
+        user = session.get("display_name")
+        goodreads_id = request.form.get("goodreads_id")
+
+    # 2. Access the file
+    if "file" not in request.files:
+        return {"error": "No file part"}, 400
+
+    uploaded_file = request.files["file"]
+
+    if uploaded_file.filename == "":
+        return {"error": "No selected file"}, 400
+
+    if uploaded_file:
+        # Option A: Save the file to a directory
+        # uploaded_file.save(f"./uploads/{uploaded_file.filename}")
+
+        # Option B: Read the content directly (e.g., if it's a CSV)
+        file_content = uploaded_file.read().decode("utf-8")
+        gr_import_parser(file_content)  # Pass the file content to your parser function
+        print(f"Importing for user {user}: Received {len(file_content)} bytes")
+
+        # Perform your import logic here...
+
+    # Return 204 as requested.
+    # Note: HX-Refresh only affects HTMX (web browsers), not Flutter.
+    return Response(
+        status=204,
+        headers={"HX-Refresh": "true"},
+        data=json.dumps("data.json"),
+        mimetype="application/json",
+    )
 
 
 @api_bp.route("/getmessages", methods=["GET"])
