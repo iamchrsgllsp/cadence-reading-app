@@ -173,6 +173,10 @@ def goodreads_import():
     # You should grab the user ID from the form fields sent by Flutter.
     if "Dart" in request.headers.get("User-Agent", ""):
         user = request.form.get("user")
+        auth_header = request.headers.get("Authorization")
+        token = auth_header.split(" ")[1] if auth_header else None
+        print(token)
+        print(f"Flutter import: User {user} is uploading a file.")
         goodreads_id = request.form.get("bookid")  # Matches your Flutter 'bookid' field
     else:
         user = session.get("display_name")
@@ -193,17 +197,19 @@ def goodreads_import():
 
         # Option B: Read the content directly (e.g., if it's a CSV)
         file_content = uploaded_file.read().decode("utf-8")
-        gr_import_parser(file_content)  # Pass the file content to your parser function
+        data = gr_import_parser(
+            file_content, user, token
+        )  # Pass the file content to your parser function
         print(f"Importing for user {user}: Received {len(file_content)} bytes")
 
         # Perform your import logic here...
-
+    print(data)
     # Return 204 as requested.
     # Note: HX-Refresh only affects HTMX (web browsers), not Flutter.
     return Response(
-        status=204,
+        status=200,
         headers={"HX-Refresh": "true"},
-        data=json.dumps("data.json"),
+        response=json.dumps(data),
         mimetype="application/json",
     )
 
