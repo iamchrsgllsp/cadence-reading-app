@@ -132,7 +132,9 @@ def add_book_to_library(
         # if response_check.data: print("Book already exists!")
 
         data_to_insert = {
-            "username": user,
+            "user_id": session.get(
+                "user_id"
+            ),  # Use user_id from session for consistency
             "title": title,
             "author": author,
             "isbn": isbn,
