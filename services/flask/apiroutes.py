@@ -66,10 +66,10 @@ def add_to_library():
         # 4. Determine the user
         # We prioritize the 'user' passed in the form, fall back to session
         if "Dart" in request.headers.get("User-Agent", ""):
-            user = request.form.get("user")
+            user = request.form.get("user_id")
 
         else:
-            user = session.get("display_name")
+            user = session.get("user_id")
 
         add_book_to_library(user, title, author, isbn, cover_url, pages, description)
         return Response(status=204, headers={"HX-Refresh": "true"})

@@ -132,9 +132,7 @@ def add_book_to_library(
         # if response_check.data: print("Book already exists!")
 
         data_to_insert = {
-            "user_id": session.get(
-                "user_id"
-            ),  # Use user_id from session for consistency
+            "user_id": user,  # Use user_id from session for consistency
             "title": title,
             "author": author,
             "isbn": isbn,
@@ -183,7 +181,7 @@ def remove_from_library(user: str, book_id: int):
         response = (
             supabase.table("library")
             .delete()
-            .eq("username", user)
+            .eq("user_id", user)
             .eq("id", book_id)
             .execute()
         )
@@ -210,7 +208,7 @@ def update_book_progress(user: str, book_id: int, pages_read: int):
                     "last_updated": last_updated_iso,  # Store as ISO string for consistency
                 }
             )
-            .eq("username", user)
+            .eq("user_id", user)
             .eq("id", book_id)
             .execute()
         )
@@ -227,7 +225,7 @@ def update_book_status(user: str, book_id: int, status: str):
         response = (
             supabase.table("library")
             .update({"status": status})
-            .eq("username", user)
+            .eq("user_id", user)
             .eq("id", book_id)
             .execute()
         )
