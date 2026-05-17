@@ -83,7 +83,7 @@ def add_to_library():
 def remove_from_shelf():
     print(request.form)
     bookid = request.form["bookid"]
-    user = session.get("display_name")
+    user = session.get("user_id")
     remove_from_library(user, bookid)
     # Here you would add logic to remove the book from the user's shelf in the database
     # For example: remove_book_from_shelf(user, bookid)
@@ -104,7 +104,7 @@ def dnf():
             }
         )
     else:
-        user = session.get("display_name")
+        user = session.get("user_id")
         dnfbook(user, bookid)
         return Response(status=204, headers={"HX-Refresh": "true"})
 
@@ -126,7 +126,7 @@ def update_current_book():
             }
         )
     else:
-        user = session.get("display_name")
+        user = session.get("user_id")
         update_currentbook(user, bookid)
         return Response(status=204, headers={"HX-Refresh": "true"})
 
