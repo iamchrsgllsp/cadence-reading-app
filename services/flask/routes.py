@@ -234,7 +234,7 @@ def profile():
         user_avatar = "https://www.creativefabrica.com/wp-content/uploads/2020/03/08/open-book-in-circle-icon-Graphics-3393563-1.jpg"
 
     # 2. Fetch and organize library
-    library_data = get_library(session.get("display_name"))  # Pass the user_id
+    library_data = get_library(session.get("user_id"))  # Pass the user_id
     sorted_books = organize_library(library_data)
     role = session.get("role")
     if role == "founder":

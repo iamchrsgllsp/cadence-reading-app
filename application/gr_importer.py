@@ -3,10 +3,12 @@ from datetime import datetime
 import json
 import io
 import uuid
-
 from flask import jsonify
+import requests
 from configfile import supabase_url, supabase_service
 from supabase import create_client, Client
+
+from configfile import google_books_key as bookkey
 
 SUPABASE_URL = supabase_url
 SUPABASE_KEY = supabase_service
@@ -49,6 +51,7 @@ def gr_import_parser(file_content, user=None, token=None):
 
     books = []
     not_found_count = []
+
     for entry in data:
         isbn13 = clean_isbn(entry.get("ISBN13", ""))
         isbn = clean_isbn(entry.get("ISBN", ""))
@@ -61,7 +64,8 @@ def gr_import_parser(file_content, user=None, token=None):
         else:
             not_found_count.append(entry)
 
-    process_imported_data(books, user, token)  # Process the valid entries as needed
+    process_imported_data(books, user, token)
+    # upload_imported_data(books, user)  # Process the valid entries as needed
     notify_user(user, not_found_count)  # Notify the user about entries without ISBNs
     print(
         f"User {user} has {len(books)} valid entries and {len(not_found_count)} entries without ISBNs."
@@ -71,7 +75,7 @@ def gr_import_parser(file_content, user=None, token=None):
     for idx, entry in enumerate(not_found_count):
         not_found_json[str(idx)] = entry
     # Return the data so your route can use it
-    return not_found_json
+    return not_found_json, books
 
 
 def process_imported_data(data, user, token):
@@ -110,3 +114,72 @@ def notify_user(user, data):
     # For example, you could send an email, an in-app notification, etc.
     # For now, it just prints a message to the console.
     print(f"User {user} has imported {len(data)} records.")
+
+
+def upload_imported_data(data, user):
+    failed_uploads = []
+    successful_uploads = []
+    for book in data:
+        title_query = book.get("Title", "")
+        author_query = book.get("Author", "")
+
+        # 1. URL encode the queries to handle spaces and special characters safely
+
+        url = f"https://www.googleapis.com/books/v1/volumes?q=intitle:{title_query}+inauthor:{author_query}&key={bookkey}"
+
+        try:
+            response = requests.get(url)
+            response.raise_for_status()  # Check for HTTP errors
+
+            # 2. Changed variable name to api_response to avoid overwriting 'data'
+            api_response = response.json()
+        except requests.RequestException as e:
+            print(f"API request failed for {title_query}: {e}")
+            failed_uploads.append(book)
+            continue
+
+        items = api_response.get("items", [])
+
+        # 3. Check if any books were actually found
+        if not items:
+            print(f"No results found for: {title_query} by {author_query}")
+            failed_uploads.append(book)
+            continue
+
+        # Get the first match
+        first_match = items[0]
+
+        # 4. Extract data from the nested 'volumeInfo' object
+        volume_info = first_match.get("volumeInfo", {})
+
+        title = volume_info.get("title", "Unknown Title")
+
+        # 5. Handle authors list safely
+        authors_list = volume_info.get("authors", [])
+        author = ", ".join(authors_list) if authors_list else "Unknown Author"
+
+        # 6. Safely grab thumbnail, isbn, pages, and description
+        cover_url = volume_info.get("imageLinks", {}).get("thumbnail", "")
+
+        # Look for ISBN_13 if available, otherwise fallback to any identifier
+        identifiers = volume_info.get("industryIdentifiers", [])
+        isbn = "No ISBN"
+        for identifier in identifiers:
+            if identifier.get("type") in ["ISBN_13", "ISBN_10"]:
+                isbn = identifier.get("identifier")
+                break
+
+        pages = str(volume_info.get("pageCount", 0))
+        description = volume_info.get("description", "No description available.")
+        successful_uploads.append(
+            {
+                "title": title,
+                "author": author,
+                "isbn": isbn,
+                "cover_url": cover_url,
+                "pages": pages,
+                "description": description,
+            }
+        )
+    print(f"Successfully uploaded {len(successful_uploads)} books for user {user}.")
+    print(f"Failed to upload {len(failed_uploads)} books for user {user}.")
