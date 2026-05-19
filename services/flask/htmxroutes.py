@@ -72,10 +72,10 @@ def update_page():
     print(f"DEBUG: Form Data: {request.form}")
     print(f"DEBUG: JSON Data: {request.get_json(silent=True)}")
     print("Received form data:", request.form)  # Debugging line
-    user_id = request.form.get("user")
-    book_id_str = request.form.get("book_id")
-    current_page_str = request.form.get("current_page")
-    total_pages_str = request.form.get("total_pages")
+    user_id = request.get_json(silent=True).get("user_id")
+    book_id_str = request.get_json(silent=True).get("book_id")
+    current_page_str = request.get_json(silent=True).get("current_page")
+    total_pages_str = request.get_json(silent=True).get("total_pages")
 
     # 2. Validation Logic
     if not all([user_id, book_id_str, current_page_str]):
