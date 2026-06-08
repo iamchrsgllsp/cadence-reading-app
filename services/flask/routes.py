@@ -86,11 +86,17 @@ def organize_library(raw_data):
     return categories
 
 
-@app.route("/")
+@app.route("/beta")
 def index():
 
     return render_template(
         "index.html", supabase_url=supabase_url, supabase_key=supabase_key
+    )
+
+@app.route("/")
+def beta():
+    return render_template(
+        "beta.html"
     )
 
 

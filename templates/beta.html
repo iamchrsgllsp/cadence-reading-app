@@ -1,0 +1,251 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Cadence - Beta Testing</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,600;1,400&family=DM+Sans:wght@300;400;500;600&display=swap"
+      rel="stylesheet"
+    />
+
+    <style>
+      :root {
+        --primary: #7c6af7;
+        --primary-dark: #5b4fcf;
+        --primary-light: #a99df9;
+        --secondary: #9f6ef5;
+        --accent: #f472b6;
+        --bg-main: #0d1117;
+        --bg-card: #161b24;
+        --text-primary: #e8edf5;
+        --text-secondary: #8a97b0;
+        --text-muted: #536075;
+        --border: #242e3f;
+        --border-subtle: #1c2535;
+        --success: #34d399;
+      }
+
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      body {
+        font-family: "DM Sans", sans-serif;
+        background: var(--bg-main);
+        color: var(--text-primary);
+        line-height: 1.6;
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+      }
+
+      /* Header */
+      .roadmap-header {
+        position: relative;
+        padding: 5rem 2rem;
+        text-align: center;
+        background: linear-gradient(
+          130deg,
+          #1b1545 0%,
+          #1a1030 50%,
+          #120e2a 100%
+        );
+        border-bottom: 1px solid rgba(124, 106, 247, 0.2);
+      }
+      .roadmap-header h1 {
+        font-family: "Lora", serif;
+        font-size: 3rem;
+        margin-bottom: 1rem;
+      }
+      .roadmap-header .disclaimer {
+        max-width: 800px;
+        margin: 2rem auto 0;
+        color: var(--text-secondary);
+        font-size: 0.9rem;
+        font-style: italic;
+      }
+
+      /* Actions */
+      .cta-container {
+        text-align: center;
+        padding: 3rem 1rem;
+        display: flex;
+        flex-direction: column;
+        gap: 1.5rem;
+        align-items: center;
+      }
+      .btn-beta {
+        display: inline-block;
+        padding: 0.8rem 2rem;
+        border-radius: 50px;
+        font-weight: 600;
+        text-decoration: none;
+        transition: background 0.3s;
+        border: 1px solid var(--primary);
+        color: var(--text-primary);
+      }
+      .btn-beta:hover {
+        background: var(--primary);
+      }
+
+      /* Content */
+      .container {
+        max-width: 1100px;
+        margin: 0 auto;
+        padding: 2rem;
+        flex: 1;
+      }
+      .roadmap-card {
+        background: var(--bg-card);
+        border-radius: 20px;
+        padding: 2.5rem;
+        border: 1px solid var(--border);
+      }
+      .roadmap-card h2 {
+        font-family: "Lora", serif;
+        color: var(--primary-light);
+        margin-bottom: 1.5rem;
+        border-bottom: 1px solid var(--border-subtle);
+        padding-bottom: 1rem;
+      }
+      .roadmap-card h3 {
+        color: var(--accent);
+        font-size: 0.85rem;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        margin: 2rem 0 1rem;
+      }
+      .roadmap-card ul {
+        list-style: none;
+      }
+      .roadmap-card li {
+        margin-bottom: 1.5rem;
+      }
+      .roadmap-card li h4 {
+        color: var(--text-primary);
+        margin-bottom: 0.2rem;
+      }
+
+      /* Footer */
+      .site-footer {
+        background: #090c10;
+        padding: 4rem 2rem;
+        border-top: 1px solid var(--border);
+        margin-top: auto;
+        color: var(--text-muted);
+      }
+      .footer-container {
+        max-width: 1100px;
+        margin: 0 auto;
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 3rem;
+      }
+      .footer-bottom {
+        max-width: 1100px;
+        margin: 3rem auto 0;
+        padding-top: 2rem;
+        border-top: 1px solid var(--border-subtle);
+        display: flex;
+        justify-content: space-between;
+      }
+    </style>
+  </head>
+  <body>
+    <header class="roadmap-header">
+      <h1>Cadence Beta Program 📚</h1>
+      <h2>Experience the future of Cadence before everyone else.</h2>
+      <p>
+        Join our beta community to get early access to new features and help
+        shape the final product.
+      </p>
+      <p class="disclaimer">
+        Note: The beta is currently Android-exclusive. This is pre-release
+        software; please report any bugs to help us prepare for our Summer 2026
+        launch.
+      </p>
+    </header>
+
+    <main class="container">
+      <div class="cta-container">
+        <a
+          href="https://mpmblozcvymuwujwvefy.supabase.co/storage/v1/object/public/cadence_storage/cadence.apk"
+          class="btn-beta"
+          >Download Android Beta</a
+        >
+        <p>
+          Questions or feedback?
+          <a
+            href="https://docs.google.com/forms/d/e/1FAIpQLSdd2QE-723gJY19NH_8u0Z3FYFl4VUM1Q6J8Ngy25EYWwI6vw/viewform"
+            style="color: var(--primary)"
+            >Fill out our contact form</a
+          >
+        </p>
+      </div>
+
+      <section class="roadmap-card">
+        <h2>Current Beta Features</h2>
+        <h3>Track your reading</h3>
+        <ul>
+          <li>
+            <h4>Search, add and share books</h4>
+            <p>
+              Search for books, add them to your library, and share
+              recommendations with friends.
+            </p>
+          </li>
+          <li>
+            <h4>Friendships</h4>
+            <p>
+              View profiles, track reading activity, and connect with fellow
+              readers.
+            </p>
+          </li>
+        </ul>
+        <h3>Organise your library</h3>
+        <ul>
+          <li>
+            <h4>Custom Shelves</h4>
+            <p>
+              Easily manage your Currently Reading, TBR, Completed, and DNF
+              lists.
+            </p>
+          </li>
+          <li>
+            <h4>Import & Export</h4>
+            <p>
+              Seamlessly transfer data; Goodreads import is currently supported.
+            </p>
+          </li>
+        </ul>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <div class="footer-container">
+        <div>
+          <h2>Cadence</h2>
+          <p>Built for bookworms.</p>
+        </div>
+        <div class="footer-links">
+          <h4>Platform</h4>
+          <ul>
+            <li><a href="/">Home</a></li>
+            <li><a href="/explore">Explore</a></li>
+          </ul>
+        </div>
+        <div class="footer-links">
+          <h4>Support</h4>
+          <ul>
+            <li><a href="#">Report Issue</a></li>
+            <li><a href="#">Feedback</a></li>
+          </ul>
+        </div>
+      </div>
+    </footer>
+  </body>
+</html>
