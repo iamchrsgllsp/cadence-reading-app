@@ -122,6 +122,7 @@ def add_book_to_library(
     cover_url: str,
     pages: int,
     description: str,
+    version: str
 ):
     """Adds a new book entry to the library."""
     supabase = get_supabase_client()
@@ -140,7 +141,8 @@ def add_book_to_library(
             "total_pages": pages,
             "status": "",  # Assuming initial status is 'To Be Read'
             "date_added": datetime.utcnow().isoformat(),
-            "description": description,  # Optional: track when added
+            "description": description,
+            "version": version,  # Optional: track version
         }
 
         response = supabase.table("library").insert(data_to_insert).execute()

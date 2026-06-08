@@ -62,6 +62,7 @@ def add_to_library():
         isbn = request.form.get("isbn", "")
         pages = request.form.get("pages", "0")
         description = request.form.get("description", "No description available.")
+        version = request.form.get("version", "unknown")
 
         # 4. Determine the user
         # We prioritize the 'user' passed in the form, fall back to session
@@ -71,7 +72,7 @@ def add_to_library():
         else:
             user = session.get("user_id")
 
-        add_book_to_library(user, title, author, isbn, cover_url, pages, description)
+        add_book_to_library(user, title, author, isbn, cover_url, pages, description,version)
         return Response(status=204, headers={"HX-Refresh": "true"})
     except Exception as e:
         # Log the actual error to your console for debugging
