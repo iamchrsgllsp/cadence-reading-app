@@ -15,12 +15,7 @@ from supabase import create_client, Client
 
 # --- Supabase Configuration (Replace with your actual details) ---
 SUPABASE_URL = supabase_url
-SUPABASE_KEY = supabase_key  # Use your public anon key for read operations
-# For write/update operations, consider using a Service Role key securely
-# in a production environment, or handle authentication/Row Level Security (RLS)
-# for user-facing applications.
-# -----------------------------------------------------------------
-
+SUPABASE_KEY = supabase_key  
 
 def get_supabase_client() -> Client:
     """Initializes and returns the Supabase client."""
@@ -113,6 +108,41 @@ def get_library(user: str) -> List[Dict[str, Any]]:
         print(f"Error fetching library: {e}")
         return []
 
+def check_book_db(search_term):
+    supabase = get_supabase_client()
+    try:
+        # We use ilike for text fields, and eq for ISBN if it's an exact match.
+        # We wrap them in or_() to widen the search.
+        response = supabase.table("cached_library") \
+            .select("*") \
+            .or_(f"title.ilike.%{search_term}%,authors.ilike.%{search_term}%,isbn.eq.{search_term}") \
+            .execute()
+        return response.data
+    except Exception as e:
+        print(f"Error checking database: {e}")
+        return []
+    
+def save_book_to_cache(item):
+    volume_info = item.get("volumeInfo", {})
+    identifiers = volume_info.get("industryIdentifiers", [])
+    
+    # Extract ISBN_13, or fallback to first available identifier
+    isbn_13 = next((id['identifier'] for id in identifiers if id['type'] == 'ISBN_13'), None)
+    fallback_isbn = identifiers[0]['identifier'] if identifiers else None
+    isbn = isbn_13 or fallback_isbn
+
+    data = {
+        "title": volume_info.get("title", "Unknown Title"),
+        "authors": ", ".join(volume_info.get("authors", [])) if volume_info.get("authors") else "Unknown Author",
+        "cover_url": volume_info.get("imageLinks", {}).get("thumbnail", ""),
+        "isbn": isbn,
+        "pages": volume_info.get("pageCount"),
+        "description": volume_info.get("description", "No description available.")
+    }
+
+    supabase = get_supabase_client()
+    # Upsert based on the unique ISBN constraint
+    return supabase.table("cached_library").upsert(data, on_conflict="isbn").execute()
 
 def add_book_to_library(
     user: str,

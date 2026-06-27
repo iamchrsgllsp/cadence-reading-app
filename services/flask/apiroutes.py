@@ -26,6 +26,7 @@ from application.database import (
     send_message,
     update_currentbook,
     dnfbook,
+    
 )
 import json
 import ast
@@ -71,7 +72,7 @@ def add_to_library():
 
         else:
             user = session.get("user_id")
-
+        
         add_book_to_library(user, title, author, isbn, cover_url, pages, description,version)
         return Response(status=204, headers={"HX-Refresh": "true"})
     except Exception as e:

@@ -4,6 +4,8 @@ from application.database import (
     amend_top_five,
     update_book_progress,
     complete_currentbook,
+    check_book_db,
+    save_book_to_cache
 )
 from configfile import google_books_key as bookkey
 
@@ -44,16 +46,41 @@ def htmxposting():
 @htmx_bp.route("/search", methods=["GET"])
 def htmx_search():
     query = request.args.get("search")
-    print(f"Search query: {query}")
-    if query:
-        url = f"https://www.googleapis.com/books/v1/volumes?q=intitle:{query}&key={bookkey}"
-        response = requests.get(url)
-        data = response.json()
-        books = data.get("items", [])[:10]  # Get first 10 results
-        print(books)
-    else:
+    
+    # 1. Check DB first
+    cached_books = check_book_db(query)
+    
+    if cached_books:
+        # Re-package Supabase rows into Google Books format
         books = []
+        for row in cached_books:
+            books.append({
+                "kind": "books#volume",
+                "id": str(row.get("id")),
+                "volumeInfo": {
+                    "title": row.get("title"),
+                    "authors": row.get("authors", "").split(", ") if row.get("authors") else [],
+                    "imageLinks": {"thumbnail": row.get("cover_url")},
+                    "pageCount": row.get("pages"),
+                    "description": row.get("description"),
+                    "industryIdentifiers": [{"type": "ISBN_13", "identifier": row.get("isbn")}]
+                }
+            })
+    else:
+        # 2. Fetch from Google Books if not in cache
+        if query:
+            url = f"https://www.googleapis.com/books/v1/volumes?q=intitle:{query}&key={bookkey}"
+            response = requests.get(url)
+            data = response.json()
+            books = data.get("items", [])[:10]
+            for book in books:
+                save_book_to_cache(book)
+            # Optional: You could trigger an async background task here to cache 
+            # these results into Supabase for next time.
+        else:
+            books = []
     if "Dart" in request.headers.get("User-Agent", ""):
+        print(books)
         return {"books": books}
     else:
         return render_template("htmx_search.html", books=books)
