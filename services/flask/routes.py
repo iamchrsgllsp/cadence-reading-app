@@ -671,7 +671,7 @@ def app_version():
     data = {
         "version_code": 10,
         "download_url": "https://mpmblozcvymuwujwvefy.supabase.co/storage/v1/object/public/cadence_storage/cadence.apk",
-        "description": '✨ New Features are Live on Cadence! ✨\nNew widget: Have your completed bookshelf on your homescreen\nBackend changes to improve experience\nNew icon: Cat icon created by Freepik - Flaticon\nChoose version when adding to library\nANDROID WIDGETS:SEE CURRENTLY READING STATS\n✅Social Interaction - Share books with your friends, chat and start group discussions (book clubs coming soon)\n✅ Total Library Overhaul – Your books have never looked better.\n✅ Role Badges – Earn your stripes.\n✅ Seamless Sign-In – Jump straight back into the action.\n✅ App Integration – Save titles on the go with "Add to Library."\n✅ The Full Shelf – A beautiful new way to browse.\n🏗️ Sneak Peek: The Medals system is currently in development!\nKeep your eyes peeled for more updates! 🚀',
+        "description": """## What’s New on Cadence! 🚀\n\n* **Connect & Share:** Message friends, share books, and start group discussions.\n* **Library Overhaul:** A complete UI redesign with version selection and improved browsing.\n* **Track Progress:** Add personal notes to any book.\n* **New Widgets:** View "Currently Reading" stats and your completed bookshelf on your home screen.\n* **Badges:** Earn new Role Badges (with a Medals system coming soon!).\n* **Optimizations:** Faster sign-in, smoother performance, and a fresh new app icon.\n\n---\nCheck @Cadence_Reading on Threads for more details!""",
     }
 
     return Response(
