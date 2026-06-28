@@ -666,12 +666,10 @@ def favicon():
 @app.route("/app_version")
 def app_version():
     print("Version check endpoint hit")
-    # 1. FIXED: Corrected 'reponse' to 'response'
-    # 2. FIXED: version_code is now an integer to match your Flutter int.parse()
     data = {
         "version_code": 10,
         "download_url": "https://mpmblozcvymuwujwvefy.supabase.co/storage/v1/object/public/cadence_storage/cadence.apk",
-        "description": """## What’s New on Cadence! 🚀\n\n* **Connect & Share:** Message friends, share books, and start group discussions.\n* **Library Overhaul:** A complete UI redesign with version selection and improved browsing.\n* **Track Progress:** Add personal notes to any book.\n* **New Widgets:** View "Currently Reading" stats and your completed bookshelf on your home screen.\n* **Badges:** Earn new Role Badges (with a Medals system coming soon!).\n* **Optimizations:** Faster sign-in, smoother performance, and a fresh new app icon.\n\n---\nCheck @Cadence_Reading on Threads for more details!""",
+        "description": "## What's New in Cadence 🎉\n\n**Themes**\nStarted working on Cadence Free Themes - change in your Profile settings\n**Social Reading**\nMessage friends, share books, and kick off group discussions — reading is better together.\n\n**Redesigned Library**\nA fresh UI with edition selection, smoother browsing, and a cleaner layout throughout.\n\n**Book Notes**\nCapture your thoughts as you read — add personal notes to any book in your library.\n\n**Home Screen Widgets**\nKeep your reading life on your home screen: current progress and your completed shelf, at a glance.\n\n**Role Badges**\nEarn badges as you read, with a full Medals system on the way.\n\n**Under the Hood**\nFaster sign-in, smoother performance, and a brand new app icon.\n\n---\nFollow @Cadence_Reading on Threads for updates and early previews.",
     }
 
     return Response(
