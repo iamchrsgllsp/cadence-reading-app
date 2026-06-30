@@ -17,20 +17,74 @@ def clean_query(text):
 
 
 def background_upload_task(app_to_context, data, user, bookkey):
-    """
-    Runs completely separate from the HTTP request cycle.
-    Allows Flask to respond to the user while this processes Google Books queries.
-    """
-    # CRITICAL: Re-create the Flask app context so DB queries work inside the thread
-    print(data)
     with app_to_context.app_context():
-        print(f"--- Starting background process for {len(data)} books ---")
-        print(f"User: {user}")
-        failed_uploads = []
+        supabase = get_supabase_admin_client()
+        def sanitize(text):
+            if not text: return ""
+            # Remove characters that break PostgREST logic
+            return re.sub(r"[(),']", "", str(text))
+        title_map = {sanitize(b.get("Title")): b.get("Title") for b in data if b.get("Title")}
+        target_titles = list(title_map.keys())
+              
+        
+        # 1. Define the columns you want (everything except id and created_at)
+        # Replace these with the actual column names in your 'cache_library' table
+        columns = "title, authors, isbn, cover_url, pages, description"
+        
+        # 2. Select only the desired columns
+        response = supabase.table("cached_library") \
+            .select(columns) \
+            .or_(f"title.in.({','.join(target_titles)})") \
+            .execute()
+        
+        # 3. Build the map using the filtered data
+        cache_map = {}
+        for item in response.data:
+            if item.get('title'): cache_map[item['title']] = item
+            
         successful_uploads = []
+        failed_uploads = []    
+        successful_cache = []
+        failed_cache = []
+        
         for book in data:
-            clean_title = clean_query(book.get("Title", ""))
-            clean_author = clean_query(book.get("Author", ""))
+            title = book.get("Title")     
+            cached_data = cache_map.get(title)
+            
+            if cached_data:
+                print(cached_data)
+                successful_cache.append(cached_data)
+            else:
+                failed_cache.append(book)
+
+        if successful_cache:
+            # 1. Prepare the data for the new table
+            # We add 'user_id' to each dict and rename/filter keys if necessary
+            library_entries = []
+            
+            for item in successful_cache:
+                # Create a new dictionary to match your 'library' table schema
+                entry = {
+                    "user_id": user,              # Inject the current user
+                    "title": item.get("title"),
+                    "author": item.get("authors"),
+                    "isbn": item.get("isbn"),
+                    "cover_url": item.get("cover_url"),
+                    "total_pages": item.get("pages"),
+                    "description": item.get("description")
+                }
+                library_entries.append(entry)
+
+            # 2. Bulk insert into the library table
+            try:
+                supabase.table("library").upsert(library_entries).execute()
+                print(f"Successfully moved {len(library_entries)} items from cache to library.")
+            except Exception as e:
+                print(f"Error inserting into library: {e}")
+
+        for book in failed_cache:
+            clean_title = clean_query(book.get("title", ""))
+            clean_author = clean_query(book.get("authors", ""))
 
             safe_title = urllib.parse.quote(clean_title)
             safe_author = urllib.parse.quote(clean_author)
@@ -81,7 +135,7 @@ def background_upload_task(app_to_context, data, user, bookkey):
                     isbn = identifier.get("identifier")
                     break
 
-            pages = str(volume_info.get("pageCount", 0))
+            pages = str(volume_info.get("pageCount"))
             description = volume_info.get("description", "No description available.")
             successful_uploads.append(
                 {
@@ -97,6 +151,28 @@ def background_upload_task(app_to_context, data, user, bookkey):
         print(f"Successfully uploaded {len(successful_uploads)} books for user {user}.")
         print(f"Failed to upload {len(failed_uploads)} books for user {user}.")
         supabase = get_supabase_admin_client()
-
+        
         response = supabase.table("library").upsert(successful_uploads).execute()
+        # 1. After successful API uploads, upsert into 'cache_library'
+        if successful_uploads:
+            # We want to store the same clean structure in cache_library
+            # Ensure the structure matches your 'cache_library' schema
+            cache_entries = [
+                {
+                    "title": item.get("title"),
+                    "authors": item.get("author"),
+                    "isbn": item.get("isbn"),
+                    "cover_url": item.get("cover_url"),
+                    "total_pages": item.get("total_pages"),
+                    "description": item.get("description")
+                }
+                for item in successful_uploads
+            ]
+            
+            try:
+                # Upsert to cache_library to ensure these are available for future users
+                supabase.table("cached_library").upsert(cache_entries).execute()
+                print(f"Successfully cached {len(cache_entries)} new books.")
+            except Exception as e:
+                print(f"Error updating cache_library: {e}")
         print(f"Supabase insert response: {response}")
