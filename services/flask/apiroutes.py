@@ -96,9 +96,10 @@ def remove_from_shelf():
 def dnf():
     print(request.form)
     bookid = request.form["bookid"]
+    dnfreason = request.form.get("dnfreason", "No reason provided")
     if "Dart" in request.headers.get("User-Agent", ""):
         user = request.form.get("user")
-        dnfbook(user, bookid)
+        dnfbook(user, bookid,dnfreason)
         return jsonify(
             {
                 "status": "success",
@@ -107,7 +108,7 @@ def dnf():
         )
     else:
         user = session.get("user_id")
-        dnfbook(user, bookid)
+        dnfbook(user, bookid, dnfreason)
         return Response(status=204, headers={"HX-Refresh": "true"})
 
 

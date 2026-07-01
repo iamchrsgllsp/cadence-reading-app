@@ -268,6 +268,24 @@ def update_book_status(user: str, book_id: int, status: str):
     except Exception as e:
         print(f"Error updating book status: {e}")
 
+def update_dnf_status(user: str, book_id: int, status: str, dnfreason: str = "No reason provided"):
+    """Generic function to update the status of a book."""
+    supabase = get_supabase_client()
+    try:
+        response = (
+            supabase.table("library")
+            .update({"status": status, "dnfreason": dnfreason})
+            .eq("user_id", user)
+            .eq("id", book_id)
+            .execute()
+        )
+
+        print(
+            f"Status updated to '{status}' for book ID {book_id}. Status: {response.status_code}"
+        )
+    except Exception as e:
+        print(f"Error updating book status: {e}")
+
 
 # Rewritten functions using the generic update_book_status
 def update_currentbook(user: str, book_id: int):
@@ -275,9 +293,9 @@ def update_currentbook(user: str, book_id: int):
     update_book_status(user, book_id, "reading")
 
 
-def dnfbook(user: str, book_id: int):
+def dnfbook(user: str, book_id: int, dnfreason: Optional[str] = "No reason provided"):
     """Sets a book's status to 'dnf' (Did Not Finish)."""
-    update_book_status(user, book_id, "dnf")
+    update_book_status(user, book_id, "dnf", dnfreason)
 
 
 def complete_currentbook(user: str, book_id: int):
