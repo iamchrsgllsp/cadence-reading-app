@@ -295,7 +295,7 @@ def update_currentbook(user: str, book_id: int):
 
 def dnfbook(user: str, book_id: int, dnfreason: Optional[str] = "No reason provided"):
     """Sets a book's status to 'dnf' (Did Not Finish)."""
-    update_book_status(user, book_id, "dnf", dnfreason)
+    update_dnf_status(user, book_id, "dnf", dnfreason)
 
 
 def complete_currentbook(user: str, book_id: int):
