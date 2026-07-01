@@ -274,7 +274,7 @@ def update_dnf_status(user: str, book_id: int, status: str, dnfreason: str = "No
     try:
         response = (
             supabase.table("library")
-            .update({"status": status, "dnfreason": dnfreason})
+            .update({"status": status, "dnf_reason": dnfreason})
             .eq("user_id", user)
             .eq("id", book_id)
             .execute()
