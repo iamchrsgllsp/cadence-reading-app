@@ -111,6 +111,7 @@ def update_page():
     try:
         book_id = int(book_id_str)
         current_page = int(current_page_str)
+        
 
         # Perform the actual update
         update_book_progress(user_id, book_id, current_page)

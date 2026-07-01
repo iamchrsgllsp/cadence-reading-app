@@ -96,7 +96,7 @@ def remove_from_shelf():
 def dnf():
     print(request.form)
     bookid = request.form["bookid"]
-    dnfreason = request.form.get("dnfreason", "No reason provided")
+    dnfreason = request.form.get("notes", "No reason provided")
     if "Dart" in request.headers.get("User-Agent", ""):
         user = request.form.get("user")
         dnfbook(user, bookid,dnfreason)
